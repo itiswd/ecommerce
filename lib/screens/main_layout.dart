@@ -2,6 +2,9 @@ import 'package:ecommerce_dashboard/screens/customers/customers_screen.dart';
 import 'package:ecommerce_dashboard/screens/dashboard_screen.dart';
 import 'package:ecommerce_dashboard/screens/orders/orders_list_screen.dart';
 import 'package:ecommerce_dashboard/screens/products/products_list_screen.dart';
+import 'package:ecommerce_dashboard/screens/reports/reports_screen.dart';
+import 'package:ecommerce_dashboard/screens/sellers/sellers_screen.dart';
+import 'package:ecommerce_dashboard/screens/settings/settings_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_admin_scaffold/admin_scaffold.dart';
 
@@ -20,7 +23,7 @@ class _MainLayoutState extends State<MainLayout> {
     '/products': ProductsListScreen(),
     '/orders': OrdersListScreen(),
     '/customers': CustomersScreen(),
-    '/sellers': SellersScreen(),
+    '/sellers': SellersScreen(), // ✅ تم إضافة صفحة البائعين
     '/reports': ReportsScreen(),
     '/settings': SettingsScreen(),
   };
@@ -47,10 +50,16 @@ class _MainLayoutState extends State<MainLayout> {
           ],
         ),
         actions: [
+          // Search Button
           IconButton(
             icon: Icon(Icons.search, color: Colors.grey[700]),
-            onPressed: () {},
+            onPressed: () {
+              _showSearchDialog(context);
+            },
+            tooltip: 'بحث',
           ),
+
+          // Notifications
           Stack(
             children: [
               IconButton(
@@ -58,7 +67,10 @@ class _MainLayoutState extends State<MainLayout> {
                   Icons.notifications_outlined,
                   color: Colors.grey[700],
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  _showNotifications(context);
+                },
+                tooltip: 'الإشعارات',
               ),
               Positioned(
                 right: 8,
@@ -69,6 +81,7 @@ class _MainLayoutState extends State<MainLayout> {
                     color: Colors.red,
                     shape: BoxShape.circle,
                   ),
+                  constraints: BoxConstraints(minWidth: 16, minHeight: 16),
                   child: Text(
                     '5',
                     style: TextStyle(
@@ -76,14 +89,18 @@ class _MainLayoutState extends State<MainLayout> {
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
                     ),
+                    textAlign: TextAlign.center,
                   ),
                 ),
               ),
             ],
           ),
+
+          // User Menu
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16),
-            child: PopupMenuButton<dynamic>(
+            child: PopupMenuButton<String>(
+              offset: Offset(0, 50),
               child: Row(
                 children: [
                   CircleAvatar(
@@ -113,24 +130,27 @@ class _MainLayoutState extends State<MainLayout> {
                 ],
               ),
               itemBuilder: (context) => [
-                PopupMenuItem<dynamic>(
+                PopupMenuItem<String>(
+                  value: 'profile',
                   child: ListTile(
                     leading: Icon(Icons.person),
                     title: Text('الملف الشخصي'),
                     dense: true,
+                    contentPadding: EdgeInsets.zero,
                   ),
-                  onTap: () {},
                 ),
-                PopupMenuItem<dynamic>(
+                PopupMenuItem<String>(
+                  value: 'settings',
                   child: ListTile(
                     leading: Icon(Icons.settings),
                     title: Text('الإعدادات'),
                     dense: true,
+                    contentPadding: EdgeInsets.zero,
                   ),
-                  onTap: () {},
                 ),
                 PopupMenuDivider(),
-                PopupMenuItem<dynamic>(
+                PopupMenuItem<String>(
+                  value: 'logout',
                   child: ListTile(
                     leading: Icon(Icons.logout, color: Colors.red),
                     title: Text(
@@ -138,10 +158,23 @@ class _MainLayoutState extends State<MainLayout> {
                       style: TextStyle(color: Colors.red),
                     ),
                     dense: true,
+                    contentPadding: EdgeInsets.zero,
                   ),
-                  onTap: () {},
                 ),
               ],
+              onSelected: (value) {
+                switch (value) {
+                  case 'profile':
+                    _showProfile(context);
+                    break;
+                  case 'settings':
+                    setState(() => _selectedRoute = '/settings');
+                    break;
+                  case 'logout':
+                    _confirmLogout(context);
+                    break;
+                }
+              },
             ),
           ),
         ],
@@ -239,88 +272,228 @@ class _MainLayoutState extends State<MainLayout> {
       ),
       body: AnimatedSwitcher(
         duration: Duration(milliseconds: 300),
-        child: _screens[_selectedRoute] ?? DashboardScreen(),
+        transitionBuilder: (Widget child, Animation<double> animation) {
+          return FadeTransition(
+            opacity: animation,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: Offset(0.02, 0),
+                end: Offset.zero,
+              ).animate(animation),
+              child: child,
+            ),
+          );
+        },
+        child: Container(
+          key: ValueKey<String>(_selectedRoute),
+          child: _screens[_selectedRoute] ?? DashboardScreen(),
+        ),
       ),
     );
   }
-}
 
-// Placeholder Screens
-class SellersScreen extends StatelessWidget {
-  const SellersScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.store, size: 80, color: Colors.grey[300]),
-          SizedBox(height: 16),
-          Text(
-            'صفحة البائعين',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey[600],
-            ),
+  void _showSearchDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('البحث'),
+        content: TextField(
+          decoration: InputDecoration(
+            hintText: 'ابحث عن منتج، طلب، أو عميل...',
+            prefixIcon: Icon(Icons.search),
           ),
-          SizedBox(height: 8),
-          Text('قيد التطوير', style: TextStyle(color: Colors.grey[500])),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('إلغاء'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text('جاري البحث...')));
+            },
+            child: Text('بحث'),
+          ),
         ],
       ),
     );
   }
-}
 
-class ReportsScreen extends StatelessWidget {
-  const ReportsScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.analytics, size: 80, color: Colors.grey[300]),
-          SizedBox(height: 16),
-          Text(
-            'صفحة التقارير',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey[600],
-            ),
+  void _showNotifications(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(Icons.notifications, color: Colors.blue),
+            SizedBox(width: 8),
+            Text('الإشعارات'),
+          ],
+        ),
+        content: SizedBox(
+          width: 400,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _notificationItem(
+                'طلب جديد',
+                'طلب رقم #123 تم استلامه',
+                Icons.shopping_cart,
+                Colors.green,
+              ),
+              _notificationItem(
+                'مخزون منخفض',
+                'المنتج "لابتوب Dell" أوشك على النفاذ',
+                Icons.warning,
+                Colors.orange,
+              ),
+              _notificationItem(
+                'عميل جديد',
+                'انضم أحمد محمد إلى المتجر',
+                Icons.person_add,
+                Colors.blue,
+              ),
+            ],
           ),
-          SizedBox(height: 8),
-          Text('قيد التطوير', style: TextStyle(color: Colors.grey[500])),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('إغلاق'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text('عرض الكل'),
+          ),
         ],
       ),
     );
   }
-}
 
-class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+  Widget _notificationItem(
+    String title,
+    String message,
+    IconData icon,
+    Color color,
+  ) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 12),
+      padding: EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withOpacity(0.2)),
+      ),
+      child: Row(
         children: [
-          Icon(Icons.settings, size: 80, color: Colors.grey[300]),
-          SizedBox(height: 16),
-          Text(
-            'صفحة الإعدادات',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey[600],
+          Container(
+            padding: EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: color, size: 20),
+          ),
+          SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
+                Text(
+                  message,
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                ),
+              ],
             ),
           ),
-          SizedBox(height: 8),
-          Text('قيد التطوير', style: TextStyle(color: Colors.grey[500])),
+        ],
+      ),
+    );
+  }
+
+  void _showProfile(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('الملف الشخصي'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircleAvatar(
+              radius: 40,
+              backgroundColor: Colors.blue,
+              child: Text(
+                'م',
+                style: TextStyle(color: Colors.white, fontSize: 32),
+              ),
+            ),
+            SizedBox(height: 16),
+            Text(
+              'محمد أحمد',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            Text(
+              'mohamed@admin.com',
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+            SizedBox(height: 8),
+            Chip(
+              label: Text('مدير'),
+              backgroundColor: Colors.blue.withOpacity(0.1),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('إغلاق'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text('قريباً...')));
+            },
+            child: Text('تعديل'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmLogout(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(Icons.logout, color: Colors.red),
+            SizedBox(width: 8),
+            Text('تسجيل الخروج'),
+          ],
+        ),
+        content: Text('هل أنت متأكد من تسجيل الخروج؟'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('إلغاء'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.of(context).pushReplacementNamed('/login');
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: Text('تسجيل الخروج'),
+          ),
         ],
       ),
     );
