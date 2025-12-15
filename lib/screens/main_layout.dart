@@ -1,4 +1,5 @@
 import 'package:ecommerce_dashboard/screens/dashboard_screen.dart';
+import 'package:ecommerce_dashboard/screens/orders/orders_list_screen.dart';
 import 'package:ecommerce_dashboard/screens/products/products_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_admin_scaffold/admin_scaffold.dart';
@@ -16,7 +17,7 @@ class _MainLayoutState extends State<MainLayout> {
   final Map<String, Widget> _screens = {
     '/': DashboardScreen(),
     '/products': ProductsListScreen(),
-    '/orders': OrdersScreen(),
+    '/orders': OrdersListScreen(),
     '/customers': CustomersScreen(),
     '/sellers': SellersScreen(),
     '/reports': ReportsScreen(),
@@ -45,15 +46,10 @@ class _MainLayoutState extends State<MainLayout> {
           ],
         ),
         actions: [
-          // البحث
           IconButton(
             icon: Icon(Icons.search, color: Colors.grey[700]),
-            onPressed: () {
-              // فتح صفحة البحث
-            },
+            onPressed: () {},
           ),
-
-          // الإشعارات
           Stack(
             children: [
               IconButton(
@@ -61,9 +57,7 @@ class _MainLayoutState extends State<MainLayout> {
                   Icons.notifications_outlined,
                   color: Colors.grey[700],
                 ),
-                onPressed: () {
-                  // فتح الإشعارات
-                },
+                onPressed: () {},
               ),
               Positioned(
                 right: 8,
@@ -86,8 +80,6 @@ class _MainLayoutState extends State<MainLayout> {
               ),
             ],
           ),
-
-          // الملف الشخصي
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16),
             child: PopupMenuButton<dynamic>(
@@ -146,9 +138,7 @@ class _MainLayoutState extends State<MainLayout> {
                     ),
                     dense: true,
                   ),
-                  onTap: () {
-                    // تسجيل الخروج
-                  },
+                  onTap: () {},
                 ),
               ],
             ),
@@ -175,11 +165,6 @@ class _MainLayoutState extends State<MainLayout> {
             title: 'المنتجات',
             route: '/products',
             icon: Icons.inventory_2_outlined,
-            children: [
-              AdminMenuItem(title: 'كل المنتجات', route: '/products'),
-              AdminMenuItem(title: 'إضافة منتج', route: '/products/add'),
-              AdminMenuItem(title: 'الفئات', route: '/products/categories'),
-            ],
           ),
           AdminMenuItem(
             title: 'الطلبات',
@@ -200,17 +185,6 @@ class _MainLayoutState extends State<MainLayout> {
             title: 'التقارير',
             route: '/reports',
             icon: Icons.analytics_outlined,
-            children: [
-              AdminMenuItem(title: 'تقرير المبيعات', route: '/reports/sales'),
-              AdminMenuItem(
-                title: 'تقرير العمولات',
-                route: '/reports/commission',
-              ),
-              AdminMenuItem(
-                title: 'تقرير المنتجات',
-                route: '/reports/products',
-              ),
-            ],
           ),
           AdminMenuItem(
             title: 'الإعدادات',
@@ -270,25 +244,7 @@ class _MainLayoutState extends State<MainLayout> {
   }
 }
 
-// Placeholder Screens (سيتم تطويرها لاحقاً)
-class ProductsScreen extends StatelessWidget {
-  const ProductsScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(child: Text('صفحة المنتجات - قيد التطوير'));
-  }
-}
-
-class OrdersScreen extends StatelessWidget {
-  const OrdersScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(child: Text('صفحة الطلبات - قيد التطوير'));
-  }
-}
-
+// Placeholder Screens
 class CustomersScreen extends StatelessWidget {
   const CustomersScreen({super.key});
 
