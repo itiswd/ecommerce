@@ -1,17 +1,19 @@
-import 'package:ecommerce_dashboard/models/order.dart';
-import 'package:ecommerce_dashboard/models/product.dart';
+import 'package:ecommerce_dashboard/providers/products_provider.dart';
 import 'package:ecommerce_dashboard/screens/dashboard_screen.dart';
 import 'package:ecommerce_dashboard/screens/main_layout.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import 'firebase_options.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // تهيئة Firebase (اختياري للبداية)
-  // await Firebase.initializeApp();
+  // تهيئة Firebase
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // تهيئة التواريخ بالعربية
   await initializeDateFormatting('ar', null);
@@ -29,7 +31,6 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => DashboardProvider()),
         ChangeNotifierProvider(create: (_) => ProductsProvider()),
-        ChangeNotifierProvider(create: (_) => OrdersProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
       ],
       child: MaterialApp(
@@ -39,8 +40,7 @@ class MyApp extends StatelessWidget {
         // الثيم الرئيسي
         theme: ThemeData(
           primarySwatch: Colors.blue,
-          fontFamily: 'Cairo', // يجب إضافة خط Cairo للمشروع
-          // AppBar Theme
+          fontFamily: 'Cairo',
           appBarTheme: AppBarTheme(
             elevation: 0,
             backgroundColor: Colors.white,
@@ -51,23 +51,17 @@ class MyApp extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-
-          // Card Theme
           cardTheme: CardThemeData(
             elevation: 2,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
           ),
-
-          // Input Decoration Theme
           inputDecorationTheme: InputDecorationTheme(
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             filled: true,
             fillColor: Colors.grey[50],
           ),
-
-          // Button Theme
           elevatedButtonTheme: ElevatedButtonThemeData(
             style: ElevatedButton.styleFrom(
               padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -76,8 +70,6 @@ class MyApp extends StatelessWidget {
               ),
             ),
           ),
-
-          // Colors
           colorScheme: ColorScheme.light(
             primary: Colors.blue,
             secondary: Colors.blueAccent,
@@ -86,17 +78,14 @@ class MyApp extends StatelessWidget {
           ),
         ),
 
-        // Dark Theme (اختياري)
         darkTheme: ThemeData(
           brightness: Brightness.dark,
           primarySwatch: Colors.blue,
           fontFamily: 'Cairo',
         ),
 
-        // الصفحة الرئيسية
         home: AuthWrapper(),
 
-        // Routes
         routes: {
           '/login': (context) => LoginScreen(),
           '/dashboard': (context) => MainLayout(),
@@ -106,7 +95,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// Auth Wrapper - للتحقق من تسجيل الدخول
+// Auth Wrapper
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
 
@@ -114,22 +103,13 @@ class AuthWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<AuthProvider>(
       builder: (context, authProvider, child) {
-        // للتبسيط، نبدأ مباشرة بالـ Dashboard
-        // في الإنتاج، تحقق من حالة تسجيل الدخول
         return MainLayout();
-
-        // الكود الحقيقي سيكون:
-        // if (authProvider.isAuthenticated) {
-        //   return MainLayout();
-        // } else {
-        //   return LoginScreen();
-        // }
       },
     );
   }
 }
 
-// Auth Provider (مبسط)
+// Auth Provider
 class AuthProvider extends ChangeNotifier {
   bool _isAuthenticated = true;
   String? _userId;
@@ -143,14 +123,7 @@ class AuthProvider extends ChangeNotifier {
 
   Future<bool> login(String email, String password) async {
     try {
-      // محاكاة تسجيل الدخول
       await Future.delayed(Duration(seconds: 1));
-
-      // في الإنتاج: استخدم Firebase Auth
-      // final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-      //   email: email,
-      //   password: password,
-      // );
 
       _isAuthenticated = true;
       _userId = '123';
@@ -174,77 +147,7 @@ class AuthProvider extends ChangeNotifier {
   }
 }
 
-// Products Provider (مبسط)
-class ProductsProvider extends ChangeNotifier {
-  final List<Product> _products = [];
-  bool _isLoading = false;
-
-  List<Product> get products => _products;
-  bool get isLoading => _isLoading;
-
-  Future<void> loadProducts() async {
-    _isLoading = true;
-    notifyListeners();
-
-    // جلب المنتجات من Firebase
-    await Future.delayed(Duration(seconds: 1));
-
-    _isLoading = false;
-    notifyListeners();
-  }
-
-  Future<void> addProduct(Product product) async {
-    // إضافة منتج إلى Firebase
-    _products.add(product);
-    notifyListeners();
-  }
-
-  Future<void> updateProduct(Product product) async {
-    // تحديث منتج في Firebase
-    final index = _products.indexWhere((p) => p.id == product.id);
-    if (index != -1) {
-      _products[index] = product;
-      notifyListeners();
-    }
-  }
-
-  Future<void> deleteProduct(String productId) async {
-    // حذف منتج من Firebase
-    _products.removeWhere((p) => p.id == productId);
-    notifyListeners();
-  }
-}
-
-// Orders Provider (مبسط)
-class OrdersProvider extends ChangeNotifier {
-  final List<Order> _orders = [];
-  bool _isLoading = false;
-
-  List<Order> get orders => _orders;
-  bool get isLoading => _isLoading;
-
-  Future<void> loadOrders() async {
-    _isLoading = true;
-    notifyListeners();
-
-    // جلب الطلبات من Firebase
-    await Future.delayed(Duration(seconds: 1));
-
-    _isLoading = false;
-    notifyListeners();
-  }
-
-  Future<void> updateOrderStatus(String orderId, OrderStatus newStatus) async {
-    // تحديث حالة الطلب في Firebase
-    final index = _orders.indexWhere((o) => o.id == orderId);
-    if (index != -1) {
-      // تحديث الحالة
-      notifyListeners();
-    }
-  }
-}
-
-// Login Screen (مبسط)
+// Login Screen
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 

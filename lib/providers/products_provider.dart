@@ -32,11 +32,46 @@ class ProductsProvider extends ChangeNotifier {
 
   // Initialize with sample data
   ProductsProvider() {
-    _initializeSampleData();
+    loadProducts();
   }
 
-  void _initializeSampleData() {
-    _products = [
+  // Load products from Firebase
+  Future<void> loadProducts() async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      // جلب المنتجات من Firebase
+      final snapshot = await _firestore.collection(_collection).get();
+
+      if (snapshot.docs.isEmpty) {
+        // لو مفيش بيانات، نضيف بيانات تجريبية
+        await _addSampleData();
+        // نجيب البيانات تاني
+        final newSnapshot = await _firestore.collection(_collection).get();
+        _products = newSnapshot.docs
+            .map((doc) => Product.fromMap(doc.data(), doc.id))
+            .toList();
+      } else {
+        _products = snapshot.docs
+            .map((doc) => Product.fromMap(doc.data(), doc.id))
+            .toList();
+      }
+    } catch (e) {
+      _error = e.toString();
+      print('Error loading products: $e');
+      // في حالة الخطأ، نستخدم بيانات تجريبية محلية
+      _loadLocalSampleData();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // إضافة بيانات تجريبية لـ Firebase
+  Future<void> _addSampleData() async {
+    final sampleProducts = [
       Product(
         id: '1',
         name: 'لابتوب Dell XPS 15',
@@ -129,41 +164,65 @@ class ProductsProvider extends ChangeNotifier {
         commission: 0.10,
       ),
     ];
-    notifyListeners();
+
+    // إضافة كل منتج لـ Firebase
+    for (var product in sampleProducts) {
+      await _firestore
+          .collection(_collection)
+          .doc(product.id)
+          .set(product.toMap());
+    }
   }
 
-  // Load products from Firebase
-  Future<void> loadProducts() async {
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
-
-    try {
-      // في التطبيق الحقيقي، استخدم Firebase
-      // final snapshot = await _firestore.collection(_collection).get();
-      // _products = snapshot.docs
-      //     .map((doc) => Product.fromMap(doc.data(), doc.id))
-      //     .toList();
-
-      // محاكاة التأخير
-      await Future.delayed(Duration(milliseconds: 500));
-
-      // البيانات التجريبية موجودة بالفعل من _initializeSampleData
-    } catch (e) {
-      _error = e.toString();
-      print('Error loading products: $e');
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
+  // بيانات محلية في حالة فشل Firebase
+  void _loadLocalSampleData() {
+    _products = [
+      Product(
+        id: '1',
+        name: 'لابتوب Dell XPS 15',
+        description: 'لابتوب عالي الأداء مثالي للمصممين والمبرمجين',
+        price: 45000,
+        costPrice: 38000,
+        category: 'إلكترونيات',
+        images: [
+          'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=400',
+        ],
+        stock: 15,
+        soldCount: 23,
+        sellerId: 'seller_1',
+        sellerName: 'محمد أحمد',
+        createdAt: DateTime.now().subtract(Duration(days: 30)),
+        isActive: true,
+        commission: 0.10,
+      ),
+      Product(
+        id: '2',
+        name: 'iPhone 15 Pro Max',
+        description: 'أحدث هواتف آبل بكاميرا احترافية',
+        price: 55000,
+        costPrice: 48000,
+        category: 'إلكترونيات',
+        images: [
+          'https://images.unsplash.com/photo-1592286927505-93fd55ce0c0f?w=400',
+        ],
+        stock: 8,
+        soldCount: 45,
+        sellerId: 'seller_2',
+        sellerName: 'سارة علي',
+        createdAt: DateTime.now().subtract(Duration(days: 20)),
+        isActive: true,
+        commission: 0.12,
+      ),
+    ];
   }
 
   // Add new product
   Future<void> addProduct(Product product) async {
     try {
-      // في التطبيق الحقيقي:
-      // await _firestore.collection(_collection).doc(product.id).set(product.toMap());
-
+      await _firestore
+          .collection(_collection)
+          .doc(product.id)
+          .set(product.toMap());
       _products.add(product);
       notifyListeners();
     } catch (e) {
@@ -175,8 +234,10 @@ class ProductsProvider extends ChangeNotifier {
   // Update product
   Future<void> updateProduct(Product product) async {
     try {
-      // في التطبيق الحقيقي:
-      // await _firestore.collection(_collection).doc(product.id).update(product.toMap());
+      await _firestore
+          .collection(_collection)
+          .doc(product.id)
+          .update(product.toMap());
 
       final index = _products.indexWhere((p) => p.id == product.id);
       if (index != -1) {
@@ -192,9 +253,7 @@ class ProductsProvider extends ChangeNotifier {
   // Delete product
   Future<void> deleteProduct(String productId) async {
     try {
-      // في التطبيق الحقيقي:
-      // await _firestore.collection(_collection).doc(productId).delete();
-
+      await _firestore.collection(_collection).doc(productId).delete();
       _products.removeWhere((p) => p.id == productId);
       notifyListeners();
     } catch (e) {
@@ -209,13 +268,13 @@ class ProductsProvider extends ChangeNotifier {
       final index = _products.indexWhere((p) => p.id == productId);
       if (index != -1) {
         final product = _products[index];
-        _products[index] = product.copyWith(isActive: !product.isActive);
+        final newStatus = !product.isActive;
 
-        // في التطبيق الحقيقي:
-        // await _firestore.collection(_collection).doc(productId).update({
-        //   'isActive': _products[index].isActive,
-        // });
+        await _firestore.collection(_collection).doc(productId).update({
+          'isActive': newStatus,
+        });
 
+        _products[index] = product.copyWith(isActive: newStatus);
         notifyListeners();
       }
     } catch (e) {
@@ -227,15 +286,13 @@ class ProductsProvider extends ChangeNotifier {
   // Update stock
   Future<void> updateStock(String productId, int newStock) async {
     try {
+      await _firestore.collection(_collection).doc(productId).update({
+        'stock': newStock,
+      });
+
       final index = _products.indexWhere((p) => p.id == productId);
       if (index != -1) {
         _products[index] = _products[index].copyWith(stock: newStock);
-
-        // في التطبيق الحقيقي:
-        // await _firestore.collection(_collection).doc(productId).update({
-        //   'stock': newStock,
-        // });
-
         notifyListeners();
       }
     } catch (e) {
@@ -244,70 +301,9 @@ class ProductsProvider extends ChangeNotifier {
     }
   }
 
-  // Bulk update stocks
-  Future<void> bulkUpdateStocks(Map<String, int> updates) async {
-    try {
-      for (var entry in updates.entries) {
-        await updateStock(entry.key, entry.value);
-      }
-    } catch (e) {
-      print('Error bulk updating stocks: $e');
-      rethrow;
-    }
-  }
-
-  // Get product by ID
-  Product? getProductById(String productId) {
-    try {
-      return _products.firstWhere((p) => p.id == productId);
-    } catch (e) {
-      return null;
-    }
-  }
-
-  // Get products by category
-  List<Product> getProductsByCategory(String category) {
-    return _products.where((p) => p.category == category).toList();
-  }
-
-  // Get products by seller
-  List<Product> getProductsBySeller(String sellerId) {
-    return _products.where((p) => p.sellerId == sellerId).toList();
-  }
-
-  // Get low stock products
-  List<Product> getLowStockProducts({int threshold = 10}) {
-    return _products.where((p) => p.stock < threshold && p.stock > 0).toList();
-  }
-
-  // Get out of stock products
-  List<Product> getOutOfStockProducts() {
-    return _products.where((p) => p.stock == 0).toList();
-  }
-
-  // Get top selling products
-  List<Product> getTopSellingProducts({int limit = 10}) {
-    final sorted = List<Product>.from(_products)
-      ..sort((a, b) => b.soldCount.compareTo(a.soldCount));
-    return sorted.take(limit).toList();
-  }
-
-  // Search products
-  List<Product> searchProducts(String query) {
-    if (query.isEmpty) return _products;
-
-    final lowerQuery = query.toLowerCase();
-    return _products.where((product) {
-      return product.name.toLowerCase().contains(lowerQuery) ||
-          product.description.toLowerCase().contains(lowerQuery) ||
-          product.category.toLowerCase().contains(lowerQuery);
-    }).toList();
-  }
-
   // Export products to CSV
   Future<void> exportProducts() async {
     try {
-      // في التطبيق الحقيقي، استخدم package للتصدير
       final csv = _productsToCSV();
       print('CSV Data: $csv');
       // يمكن حفظ الملف أو مشاركته
@@ -349,46 +345,47 @@ class ProductsProvider extends ChangeNotifier {
     return [headers.join(','), ...rows].join('\n');
   }
 
-  // Import products from CSV
-  Future<void> importProducts(String csvData) async {
+  // Get product by ID
+  Product? getProductById(String productId) {
     try {
-      // تحليل CSV وإضافة المنتجات
-      // هذه وظيفة متقدمة يمكن إضافتها لاحقاً
+      return _products.firstWhere((p) => p.id == productId);
     } catch (e) {
-      print('Error importing products: $e');
-      rethrow;
+      return null;
     }
   }
 
-  // Get category statistics
-  Map<String, int> getCategoryStats() {
-    final stats = <String, int>{};
-    for (var product in _products) {
-      stats[product.category] = (stats[product.category] ?? 0) + 1;
-    }
-    return stats;
+  // Get products by category
+  List<Product> getProductsByCategory(String category) {
+    return _products.where((p) => p.category == category).toList();
   }
 
-  // Get seller statistics
-  Map<String, Map<String, dynamic>> getSellerStats() {
-    final stats = <String, Map<String, dynamic>>{};
+  // Get low stock products
+  List<Product> getLowStockProducts({int threshold = 10}) {
+    return _products.where((p) => p.stock < threshold && p.stock > 0).toList();
+  }
 
-    for (var product in _products) {
-      if (!stats.containsKey(product.sellerId)) {
-        stats[product.sellerId] = {
-          'name': product.sellerName,
-          'products': 0,
-          'sales': 0,
-          'commission': 0.0,
-        };
-      }
+  // Get out of stock products
+  List<Product> getOutOfStockProducts() {
+    return _products.where((p) => p.stock == 0).toList();
+  }
 
-      stats[product.sellerId]!['products'] += 1;
-      stats[product.sellerId]!['sales'] += product.soldCount;
-      stats[product.sellerId]!['commission'] += product.totalCommission;
-    }
+  // Get top selling products
+  List<Product> getTopSellingProducts({int limit = 10}) {
+    final sorted = List<Product>.from(_products)
+      ..sort((a, b) => b.soldCount.compareTo(a.soldCount));
+    return sorted.take(limit).toList();
+  }
 
-    return stats;
+  // Search products
+  List<Product> searchProducts(String query) {
+    if (query.isEmpty) return _products;
+
+    final lowerQuery = query.toLowerCase();
+    return _products.where((product) {
+      return product.name.toLowerCase().contains(lowerQuery) ||
+          product.description.toLowerCase().contains(lowerQuery) ||
+          product.category.toLowerCase().contains(lowerQuery);
+    }).toList();
   }
 
   // Refresh data

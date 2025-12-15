@@ -1,5 +1,5 @@
-import 'package:ecommerce_dashboard/main.dart';
 import 'package:ecommerce_dashboard/models/product.dart';
+import 'package:ecommerce_dashboard/providers/products_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';

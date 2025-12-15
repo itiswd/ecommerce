@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:data_table_2/data_table_2.dart';
-import 'package:ecommerce_dashboard/main.dart';
 import 'package:ecommerce_dashboard/models/product.dart';
+import 'package:ecommerce_dashboard/providers/products_provider.dart';
 import 'package:ecommerce_dashboard/screens/products/add_edit_product_dialog.dart';
 import 'package:ecommerce_dashboard/screens/products/product_details_dialog.dart';
 import 'package:flutter/material.dart';
