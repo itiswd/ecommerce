@@ -37,6 +37,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   void initState() {
     super.initState();
+    // يجب أن تكون _darkMode متزامنة مع ThemeProvider في البداية
+    _darkMode = Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
     _loadSettings();
   }
 
@@ -45,8 +47,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() {
       _emailNotifications = prefs.getBool('email_notifications') ?? true;
       _pushNotifications = prefs.getBool('push_notifications') ?? true;
-      _darkMode = prefs.getBool('dark_mode') ?? false;
       _language = prefs.getString('language') ?? 'ar';
+      // _darkMode يتم تحميلها مباشرة من ThemeProvider الآن
     });
   }
 
@@ -61,7 +63,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('تم حفظ الإعدادات بنجاح'),
-          backgroundColor: AppColors.success,
+          // استخدام لون النجاح الديناميكي
+          backgroundColor: Theme.of(context).colorScheme.secondary,
         ),
       );
     }
@@ -69,13 +72,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // 1. استخراج خصائص الثيم الأساسية
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    final colorScheme = theme.colorScheme;
+
     return SingleChildScrollView(
-      padding: EdgeInsets.all(24),
+      padding: EdgeInsets.all(AppSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeader(),
-          SizedBox(height: 24),
+          _buildHeader(textTheme),
+          SizedBox(height: AppSpacing.lg),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -83,21 +91,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 flex: 2,
                 child: Column(
                   children: [
-                    _buildNotificationSettings(),
-                    SizedBox(height: 16),
-                    _buildAppearanceSettings(),
-                    SizedBox(height: 16),
-                    _buildSecuritySettings(),
+                    _buildNotificationSettings(colorScheme),
+                    SizedBox(height: AppSpacing.md),
+                    _buildAppearanceSettings(colorScheme),
+                    SizedBox(height: AppSpacing.md),
+                    _buildSecuritySettings(colorScheme),
                   ],
                 ),
               ),
-              SizedBox(width: 16),
+              SizedBox(width: AppSpacing.md),
               Expanded(
                 child: Column(
                   children: [
-                    _buildStoreSettings(),
-                    SizedBox(height: 16),
-                    _buildSystemInfo(),
+                    _buildStoreSettings(colorScheme),
+                    SizedBox(height: AppSpacing.md),
+                    _buildSystemInfo(colorScheme),
                   ],
                 ),
               ),
@@ -108,7 +116,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(TextTheme textTheme) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -116,23 +124,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('الإعدادات', style: AppTextStyles.h2),
-            SizedBox(height: 4),
+            SizedBox(height: AppSpacing.xs),
             Text(
               'إدارة إعدادات التطبيق والحساب',
               style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
+                // استخدام لون النص الثانوي الديناميكي
+                color: textTheme.bodyMedium?.color,
               ),
             ),
           ],
         ),
         Row(
           children: [
+            // الأزرار تستخدم ثيمات OutlinedButtonThemeData و ElevatedButtonThemeData
             OutlinedButton.icon(
               onPressed: _resetSettings,
               icon: Icon(Icons.refresh),
               label: Text('إعادة تعيين'),
             ),
-            SizedBox(width: 12),
+            SizedBox(width: AppSpacing.md),
             ElevatedButton.icon(
               onPressed: _saveSettings,
               icon: Icon(Icons.save),
@@ -144,48 +154,54 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildNotificationSettings() {
-    return _settingsCard('الإشعارات', Icons.notifications, AppColors.warning, [
-      SwitchListTile(
-        title: Text('إشعارات البريد الإلكتروني'),
-        subtitle: Text('تلقي إشعارات عبر البريد الإلكتروني'),
-        value: _emailNotifications,
-        onChanged: (value) {
-          setState(() => _emailNotifications = value);
-        },
-      ),
-      Divider(height: 1),
-      SwitchListTile(
-        title: Text('الإشعارات الفورية'),
-        subtitle: Text('تلقي إشعارات فورية على المتصفح'),
-        value: _pushNotifications,
-        onChanged: (value) {
-          setState(() => _pushNotifications = value);
-        },
-      ),
-      Divider(height: 1),
-      SwitchListTile(
-        title: Text('إشعارات الطلبات'),
-        subtitle: Text('إشعار عند استلام طلب جديد'),
-        value: _orderNotifications,
-        onChanged: (value) {
-          setState(() => _orderNotifications = value);
-        },
-      ),
-      Divider(height: 1),
-      SwitchListTile(
-        title: Text('إشعارات المخزون'),
-        subtitle: Text('إشعار عند انخفاض المخزون'),
-        value: _stockNotifications,
-        onChanged: (value) {
-          setState(() => _stockNotifications = value);
-        },
-      ),
-    ]);
+  Widget _buildNotificationSettings(ColorScheme colorScheme) {
+    return _settingsCard(
+      'الإشعارات',
+      Icons.notifications,
+      AppColors.warning,
+      colorScheme,
+      [
+        SwitchListTile(
+          title: Text('إشعارات البريد الإلكتروني'),
+          subtitle: Text('تلقي إشعارات عبر البريد الإلكتروني'),
+          value: _emailNotifications,
+          onChanged: (value) {
+            setState(() => _emailNotifications = value);
+          },
+        ),
+        Divider(height: 1),
+        SwitchListTile(
+          title: Text('الإشعارات الفورية'),
+          subtitle: Text('تلقي إشعارات فورية على المتصفح'),
+          value: _pushNotifications,
+          onChanged: (value) {
+            setState(() => _pushNotifications = value);
+          },
+        ),
+        Divider(height: 1),
+        SwitchListTile(
+          title: Text('إشعارات الطلبات'),
+          subtitle: Text('إشعار عند استلام طلب جديد'),
+          value: _orderNotifications,
+          onChanged: (value) {
+            setState(() => _orderNotifications = value);
+          },
+        ),
+        Divider(height: 1),
+        SwitchListTile(
+          title: Text('إشعارات المخزون'),
+          subtitle: Text('إشعار عند انخفاض المخزون'),
+          value: _stockNotifications,
+          onChanged: (value) {
+            setState(() => _stockNotifications = value);
+          },
+        ),
+      ],
+    );
   }
 
-  Widget _buildAppearanceSettings() {
-    return _settingsCard('المظهر', Icons.palette, AppColors.info, [
+  Widget _buildAppearanceSettings(ColorScheme colorScheme) {
+    return _settingsCard('المظهر', Icons.palette, AppColors.info, colorScheme, [
       Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {
           return SwitchListTile(
@@ -200,7 +216,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   content: Text(
                     value ? 'تم تفعيل الوضع الداكن' : 'تم تفعيل الوضع الفاتح',
                   ),
-                  backgroundColor: AppColors.success,
+                  // استخدام لون النجاح الديناميكي
+                  backgroundColor: colorScheme.secondary,
                 ),
               );
             },
@@ -214,6 +231,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         trailing: DropdownButton<String>(
           value: _language,
           underline: SizedBox(),
+          // استخدام TextTheme للألوان
           items: [
             DropdownMenuItem(value: 'ar', child: Text('العربية')),
             DropdownMenuItem(value: 'en', child: Text('English')),
@@ -234,6 +252,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           max: 18,
           divisions: 6,
           label: '${_fontSize.toInt()}',
+          // لون الـ Slider يستخدم colorScheme.primary تلقائياً
           onChanged: (value) {
             setState(() => _fontSize = value);
           },
@@ -242,198 +261,233 @@ class _SettingsScreenState extends State<SettingsScreen> {
     ]);
   }
 
-  Widget _buildSecuritySettings() {
-    return _settingsCard('الأمان', Icons.security, AppColors.error, [
-      ListTile(
-        leading: Icon(Icons.lock, color: AppColors.primary),
-        title: Text('تغيير كلمة المرور'),
-        subtitle: Text('تحديث كلمة المرور الخاصة بك'),
-        trailing: Icon(Icons.arrow_forward_ios, size: 16),
-        onTap: _showChangePasswordDialog,
-      ),
-      Divider(height: 1),
-      ListTile(
-        leading: Icon(Icons.phone_android, color: AppColors.success),
-        title: Text('المصادقة الثنائية'),
-        subtitle: Text('تأمين حسابك بخطوة إضافية'),
-        trailing: Switch(
-          value: false,
-          onChanged: (value) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('سيتم تفعيل هذه الميزة قريباً')),
-            );
+  Widget _buildSecuritySettings(ColorScheme colorScheme) {
+    return _settingsCard(
+      'الأمان',
+      Icons.security,
+      AppColors.error,
+      colorScheme,
+      [
+        ListTile(
+          // IconThemeData يعالج لون الأيقونة
+          leading: Icon(Icons.lock, color: colorScheme.primary),
+          title: Text('تغيير كلمة المرور'),
+          subtitle: Text('تحديث كلمة المرور الخاصة بك'),
+          trailing: Icon(Icons.arrow_forward_ios, size: 16),
+          onTap: _showChangePasswordDialog,
+        ),
+        Divider(height: 1),
+        ListTile(
+          // IconThemeData يعالج لون الأيقونة
+          leading: Icon(Icons.phone_android, color: AppColors.success),
+          title: Text('المصادقة الثنائية'),
+          subtitle: Text('تأمين حسابك بخطوة إضافية'),
+          // الـ Switch يستخدم SwitchThemeData
+          trailing: Switch(
+            value: false,
+            onChanged: (value) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('سيتم تفعيل هذه الميزة قريباً')),
+              );
+            },
+          ),
+        ),
+        Divider(height: 1),
+        ListTile(
+          leading: Icon(Icons.history, color: AppColors.info),
+          title: Text('سجل النشاط'),
+          subtitle: Text('عرض سجل تسجيل الدخول'),
+          trailing: Icon(Icons.arrow_forward_ios, size: 16),
+          onTap: () {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text('قريباً...')));
           },
         ),
-      ),
-      Divider(height: 1),
-      ListTile(
-        leading: Icon(Icons.history, color: AppColors.info),
-        title: Text('سجل النشاط'),
-        subtitle: Text('عرض سجل تسجيل الدخول'),
-        trailing: Icon(Icons.arrow_forward_ios, size: 16),
-        onTap: () {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('قريباً...')));
-        },
-      ),
-    ]);
+      ],
+    );
   }
 
-  Widget _buildStoreSettings() {
-    return _settingsCard('إعدادات المتجر', Icons.store, AppColors.primary, [
-      Padding(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          children: [
-            TextField(
-              controller: _storeNameController,
-              decoration: InputDecoration(
-                labelText: 'اسم المتجر',
-                prefixIcon: Icon(Icons.store),
+  Widget _buildStoreSettings(ColorScheme colorScheme) {
+    return _settingsCard(
+      'إعدادات المتجر',
+      Icons.store,
+      AppColors.primary,
+      colorScheme,
+      [
+        Padding(
+          padding: EdgeInsets.all(AppSpacing.md),
+          child: Column(
+            children: [
+              // حقول الإدخال تعتمد على InputDecorationTheme و TextTheme من الثيم الرئيسي
+              TextField(
+                controller: _storeNameController,
+                decoration: InputDecoration(
+                  labelText: 'اسم المتجر',
+                  prefixIcon: Icon(Icons.store),
+                ),
               ),
-            ),
-            SizedBox(height: 16),
-            TextField(
-              controller: _storeEmailController,
-              decoration: InputDecoration(
-                labelText: 'البريد الإلكتروني',
-                prefixIcon: Icon(Icons.email),
+              SizedBox(height: AppSpacing.md),
+              TextField(
+                controller: _storeEmailController,
+                decoration: InputDecoration(
+                  labelText: 'البريد الإلكتروني',
+                  prefixIcon: Icon(Icons.email),
+                ),
               ),
-            ),
-            SizedBox(height: 16),
-            TextField(
-              controller: _storePhoneController,
-              decoration: InputDecoration(
-                labelText: 'رقم الهاتف',
-                prefixIcon: Icon(Icons.phone),
+              SizedBox(height: AppSpacing.md),
+              TextField(
+                controller: _storePhoneController,
+                decoration: InputDecoration(
+                  labelText: 'رقم الهاتف',
+                  prefixIcon: Icon(Icons.phone),
+                ),
               ),
-            ),
-            SizedBox(height: 16),
-            TextField(
-              controller: _storeAddressController,
-              decoration: InputDecoration(
-                labelText: 'العنوان',
-                prefixIcon: Icon(Icons.location_on),
+              SizedBox(height: AppSpacing.md),
+              TextField(
+                controller: _storeAddressController,
+                decoration: InputDecoration(
+                  labelText: 'العنوان',
+                  prefixIcon: Icon(Icons.location_on),
+                ),
               ),
-            ),
-            SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-              initialValue: _currency,
-              decoration: InputDecoration(
-                labelText: 'العملة',
-                prefixIcon: Icon(Icons.attach_money),
+              SizedBox(height: AppSpacing.md),
+              DropdownButtonFormField<String>(
+                initialValue: _currency,
+                decoration: InputDecoration(
+                  labelText: 'العملة',
+                  prefixIcon: Icon(Icons.attach_money),
+                ),
+                items: [
+                  DropdownMenuItem(
+                    value: 'EGP',
+                    child: Text('جنيه مصري (EGP)'),
+                  ),
+                  DropdownMenuItem(value: 'USD', child: Text('دولار (USD)')),
+                  DropdownMenuItem(value: 'EUR', child: Text('يورو (EUR)')),
+                  DropdownMenuItem(value: 'SAR', child: Text('ريال (SAR)')),
+                ],
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() => _currency = value);
+                  }
+                },
               ),
-              items: [
-                DropdownMenuItem(value: 'EGP', child: Text('جنيه مصري (EGP)')),
-                DropdownMenuItem(value: 'USD', child: Text('دولار (USD)')),
-                DropdownMenuItem(value: 'EUR', child: Text('يورو (EUR)')),
-                DropdownMenuItem(value: 'SAR', child: Text('ريال (SAR)')),
-              ],
-              onChanged: (value) {
-                if (value != null) {
-                  setState(() => _currency = value);
-                }
-              },
-            ),
-            SizedBox(height: 16),
-            TextField(
-              controller: TextEditingController(text: _taxRate),
-              decoration: InputDecoration(
-                labelText: 'نسبة الضريبة (%)',
-                prefixIcon: Icon(Icons.percent),
+              SizedBox(height: AppSpacing.md),
+              TextField(
+                controller: TextEditingController(text: _taxRate),
+                decoration: InputDecoration(
+                  labelText: 'نسبة الضريبة (%)',
+                  prefixIcon: Icon(Icons.percent),
+                ),
+                keyboardType: TextInputType.number,
+                onChanged: (value) => _taxRate = value,
               ),
-              keyboardType: TextInputType.number,
-              onChanged: (value) => _taxRate = value,
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    ]);
+      ],
+    );
   }
 
-  Widget _buildSystemInfo() {
-    return _settingsCard('معلومات النظام', Icons.info, AppColors.grey600, [
-      _infoTile('الإصدار', '1.0.0'),
-      Divider(height: 1),
-      _infoTile('آخر تحديث', '15 ديسمبر 2024'),
-      Divider(height: 1),
-      _infoTile('حجم قاعدة البيانات', '45.2 MB'),
-      Divider(height: 1),
-      ListTile(
-        leading: Icon(Icons.cleaning_services, color: AppColors.warning),
-        title: Text('مسح ذاكرة التخزين المؤقت'),
-        trailing: Icon(Icons.arrow_forward_ios, size: 16),
-        onTap: _clearCache,
-      ),
-      Divider(height: 1),
-      ListTile(
-        leading: Icon(Icons.download, color: AppColors.info),
-        title: Text('تحديث التطبيق'),
-        trailing: Icon(Icons.arrow_forward_ios, size: 16),
-        onTap: _checkForUpdates,
-      ),
-      Divider(height: 1),
-      ListTile(
-        leading: Icon(Icons.bug_report, color: AppColors.error),
-        title: Text('الإبلاغ عن مشكلة'),
-        trailing: Icon(Icons.arrow_forward_ios, size: 16),
-        onTap: _reportIssue,
-      ),
-      Divider(height: 1),
-      ListTile(
-        leading: Icon(Icons.help, color: AppColors.primary),
-        title: Text('المساعدة والدعم'),
-        trailing: Icon(Icons.arrow_forward_ios, size: 16),
-        onTap: _showHelp,
-      ),
-    ]);
+  Widget _buildSystemInfo(ColorScheme colorScheme) {
+    return _settingsCard(
+      'معلومات النظام',
+      Icons.info,
+      AppColors.grey600,
+      colorScheme,
+      [
+        _infoTile('الإصدار', '1.0.0'),
+        Divider(height: 1),
+        _infoTile('آخر تحديث', '15 ديسمبر 2024'),
+        Divider(height: 1),
+        _infoTile('حجم قاعدة البيانات', '45.2 MB'),
+        Divider(height: 1),
+        ListTile(
+          leading: Icon(Icons.cleaning_services, color: AppColors.warning),
+          title: Text('مسح ذاكرة التخزين المؤقت'),
+          trailing: Icon(Icons.arrow_forward_ios, size: 16),
+          onTap: _clearCache,
+        ),
+        Divider(height: 1),
+        ListTile(
+          leading: Icon(Icons.download, color: AppColors.info),
+          title: Text('تحديث التطبيق'),
+          trailing: Icon(Icons.arrow_forward_ios, size: 16),
+          onTap: _checkForUpdates,
+        ),
+        Divider(height: 1),
+        ListTile(
+          leading: Icon(Icons.bug_report, color: AppColors.error),
+          title: Text('الإبلاغ عن مشكلة'),
+          trailing: Icon(Icons.arrow_forward_ios, size: 16),
+          onTap: _reportIssue,
+        ),
+        Divider(height: 1),
+        ListTile(
+          leading: Icon(Icons.help, color: colorScheme.primary),
+          title: Text('المساعدة والدعم'),
+          trailing: Icon(Icons.arrow_forward_ios, size: 16),
+          onTap: _showHelp,
+        ),
+      ],
+    );
   }
 
+  // 2. تحديث دالة البطاقة لقبول ColorScheme
   Widget _settingsCard(
     String title,
     IconData icon,
     Color color,
+    ColorScheme colorScheme,
     List<Widget> children,
   ) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        // استخدام لون السطح الديناميكي
+        color: colorScheme.surface,
         borderRadius: AppBorderRadius.medium,
         boxShadow: [AppShadows.medium],
       ),
       child: Column(
         children: [
           Container(
-            padding: EdgeInsets.all(16),
+            padding: EdgeInsets.all(AppSpacing.md),
             decoration: BoxDecoration(
+              // لون الترويسة من اللون الدلالي + شفافية
               color: color.withOpacity(0.1),
               borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(12),
-                topRight: Radius.circular(12),
+                topLeft: Radius.circular(AppBorderRadius.medium.bottomLeft.x),
+                topRight: Radius.circular(AppBorderRadius.medium.bottomLeft.x),
               ),
             ),
             child: Row(
               children: [
                 Icon(icon, color: color),
-                SizedBox(width: 12),
+                SizedBox(width: AppSpacing.md),
+                // لون النص يبقى باللون الدلالي ليتناسب مع الخلفية الفاتحة (الشفافة)
                 Text(title, style: AppTextStyles.h4.copyWith(color: color)),
               ],
             ),
           ),
+          // جميع الـ ListTiles و Dividers ستستخدم الثيم بشكل افتراضي
           ...children,
         ],
       ),
     );
   }
 
+  // 3. تحديث دالة _infoTile
   Widget _infoTile(String label, String value) {
+    final textTheme = Theme.of(context).textTheme;
     return ListTile(
+      // عنوان النص يرث لون الثيم
       title: Text(label),
       trailing: Text(
         value,
         style: TextStyle(
-          color: AppColors.textSecondary,
+          // استخدام لون النص الثانوي الديناميكي
+          color: textTheme.bodyMedium?.color,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -444,7 +498,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final currentPasswordController = TextEditingController();
     final newPasswordController = TextEditingController();
     final confirmPasswordController = TextEditingController();
+    final colorScheme = Theme.of(context).colorScheme;
 
+    // AlertDialog و TextFields و Buttons تستخدم ألوان الثيم تلقائياً
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -460,7 +516,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 prefixIcon: Icon(Icons.lock),
               ),
             ),
-            SizedBox(height: 16),
+            SizedBox(height: AppSpacing.md),
             TextField(
               controller: newPasswordController,
               obscureText: true,
@@ -469,7 +525,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 prefixIcon: Icon(Icons.lock_outline),
               ),
             ),
-            SizedBox(height: 16),
+            SizedBox(height: AppSpacing.md),
             TextField(
               controller: confirmPasswordController,
               obscureText: true,
@@ -490,7 +546,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               // TODO: Implement password change
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('تم تغيير كلمة المرور بنجاح')),
+                SnackBar(
+                  content: Text('تم تغيير كلمة المرور بنجاح'),
+                  backgroundColor: colorScheme.secondary,
+                ),
               );
             },
             child: Text('تغيير'),
@@ -501,6 +560,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _resetSettings() {
+    final colorScheme = Theme.of(context).colorScheme;
+    // AlertDialog و TextButtons تستخدم ألوان الثيم تلقائياً
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -523,13 +584,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 _darkMode = false;
                 _language = 'ar';
                 _fontSize = 14.0;
+                // يجب إعادة تعيين الثيم أيضاً
+                Provider.of<ThemeProvider>(
+                  context,
+                  listen: false,
+                ).setTheme(false);
               });
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('تم إعادة تعيين الإعدادات')),
+                SnackBar(
+                  content: Text('تم إعادة تعيين الإعدادات'),
+                  backgroundColor: colorScheme.error,
+                ),
               );
             },
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+            // استخدام لون الخطأ الديناميكي
+            style: ElevatedButton.styleFrom(backgroundColor: colorScheme.error),
             child: Text('إعادة تعيين'),
           ),
         ],
@@ -538,6 +608,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _clearCache() {
+    final colorScheme = Theme.of(context).colorScheme;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -552,7 +623,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             onPressed: () {
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('تم مسح ذاكرة التخزين المؤقت')),
+                SnackBar(
+                  content: Text('تم مسح ذاكرة التخزين المؤقت'),
+                  backgroundColor: colorScheme.secondary,
+                ),
               );
             },
             child: Text('مسح'),
@@ -563,6 +637,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _checkForUpdates() {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -570,9 +646,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // لون الـ Indicator يعتمد على colorScheme.primary
             CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('جاري التحقق من التحديثات...'),
+            SizedBox(height: AppSpacing.md),
+            // النص يرث لون الثيم
+            Text('جاري التحقق من التحديثات...', style: textTheme.bodyMedium),
           ],
         ),
       ),
@@ -580,17 +658,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     Future.delayed(Duration(seconds: 2), () {
       Navigator.pop(context);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('أنت تستخدم أحدث إصدار')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('أنت تستخدم أحدث إصدار'),
+          backgroundColor: colorScheme.secondary,
+        ),
+      );
     });
   }
 
   void _reportIssue() {
+    final colorScheme = Theme.of(context).colorScheme;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text('الإبلاغ عن مشكلة'),
+        // TextField يستخدم InputDecorationTheme من الثيم
         content: TextField(
           maxLines: 5,
           decoration: InputDecoration(
@@ -607,7 +690,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             onPressed: () {
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('تم إرسال التقرير. شكراً لك!')),
+                SnackBar(
+                  content: Text('تم إرسال التقرير. شكراً لك!'),
+                  backgroundColor: colorScheme.secondary,
+                ),
               );
             },
             child: Text('إرسال'),
@@ -618,6 +704,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _showHelp() {
+    final colorScheme = Theme.of(context).colorScheme;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -627,6 +714,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ListTile(
+              // لون الأيقونة يرث IconThemeData
               leading: Icon(Icons.email),
               title: Text('البريد الإلكتروني'),
               subtitle: Text('support@mystore.com'),

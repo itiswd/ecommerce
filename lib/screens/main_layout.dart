@@ -1,3 +1,4 @@
+import 'package:ecommerce_dashboard/constants/app_theme.dart';
 import 'package:ecommerce_dashboard/providers/theme_provider.dart';
 import 'package:ecommerce_dashboard/screens/customers/customers_screen.dart';
 import 'package:ecommerce_dashboard/screens/dashboard_screen.dart';
@@ -25,7 +26,7 @@ class _MainLayoutState extends State<MainLayout> {
     '/products': ProductsListScreen(),
     '/orders': OrdersListScreen(),
     '/customers': CustomersScreen(),
-    '/sellers': SellersScreen(), // ✅ تم إضافة صفحة البائعين
+    '/sellers': SellersScreen(),
     '/reports': ReportsScreen(),
     '/settings': SettingsScreen(),
   };
@@ -33,23 +34,42 @@ class _MainLayoutState extends State<MainLayout> {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
+    final theme = Theme.of(context);
     final isDark = themeProvider.isDarkMode;
+    final colorScheme = theme.colorScheme;
+    final iconTheme = theme.iconTheme;
+    final textTheme = theme.textTheme;
+
+    // تعيين الخلفيات الرئيسية بشكل صريح لفرض تطبيق الثيم
+    final appBarBackgroundColor = isDark
+        ? AppColors.darkCard
+        : AppColors.cardBackground;
+    final sideBarBackgroundColor = isDark
+        ? AppColors.darkCard
+        : AppColors.cardBackground;
+    final primaryTextColor = isDark
+        ? AppColors.darkTextPrimary
+        : AppColors.grey800;
 
     return AdminScaffold(
-      backgroundColor: isDark ? Color(0xFF0F172A) : Color(0xFFF5F7FA),
+      // 1. خلفية الشاشة الرئيسية
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: isDark ? Color(0xFF1E293B) : Colors.white,
-        elevation: 1,
+        // 2. تعيين خلفية الـ AppBar بشكل صريح
+        backgroundColor: appBarBackgroundColor,
+        elevation: theme.appBarTheme.elevation,
         title: Row(
           children: [
-            Icon(Icons.store, color: Colors.blue, size: 28),
-            SizedBox(width: 12),
+            Icon(Icons.store, color: colorScheme.primary, size: 28),
+            SizedBox(width: AppSpacing.md),
             Text(
               'متجري الإلكتروني',
+              // 3. التعيين الصريح للون النص في الـ AppBar
               style: TextStyle(
-                color: isDark ? Colors.white : Colors.grey[800],
+                color: primaryTextColor,
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
+                fontFamily: 'Cairo',
               ),
             ),
           ],
@@ -59,7 +79,7 @@ class _MainLayoutState extends State<MainLayout> {
           IconButton(
             icon: Icon(
               isDark ? Icons.light_mode : Icons.dark_mode,
-              color: isDark ? Colors.amber : Colors.grey[700],
+              color: isDark ? AppColors.warning : AppColors.grey700,
             ),
             onPressed: () {
               themeProvider.toggleTheme();
@@ -70,6 +90,7 @@ class _MainLayoutState extends State<MainLayout> {
                         ? 'تم التبديل للوضع الفاتح'
                         : 'تم التبديل للوضع الداكن',
                   ),
+                  backgroundColor: colorScheme.secondary,
                   duration: Duration(seconds: 1),
                 ),
               );
@@ -77,12 +98,9 @@ class _MainLayoutState extends State<MainLayout> {
             tooltip: isDark ? 'الوضع الفاتح' : 'الوضع الداكن',
           ),
 
-          // Search Button
+          // Search Button (لون الأيقونة يتبع IconTheme)
           IconButton(
-            icon: Icon(
-              Icons.search,
-              color: isDark ? Colors.white70 : Colors.grey[700],
-            ),
+            icon: Icon(Icons.search, color: iconTheme.color),
             onPressed: () {
               _showSearchDialog(context);
             },
@@ -95,7 +113,7 @@ class _MainLayoutState extends State<MainLayout> {
               IconButton(
                 icon: Icon(
                   Icons.notifications_outlined,
-                  color: isDark ? Colors.white70 : Colors.grey[700],
+                  color: iconTheme.color,
                 ),
                 onPressed: () {
                   _showNotifications(context);
@@ -103,12 +121,12 @@ class _MainLayoutState extends State<MainLayout> {
                 tooltip: 'الإشعارات',
               ),
               Positioned(
-                right: 8,
-                top: 8,
+                right: AppSpacing.sm,
+                top: AppSpacing.sm,
                 child: Container(
                   padding: EdgeInsets.all(4),
                   decoration: BoxDecoration(
-                    color: Colors.red,
+                    color: AppColors.error, // لون دلالي ثابت
                     shape: BoxShape.circle,
                   ),
                   constraints: BoxConstraints(minWidth: 16, minHeight: 16),
@@ -128,38 +146,36 @@ class _MainLayoutState extends State<MainLayout> {
 
           // User Menu
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
+            padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
             child: PopupMenuButton<String>(
               offset: Offset(0, 50),
-              child: Row(
+              icon: Row(
                 children: [
                   CircleAvatar(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: colorScheme.primary,
                     child: Text('م', style: TextStyle(color: Colors.white)),
                   ),
-                  SizedBox(width: 8),
+                  SizedBox(width: AppSpacing.sm),
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'محمد أحمد',
-                        style: TextStyle(
-                          fontSize: 14,
+                        style: AppTextStyles.bodyMedium.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: Colors.grey[800],
+                          color: textTheme.bodyLarge?.color,
                         ),
                       ),
                       Text(
                         'مدير',
-                        style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+                        style: AppTextStyles.caption.copyWith(
+                          color: textTheme.bodySmall?.color,
+                        ),
                       ),
                     ],
                   ),
-                  Icon(
-                    Icons.arrow_drop_down,
-                    color: isDark ? Colors.white70 : Colors.grey[700],
-                  ),
+                  Icon(Icons.arrow_drop_down, color: iconTheme.color),
                 ],
               ),
               itemBuilder: (context) => [
@@ -185,10 +201,10 @@ class _MainLayoutState extends State<MainLayout> {
                 PopupMenuItem<String>(
                   value: 'logout',
                   child: ListTile(
-                    leading: Icon(Icons.logout, color: Colors.red),
+                    leading: Icon(Icons.logout, color: AppColors.error),
                     title: Text(
                       'تسجيل الخروج',
-                      style: TextStyle(color: Colors.red),
+                      style: TextStyle(color: AppColors.error),
                     ),
                     dense: true,
                     contentPadding: EdgeInsets.zero,
@@ -213,17 +229,23 @@ class _MainLayoutState extends State<MainLayout> {
         ],
       ),
       sideBar: SideBar(
-        backgroundColor: isDark ? Color(0xFF1E293B) : Colors.white,
-        activeBackgroundColor: Colors.blue.withOpacity(isDark ? 0.2 : 0.1),
-        activeIconColor: Colors.blue,
+        // 4. تعيين خلفية الشريط الجانبي بشكل صريح
+        backgroundColor: sideBarBackgroundColor,
+        // لون الخلفية النشط من Primary
+        activeBackgroundColor: colorScheme.primary.withOpacity(0.15),
+        activeIconColor: colorScheme.primary,
+        // تعيين لون النص النشط بشكل صريح
         activeTextStyle: TextStyle(
-          color: Colors.blue,
+          color: colorScheme.primary,
           fontWeight: FontWeight.bold,
         ),
-        iconColor: isDark ? Colors.white70 : Colors.grey[600],
+        // لون الأيقونات العادي يتبع IconTheme
+        iconColor: iconTheme.color,
+        // تعيين لون النص العادي بشكل صريح
         textStyle: TextStyle(
-          color: isDark ? Colors.white70 : Colors.grey[700],
+          color: textTheme.bodyMedium?.color,
           fontSize: 14,
+          fontFamily: 'Cairo',
         ),
         items: [
           AdminMenuItem(
@@ -272,8 +294,12 @@ class _MainLayoutState extends State<MainLayout> {
           height: 100,
           width: double.infinity,
           decoration: BoxDecoration(
+            // Gradient الهيدر ديناميكي (يعتمد على Primary)
             gradient: LinearGradient(
-              colors: [Colors.blue, Colors.blue.shade700],
+              colors: [
+                colorScheme.primary,
+                colorScheme.primary.withOpacity(0.8),
+              ],
             ),
           ),
           child: Center(
@@ -281,7 +307,7 @@ class _MainLayoutState extends State<MainLayout> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(Icons.store, color: Colors.white, size: 40),
-                SizedBox(height: 8),
+                SizedBox(height: AppSpacing.sm),
                 Text(
                   'لوحة التحكم',
                   style: TextStyle(
@@ -297,12 +323,10 @@ class _MainLayoutState extends State<MainLayout> {
         footer: Container(
           height: 50,
           width: double.infinity,
-          color: Colors.grey[100],
+          // 5. خلفية الفوتر (تتبع لون السطح الداكن/الفاتح)
+          color: isDark ? AppColors.darkSurface : AppColors.grey100,
           child: Center(
-            child: Text(
-              'الإصدار 1.0.0',
-              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-            ),
+            child: Text('الإصدار 1.0.0', style: textTheme.bodySmall),
           ),
         ),
       ),
@@ -360,13 +384,16 @@ class _MainLayoutState extends State<MainLayout> {
   }
 
   void _showNotifications(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Row(
           children: [
-            Icon(Icons.notifications, color: Colors.blue),
-            SizedBox(width: 8),
+            Icon(Icons.notifications, color: colorScheme.primary),
+            SizedBox(width: AppSpacing.sm),
             Text('الإشعارات'),
           ],
         ),
@@ -379,19 +406,22 @@ class _MainLayoutState extends State<MainLayout> {
                 'طلب جديد',
                 'طلب رقم #123 تم استلامه',
                 Icons.shopping_cart,
-                Colors.green,
+                AppColors.success,
+                textTheme,
               ),
               _notificationItem(
                 'مخزون منخفض',
                 'المنتج "لابتوب Dell" أوشك على النفاذ',
                 Icons.warning,
-                Colors.orange,
+                AppColors.warning,
+                textTheme,
               ),
               _notificationItem(
                 'عميل جديد',
                 'انضم أحمد محمد إلى المتجر',
                 Icons.person_add,
-                Colors.blue,
+                AppColors.primary,
+                textTheme,
               ),
             ],
           ),
@@ -417,34 +447,42 @@ class _MainLayoutState extends State<MainLayout> {
     String message,
     IconData icon,
     Color color,
+    TextTheme textTheme,
   ) {
     return Container(
-      margin: EdgeInsets.only(bottom: 12),
-      padding: EdgeInsets.all(12),
+      margin: EdgeInsets.only(bottom: AppSpacing.md),
+      padding: EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         color: color.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: AppBorderRadius.small,
         border: Border.all(color: color.withOpacity(0.2)),
       ),
       child: Row(
         children: [
           Container(
-            padding: EdgeInsets.all(8),
+            padding: EdgeInsets.all(AppSpacing.sm),
             decoration: BoxDecoration(
               color: color.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: color, size: 20),
           ),
-          SizedBox(width: 12),
+          SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
+                Text(
+                  title,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 Text(
                   message,
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: textTheme.bodySmall?.color,
+                  ),
                 ),
               ],
             ),
@@ -455,6 +493,9 @@ class _MainLayoutState extends State<MainLayout> {
   }
 
   void _showProfile(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -464,25 +505,25 @@ class _MainLayoutState extends State<MainLayout> {
           children: [
             CircleAvatar(
               radius: 40,
-              backgroundColor: Colors.blue,
+              backgroundColor: colorScheme.primary,
               child: Text(
                 'م',
                 style: TextStyle(color: Colors.white, fontSize: 32),
               ),
             ),
-            SizedBox(height: 16),
-            Text(
-              'محمد أحمد',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
+            SizedBox(height: AppSpacing.md),
+            Text('محمد أحمد', style: AppTextStyles.h4),
             Text(
               'mohamed@admin.com',
-              style: TextStyle(color: Colors.grey[600]),
+              style: textTheme.bodyMedium?.copyWith(
+                color: textTheme.bodySmall?.color,
+              ),
             ),
-            SizedBox(height: 8),
+            SizedBox(height: AppSpacing.sm),
             Chip(
               label: Text('مدير'),
-              backgroundColor: Colors.blue.withOpacity(0.1),
+              backgroundColor: colorScheme.primary.withOpacity(0.1),
+              labelStyle: TextStyle(color: colorScheme.primary),
             ),
           ],
         ),
@@ -506,13 +547,15 @@ class _MainLayoutState extends State<MainLayout> {
   }
 
   void _confirmLogout(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Row(
           children: [
-            Icon(Icons.logout, color: Colors.red),
-            SizedBox(width: 8),
+            Icon(Icons.logout, color: AppColors.error),
+            SizedBox(width: AppSpacing.sm),
             Text('تسجيل الخروج'),
           ],
         ),
@@ -527,7 +570,7 @@ class _MainLayoutState extends State<MainLayout> {
               Navigator.pop(context);
               Navigator.of(context).pushReplacementNamed('/login');
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
             child: Text('تسجيل الخروج'),
           ),
         ],

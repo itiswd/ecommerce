@@ -23,42 +23,47 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // 1. استخراج خصائص الثيم الأساسية لسهولة الاستخدام الديناميكي
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
     return SingleChildScrollView(
-      padding: EdgeInsets.all(24),
+      padding: EdgeInsets.all(AppSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeader(),
-          SizedBox(height: 24),
-          _buildPeriodSelector(),
-          SizedBox(height: 24),
-          _buildQuickStats(),
-          SizedBox(height: 24),
+          _buildHeader(textTheme),
+          SizedBox(height: AppSpacing.lg),
+          _buildPeriodSelector(colorScheme, textTheme),
+          SizedBox(height: AppSpacing.lg),
+          _buildQuickStats(colorScheme),
+          SizedBox(height: AppSpacing.lg),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(flex: 2, child: _buildRevenueChart()),
-              SizedBox(width: 16),
-              Expanded(child: _buildTopProducts()),
+              Expanded(flex: 2, child: _buildRevenueChart(theme)),
+              SizedBox(width: AppSpacing.md),
+              Expanded(child: _buildTopProducts(colorScheme, textTheme)),
             ],
           ),
-          SizedBox(height: 24),
+          SizedBox(height: AppSpacing.lg),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(child: _buildCategoryBreakdown()),
-              SizedBox(width: 16),
-              Expanded(child: _buildSalesComparison()),
+              Expanded(child: _buildCategoryBreakdown(colorScheme, textTheme)),
+              SizedBox(width: AppSpacing.md),
+              Expanded(child: _buildSalesComparison(colorScheme, textTheme)),
             ],
           ),
-          SizedBox(height: 24),
-          _buildDetailedReports(),
+          SizedBox(height: AppSpacing.lg),
+          _buildDetailedReports(colorScheme),
         ],
       ),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(TextTheme textTheme) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -66,23 +71,25 @@ class _ReportsScreenState extends State<ReportsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('التقارير والإحصائيات', style: AppTextStyles.h2),
-            SizedBox(height: 4),
+            SizedBox(height: AppSpacing.xs),
             Text(
               'تحليل شامل لأداء المتجر',
               style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
+                // استخدام لون النص الثانوي الديناميكي
+                color: textTheme.bodyMedium?.color,
               ),
             ),
           ],
         ),
         Row(
           children: [
+            // الأزرار تستخدم ثيمات ElevatedButtonThemeData و OutlinedButtonThemeData
             OutlinedButton.icon(
               onPressed: _exportReport,
               icon: Icon(Icons.file_download),
               label: Text('تصدير PDF'),
             ),
-            SizedBox(width: 12),
+            SizedBox(width: AppSpacing.md),
             ElevatedButton.icon(
               onPressed: _printReport,
               icon: Icon(Icons.print),
@@ -94,29 +101,31 @@ class _ReportsScreenState extends State<ReportsScreen> {
     );
   }
 
-  Widget _buildPeriodSelector() {
+  Widget _buildPeriodSelector(ColorScheme colorScheme, TextTheme textTheme) {
     return Container(
-      padding: EdgeInsets.all(20),
+      padding: EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: Colors.white,
+        // استخدام لون سطح البطاقة الديناميكي
+        color: colorScheme.surface,
         borderRadius: AppBorderRadius.medium,
         boxShadow: [AppShadows.medium],
       ),
       child: Row(
         children: [
-          Icon(Icons.calendar_today, color: AppColors.primary),
-          SizedBox(width: 12),
+          // أيقونة بلون الـ Primary الديناميكي
+          Icon(Icons.calendar_today, color: colorScheme.primary),
+          SizedBox(width: AppSpacing.md),
           Text('الفترة الزمنية:', style: AppTextStyles.h4),
-          SizedBox(width: 16),
+          SizedBox(width: AppSpacing.md),
           Expanded(
             child: Wrap(
-              spacing: 8,
+              spacing: AppSpacing.sm,
               children: [
-                _periodChip('اليوم'),
-                _periodChip('هذا الأسبوع'),
-                _periodChip('هذا الشهر'),
-                _periodChip('هذا العام'),
-                _periodChip('مخصص'),
+                _periodChip('اليوم', colorScheme),
+                _periodChip('هذا الأسبوع', colorScheme),
+                _periodChip('هذا الشهر', colorScheme),
+                _periodChip('هذا العام', colorScheme),
+                _periodChip('مخصص', colorScheme),
               ],
             ),
           ),
@@ -135,8 +144,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
     );
   }
 
-  Widget _periodChip(String label) {
+  Widget _periodChip(String label, ColorScheme colorScheme) {
     final isSelected = _selectedPeriod == label;
+    final theme = Theme.of(context);
+
     return ChoiceChip(
       label: Text(label),
       selected: isSelected,
@@ -146,9 +157,13 @@ class _ReportsScreenState extends State<ReportsScreen> {
           _updateDateRange(label);
         });
       },
-      selectedColor: AppColors.primary,
+      // لون الخلفية للغير محدد ديناميكي
+      backgroundColor: isSelected ? null : colorScheme.surface,
+      // لون الاختيار من الـ Primary الديناميكي
+      selectedColor: colorScheme.primary,
       labelStyle: TextStyle(
-        color: isSelected ? Colors.white : AppColors.textPrimary,
+        // لون النص ديناميكي
+        color: isSelected ? Colors.white : theme.textTheme.bodyMedium?.color,
         fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
       ),
     );
@@ -180,6 +195,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
   }
 
   Future<void> _showDateRangePicker() async {
+    // DateRangePicker يستخدم ثيم التطبيق الرئيسي
     final picked = await showDateRangePicker(
       context: context,
       firstDate: DateTime(2020),
@@ -197,7 +213,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
     }
   }
 
-  Widget _buildQuickStats() {
+  Widget _buildQuickStats(ColorScheme colorScheme) {
     return Consumer4<
       ProductsProvider,
       OrdersProvider,
@@ -245,10 +261,11 @@ class _ReportsScreenState extends State<ReportsScreen> {
           children: stats.map((stat) {
             return Expanded(
               child: Container(
-                margin: EdgeInsets.only(left: 16),
-                padding: EdgeInsets.all(20),
+                margin: EdgeInsets.only(left: AppSpacing.md),
+                padding: EdgeInsets.all(AppSpacing.lg),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  // استخدام لون سطح البطاقة الديناميكي
+                  color: colorScheme.surface,
                   borderRadius: AppBorderRadius.medium,
                   boxShadow: [AppShadows.medium],
                 ),
@@ -259,10 +276,11 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Container(
-                          padding: EdgeInsets.all(10),
+                          padding: EdgeInsets.all(AppSpacing.sm),
                           decoration: BoxDecoration(
+                            // ألوان دلالية ثابتة مع شفافية
                             color: (stat['color'] as Color).withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(AppSpacing.sm),
                           ),
                           child: Icon(
                             stat['icon'] as IconData,
@@ -272,10 +290,11 @@ class _ReportsScreenState extends State<ReportsScreen> {
                         ),
                         Container(
                           padding: EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
+                            horizontal: AppSpacing.sm,
+                            vertical: AppSpacing.xs,
                           ),
                           decoration: BoxDecoration(
+                            // ألوان دلالية ثابتة مع شفافية
                             color: (stat['isPositive'] as bool)
                                 ? AppColors.success.withOpacity(0.1)
                                 : AppColors.error.withOpacity(0.1),
@@ -292,10 +311,11 @@ class _ReportsScreenState extends State<ReportsScreen> {
                                     ? AppColors.success
                                     : AppColors.error,
                               ),
-                              SizedBox(width: 4),
+                              SizedBox(width: AppSpacing.xs),
                               Text(
                                 stat['change'] as String,
                                 style: TextStyle(
+                                  // ألوان دلالية ثابتة
                                   color: (stat['isPositive'] as bool)
                                       ? AppColors.success
                                       : AppColors.error,
@@ -308,12 +328,13 @@ class _ReportsScreenState extends State<ReportsScreen> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 12),
+                    SizedBox(height: AppSpacing.sm),
+                    // النص يرث لون الثيم
                     Text(
                       stat['title'] as String,
                       style: AppTextStyles.bodySmall,
                     ),
-                    SizedBox(height: 4),
+                    SizedBox(height: AppSpacing.xs),
                     Text(stat['value'] as String, style: AppTextStyles.h3),
                   ],
                 ),
@@ -325,11 +346,17 @@ class _ReportsScreenState extends State<ReportsScreen> {
     );
   }
 
-  Widget _buildRevenueChart() {
+  Widget _buildRevenueChart(ThemeData theme) {
+    // تحديد الألوان الديناميكية للـ Chart
+    final chartGridColor = theme.dividerColor;
+    final chartLabelColor = theme.textTheme.bodySmall?.color;
+    final chartBackgroundColor = theme.colorScheme.surface;
+
     return Container(
-      padding: EdgeInsets.all(24),
+      padding: EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: Colors.white,
+        // استخدام لون سطح البطاقة الديناميكي
+        color: chartBackgroundColor,
         borderRadius: AppBorderRadius.medium,
         boxShadow: [AppShadows.medium],
       ),
@@ -343,13 +370,13 @@ class _ReportsScreenState extends State<ReportsScreen> {
               Row(
                 children: [
                   _chartLegend('المبيعات', AppColors.primary),
-                  SizedBox(width: 16),
+                  SizedBox(width: AppSpacing.md),
                   _chartLegend('الأرباح', AppColors.success),
                 ],
               ),
             ],
           ),
-          SizedBox(height: 24),
+          SizedBox(height: AppSpacing.lg),
           SizedBox(
             height: 300,
             child: LineChart(
@@ -359,7 +386,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   drawVerticalLine: false,
                   horizontalInterval: 5000,
                   getDrawingHorizontalLine: (value) {
-                    return FlLine(color: AppColors.grey200, strokeWidth: 1);
+                    // لون خطوط الشبكة ديناميكي
+                    return FlLine(color: chartGridColor, strokeWidth: 1);
                   },
                 ),
                 titlesData: FlTitlesData(
@@ -379,7 +407,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
                         ];
                         return Text(
                           days[value.toInt() % 7],
-                          style: AppTextStyles.caption,
+                          // لون نص المحاور ديناميكي
+                          style: AppTextStyles.caption.copyWith(
+                            color: chartLabelColor,
+                          ),
                         );
                       },
                     ),
@@ -391,7 +422,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       getTitlesWidget: (value, meta) {
                         return Text(
                           '${(value / 1000).toInt()}k',
-                          style: AppTextStyles.caption,
+                          // لون نص المحاور ديناميكي
+                          style: AppTextStyles.caption.copyWith(
+                            color: chartLabelColor,
+                          ),
                         );
                       },
                     ),
@@ -405,7 +439,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 ),
                 borderData: FlBorderData(show: false),
                 lineBarsData: [
-                  // Sales Line
+                  // Sales Line (الألوان الثابتة هنا لرسومات البيانات مقبولة)
                   LineChartBarData(
                     spots: [
                       FlSpot(0, 15000),
@@ -462,21 +496,23 @@ class _ReportsScreenState extends State<ReportsScreen> {
           height: 12,
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
-        SizedBox(width: 6),
+        SizedBox(width: AppSpacing.xs),
+        // النص يرث لون الثيم
         Text(label, style: AppTextStyles.bodySmall),
       ],
     );
   }
 
-  Widget _buildTopProducts() {
+  Widget _buildTopProducts(ColorScheme colorScheme, TextTheme textTheme) {
     return Consumer<ProductsProvider>(
       builder: (context, provider, child) {
         final topProducts = provider.getTopSellingProducts(limit: 5);
 
         return Container(
-          padding: EdgeInsets.all(24),
+          padding: EdgeInsets.all(AppSpacing.lg),
           decoration: BoxDecoration(
-            color: Colors.white,
+            // استخدام لون سطح البطاقة الديناميكي
+            color: colorScheme.surface,
             borderRadius: AppBorderRadius.medium,
             boxShadow: [AppShadows.medium],
           ),
@@ -484,7 +520,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('الأكثر مبيعاً', style: AppTextStyles.h3),
-              SizedBox(height: 16),
+              SizedBox(height: AppSpacing.md),
               ...topProducts.asMap().entries.map((entry) {
                 final index = entry.key;
                 final product = entry.value;
@@ -493,6 +529,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   product.name,
                   product.soldCount,
                   product.price * product.soldCount,
+                  colorScheme,
+                  textTheme,
                 );
               }),
             ],
@@ -502,12 +540,24 @@ class _ReportsScreenState extends State<ReportsScreen> {
     );
   }
 
-  Widget _topProductItem(int rank, String name, int sales, double revenue) {
+  Widget _topProductItem(
+    int rank,
+    String name,
+    int sales,
+    double revenue,
+    ColorScheme colorScheme,
+    TextTheme textTheme,
+  ) {
+    // لون خلفية العنصر يتغير حسب الثيم
+    final itemBackgroundColor = Theme.of(context).brightness == Brightness.light
+        ? AppColors.grey50
+        : AppColors.darkSurface;
+
     return Container(
-      margin: EdgeInsets.only(bottom: 12),
-      padding: EdgeInsets.all(12),
+      margin: EdgeInsets.only(bottom: AppSpacing.md),
+      padding: EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: AppColors.grey50,
+        color: itemBackgroundColor,
         borderRadius: AppBorderRadius.small,
       ),
       child: Row(
@@ -516,6 +566,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
             width: 32,
             height: 32,
             decoration: BoxDecoration(
+              // ألوان دلالية ثابتة للـ Rank
               color: rank <= 3 ? AppColors.warning : AppColors.grey300,
               shape: BoxShape.circle,
             ),
@@ -523,25 +574,37 @@ class _ReportsScreenState extends State<ReportsScreen> {
               child: Text(
                 '$rank',
                 style: TextStyle(
-                  color: rank <= 3 ? Colors.white : AppColors.grey700,
+                  // لون النص يتغير حسب الثيم للحالة غير المميزة
+                  color: rank <= 3
+                      ? Colors.white
+                      : Theme.of(context).brightness == Brightness.light
+                      ? AppColors.grey700
+                      : AppColors.darkTextPrimary,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
           ),
-          SizedBox(width: 12),
+          SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(name, style: AppTextStyles.bodyMedium),
-                Text('$sales مبيعة', style: AppTextStyles.bodySmall),
+                Text(
+                  '$sales مبيعة',
+                  // استخدام لون النص الثانوي الديناميكي
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: textTheme.bodyMedium?.color,
+                  ),
+                ),
               ],
             ),
           ),
           Text(
             '${NumberFormat('#,##0').format(revenue)} ج',
             style: AppTextStyles.bodyMedium.copyWith(
+              // لون دلالي ثابت
               color: AppColors.success,
               fontWeight: FontWeight.bold,
             ),
@@ -551,11 +614,15 @@ class _ReportsScreenState extends State<ReportsScreen> {
     );
   }
 
-  Widget _buildCategoryBreakdown() {
+  Widget _buildCategoryBreakdown(ColorScheme colorScheme, TextTheme textTheme) {
+    // تحديد لون نص المحاور ديناميكياً
+    final chartLabelColor = textTheme.bodySmall?.color;
+
     return Container(
-      padding: EdgeInsets.all(24),
+      padding: EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: Colors.white,
+        // استخدام لون سطح البطاقة الديناميكي
+        color: colorScheme.surface,
         borderRadius: AppBorderRadius.medium,
         boxShadow: [AppShadows.medium],
       ),
@@ -563,7 +630,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('المبيعات حسب الفئة', style: AppTextStyles.h3),
-          SizedBox(height: 24),
+          SizedBox(height: AppSpacing.lg),
           SizedBox(
             height: 300,
             child: PieChart(
@@ -615,7 +682,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     color: AppColors.grey400,
                     radius: 100,
                     titleStyle: TextStyle(
-                      color: Colors.white,
+                      // لون نص المحور ديناميكي
+                      color: chartLabelColor,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -625,10 +693,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
               ),
             ),
           ),
-          SizedBox(height: 16),
+          SizedBox(height: AppSpacing.md),
           Wrap(
-            spacing: 16,
-            runSpacing: 8,
+            spacing: AppSpacing.md,
+            runSpacing: AppSpacing.sm,
             children: [
               _categoryLegend('إلكترونيات', AppColors.primary),
               _categoryLegend('ملابس', AppColors.success),
@@ -651,17 +719,21 @@ class _ReportsScreenState extends State<ReportsScreen> {
           height: 12,
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
-        SizedBox(width: 6),
+        SizedBox(width: AppSpacing.xs),
         Text(label, style: AppTextStyles.bodySmall),
       ],
     );
   }
 
-  Widget _buildSalesComparison() {
+  Widget _buildSalesComparison(ColorScheme colorScheme, TextTheme textTheme) {
+    // تحديد لون نص المحاور ديناميكياً
+    final chartLabelColor = textTheme.bodySmall?.color;
+
     return Container(
-      padding: EdgeInsets.all(24),
+      padding: EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: Colors.white,
+        // استخدام لون سطح البطاقة الديناميكي
+        color: colorScheme.surface,
         borderRadius: AppBorderRadius.medium,
         boxShadow: [AppShadows.medium],
       ),
@@ -669,7 +741,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('مقارنة المبيعات', style: AppTextStyles.h3),
-          SizedBox(height: 24),
+          SizedBox(height: AppSpacing.lg),
           SizedBox(
             height: 300,
             child: BarChart(
@@ -692,7 +764,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
                         ];
                         return Text(
                           months[value.toInt()],
-                          style: AppTextStyles.caption,
+                          // لون نص المحاور ديناميكي
+                          style: AppTextStyles.caption.copyWith(
+                            color: chartLabelColor,
+                          ),
                         );
                       },
                     ),
@@ -704,7 +779,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       getTitlesWidget: (value, meta) {
                         return Text(
                           '${(value / 1000).toInt()}k',
-                          style: AppTextStyles.caption,
+                          // لون نص المحاور ديناميكي
+                          style: AppTextStyles.caption.copyWith(
+                            color: chartLabelColor,
+                          ),
                         );
                       },
                     ),
@@ -748,7 +826,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
     );
   }
 
-  Widget _buildDetailedReports() {
+  Widget _buildDetailedReports(ColorScheme colorScheme) {
     final reports = [
       {
         'title': 'تقرير المبيعات التفصيلي',
@@ -777,9 +855,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
     ];
 
     return Container(
-      padding: EdgeInsets.all(24),
+      padding: EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: Colors.white,
+        // استخدام لون سطح البطاقة الديناميكي
+        color: colorScheme.surface,
         borderRadius: AppBorderRadius.medium,
         boxShadow: [AppShadows.medium],
       ),
@@ -787,28 +866,35 @@ class _ReportsScreenState extends State<ReportsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('التقارير التفصيلية', style: AppTextStyles.h3),
-          SizedBox(height: 16),
-          ...reports.map((report) => _reportCard(report)),
+          SizedBox(height: AppSpacing.md),
+          ...reports.map((report) => _reportCard(report, colorScheme)),
         ],
       ),
     );
   }
 
-  Widget _reportCard(Map<String, dynamic> report) {
+  Widget _reportCard(Map<String, dynamic> report, ColorScheme colorScheme) {
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+
     return Container(
-      margin: EdgeInsets.only(bottom: 12),
-      padding: EdgeInsets.all(16),
+      margin: EdgeInsets.only(bottom: AppSpacing.md),
+      padding: EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.grey200),
+        // لون الحدود ديناميكي
+        border: Border.all(color: theme.dividerColor),
+        // لون الخلفية من سطح البطاقة
+        color: colorScheme.surface,
         borderRadius: AppBorderRadius.medium,
       ),
       child: Row(
         children: [
           Container(
-            padding: EdgeInsets.all(12),
+            padding: EdgeInsets.all(AppSpacing.md),
             decoration: BoxDecoration(
+              // ألوان دلالية ثابتة مع شفافية
               color: (report['color'] as Color).withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(AppSpacing.sm),
             ),
             child: Icon(
               report['icon'] as IconData,
@@ -816,7 +902,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
               size: 24,
             ),
           ),
-          SizedBox(width: 16),
+          SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -829,11 +915,15 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 ),
                 Text(
                   report['description'] as String,
-                  style: AppTextStyles.bodySmall,
+                  // استخدام لون النص الثانوي الديناميكي
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: textTheme.bodySmall?.color,
+                  ),
                 ),
               ],
             ),
           ),
+          // زر "إنشاء" يستخدم ElevatedButtonThemeData
           ElevatedButton(
             onPressed: () => _generateReport(report['title'] as String),
             child: Text('إنشاء'),
@@ -844,37 +934,52 @@ class _ReportsScreenState extends State<ReportsScreen> {
   }
 
   void _exportReport() {
+    // SnackBar يستخدم الألوان الافتراضية للـ Scaffold والخلفية
+    final colorScheme = Theme.of(context).colorScheme;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('جاري تصدير التقرير...'),
+        backgroundColor: colorScheme.surface,
         action: SnackBarAction(label: 'إلغاء', onPressed: () {}),
       ),
     );
   }
 
   void _printReport() {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('جاري الطباعة...')));
+    // SnackBar يستخدم الألوان الافتراضية للـ Scaffold والخلفية
+    final colorScheme = Theme.of(context).colorScheme;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('جاري الطباعة...'),
+        backgroundColor: colorScheme.surface,
+      ),
+    );
   }
 
   void _generateReport(String reportName) {
+    // AlertDialog يستخدم DialogThemeData
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(reportName),
         content: Text('هل تريد إنشاء هذا التقرير؟'),
         actions: [
+          // TextButton يستخدم TextButtonThemeData
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text('إلغاء'),
           ),
+          // ElevatedButton يستخدم ElevatedButtonThemeData
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text('تم إنشاء التقرير بنجاح')));
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('تم إنشاء التقرير بنجاح'),
+                  // استخدام لون النجاح الديناميكي (Secondary)
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                ),
+              );
             },
             child: Text('إنشاء'),
           ),

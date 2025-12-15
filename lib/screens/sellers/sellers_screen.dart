@@ -29,20 +29,25 @@ class _SellersScreenState extends State<SellersScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // 1. استخراج خصائص الثيم الأساسية لسهولة الاستخدام الديناميكي
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
     return Consumer<SellersProvider>(
       builder: (context, sellersProvider, child) {
         return SingleChildScrollView(
-          padding: EdgeInsets.all(24),
+          padding: EdgeInsets.all(AppSpacing.lg),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildHeader(sellersProvider),
-              SizedBox(height: 24),
-              _buildStatsCards(sellersProvider),
-              SizedBox(height: 24),
-              _buildFiltersSection(),
-              SizedBox(height: 24),
-              _buildSellersTable(sellersProvider),
+              _buildHeader(sellersProvider, theme, textTheme),
+              SizedBox(height: AppSpacing.lg),
+              _buildStatsCards(sellersProvider, colorScheme),
+              SizedBox(height: AppSpacing.lg),
+              _buildFiltersSection(colorScheme),
+              SizedBox(height: AppSpacing.lg),
+              _buildSellersTable(sellersProvider, theme),
             ],
           ),
         );
@@ -50,31 +55,38 @@ class _SellersScreenState extends State<SellersScreen> {
     );
   }
 
-  Widget _buildHeader(SellersProvider provider) {
+  Widget _buildHeader(
+    SellersProvider provider,
+    ThemeData theme,
+    TextTheme textTheme,
+  ) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // TextStyles بدون لون محدد ترث لون النص الأساسي من الثيم
             Text('البائعون', style: AppTextStyles.h2),
-            SizedBox(height: 4),
+            SizedBox(height: AppSpacing.xs),
             Text(
               'إدارة البائعين والعمولات',
               style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
+                // استخدام لون النص الثانوي الديناميكي
+                color: textTheme.bodyMedium?.color,
               ),
             ),
           ],
         ),
         Row(
           children: [
+            // الأزرار تستخدم ثيمات ElevatedButtonThemeData و OutlinedButtonThemeData
             OutlinedButton.icon(
               onPressed: () {},
               icon: Icon(Icons.file_download),
               label: Text('تصدير'),
             ),
-            SizedBox(width: 12),
+            SizedBox(width: AppSpacing.md),
             ElevatedButton.icon(
               onPressed: () => provider.refresh(),
               icon: Icon(Icons.refresh),
@@ -86,7 +98,8 @@ class _SellersScreenState extends State<SellersScreen> {
     );
   }
 
-  Widget _buildStatsCards(SellersProvider provider) {
+  Widget _buildStatsCards(SellersProvider provider, ColorScheme colorScheme) {
+    // ألوان الحالة (Status Colors) تبقى ثابتة من AppColors لأنها ذات دلالة محددة
     final stats = [
       {
         'title': 'إجمالي البائعين',
@@ -119,10 +132,11 @@ class _SellersScreenState extends State<SellersScreen> {
       children: stats.map((stat) {
         return Expanded(
           child: Container(
-            margin: EdgeInsets.only(left: 16),
-            padding: EdgeInsets.all(20),
+            margin: EdgeInsets.only(left: AppSpacing.md),
+            padding: EdgeInsets.all(AppSpacing.lg),
             decoration: BoxDecoration(
-              color: Colors.white,
+              // استخدام لون سطح البطاقة الديناميكي
+              color: colorScheme.surface,
               borderRadius: AppBorderRadius.medium,
               boxShadow: [AppShadows.medium],
             ),
@@ -130,10 +144,10 @@ class _SellersScreenState extends State<SellersScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: EdgeInsets.all(10),
+                  padding: EdgeInsets.all(AppSpacing.sm),
                   decoration: BoxDecoration(
                     color: (stat['color'] as Color).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(AppSpacing.md),
                   ),
                   child: Icon(
                     stat['icon'] as IconData,
@@ -141,9 +155,9 @@ class _SellersScreenState extends State<SellersScreen> {
                     size: 24,
                   ),
                 ),
-                SizedBox(height: 12),
+                SizedBox(height: AppSpacing.sm),
                 Text(stat['title'] as String, style: AppTextStyles.bodySmall),
-                SizedBox(height: 4),
+                SizedBox(height: AppSpacing.xs),
                 Text(stat['value'] as String, style: AppTextStyles.h3),
               ],
             ),
@@ -153,11 +167,12 @@ class _SellersScreenState extends State<SellersScreen> {
     );
   }
 
-  Widget _buildFiltersSection() {
+  Widget _buildFiltersSection(ColorScheme colorScheme) {
     return Container(
-      padding: EdgeInsets.all(20),
+      padding: EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: Colors.white,
+        // استخدام لون سطح البطاقة الديناميكي
+        color: colorScheme.surface,
         borderRadius: AppBorderRadius.medium,
         boxShadow: [AppShadows.medium],
       ),
@@ -167,6 +182,7 @@ class _SellersScreenState extends State<SellersScreen> {
             flex: 2,
             child: TextField(
               controller: _searchController,
+              // حقول الإدخال تستخدم InputDecorationTheme من الثيم الرئيسي
               decoration: InputDecoration(
                 hintText: 'ابحث عن بائع...',
                 prefixIcon: Icon(Icons.search),
@@ -174,10 +190,11 @@ class _SellersScreenState extends State<SellersScreen> {
               onChanged: (value) => setState(() {}),
             ),
           ),
-          SizedBox(width: 16),
+          SizedBox(width: AppSpacing.md),
           Expanded(
             child: DropdownButtonFormField<String>(
               initialValue: _selectedTier,
+              // حقول الإدخال تستخدم InputDecorationTheme من الثيم الرئيسي
               decoration: InputDecoration(labelText: 'التصنيف'),
               items: ['الكل', 'Platinum', 'Gold', 'Silver', 'Bronze']
                   .map(
@@ -187,10 +204,11 @@ class _SellersScreenState extends State<SellersScreen> {
               onChanged: (value) => setState(() => _selectedTier = value!),
             ),
           ),
-          SizedBox(width: 16),
+          SizedBox(width: AppSpacing.md),
           Expanded(
             child: DropdownButtonFormField<String>(
               initialValue: _sortBy,
+              // حقول الإدخال تستخدم InputDecorationTheme من الثيم الرئيسي
               decoration: InputDecoration(labelText: 'ترتيب حسب'),
               items: ['الأحدث', 'الأقدم', 'الأعلى مبيعات', 'الأكثر منتجات']
                   .map(
@@ -205,11 +223,11 @@ class _SellersScreenState extends State<SellersScreen> {
     );
   }
 
-  Widget _buildSellersTable(SellersProvider provider) {
+  Widget _buildSellersTable(SellersProvider provider, ThemeData theme) {
     if (provider.isLoading) {
       return Center(
         child: Padding(
-          padding: EdgeInsets.all(40),
+          padding: EdgeInsets.all(AppSpacing.xl),
           child: CircularProgressIndicator(),
         ),
       );
@@ -223,7 +241,7 @@ class _SellersScreenState extends State<SellersScreen> {
           .toList();
     }
 
-    // Sort
+    // Sort logic (unchanged)
     switch (_sortBy) {
       case 'الأقدم':
         filteredSellers.sort((a, b) => a.joinDate.compareTo(b.joinDate));
@@ -244,14 +262,15 @@ class _SellersScreenState extends State<SellersScreen> {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        // استخدام لون سطح البطاقة الديناميكي
+        color: theme.colorScheme.surface,
         borderRadius: AppBorderRadius.medium,
         boxShadow: [AppShadows.medium],
       ),
       child: Column(
         children: [
           Padding(
-            padding: EdgeInsets.all(20),
+            padding: EdgeInsets.all(AppSpacing.lg),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -262,14 +281,20 @@ class _SellersScreenState extends State<SellersScreen> {
               ],
             ),
           ),
-          Divider(height: 1),
+          // استخدام DividerThemeData من الثيم
+          Divider(height: 1, color: theme.dividerColor),
           SizedBox(
             height: 600,
             child: DataTable2(
               columnSpacing: 12,
               horizontalMargin: 20,
               minWidth: 1400,
-              headingRowColor: WidgetStateProperty.all(AppColors.grey50),
+              // لون رأس الجدول يتغير بناءً على وضع الثيم (فاتح/داكن)
+              headingRowColor: WidgetStateProperty.all(
+                theme.brightness == Brightness.light
+                    ? AppColors.grey50
+                    : AppColors.darkSurface,
+              ),
               columns: [
                 DataColumn2(
                   label: Text(
@@ -347,13 +372,15 @@ class _SellersScreenState extends State<SellersScreen> {
                 ),
               ],
               rows: filteredSellers.map((seller) {
+                final tierColor = _getTierColor(seller.sellerTier);
                 return DataRow(
                   cells: [
                     DataCell(
                       Row(
                         children: [
                           CircleAvatar(
-                            backgroundColor: _getTierColor(seller.sellerTier),
+                            // لون التصنيف ثابت للدلالة
+                            backgroundColor: tierColor,
                             child: Text(
                               seller.name[0],
                               style: TextStyle(
@@ -362,7 +389,7 @@ class _SellersScreenState extends State<SellersScreen> {
                               ),
                             ),
                           ),
-                          SizedBox(width: 12),
+                          SizedBox(width: AppSpacing.md),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -377,7 +404,7 @@ class _SellersScreenState extends State<SellersScreen> {
                                       ),
                                     ),
                                     if (seller.isVerified) ...[
-                                      SizedBox(width: 4),
+                                      SizedBox(width: AppSpacing.xs),
                                       Icon(
                                         Icons.verified,
                                         size: 16,
@@ -386,6 +413,7 @@ class _SellersScreenState extends State<SellersScreen> {
                                     ],
                                   ],
                                 ),
+                                // TextStyles بدون لون محدد ترث لون النص الأساسي من الثيم
                                 Text(
                                   seller.email,
                                   style: AppTextStyles.bodySmall,
@@ -414,7 +442,7 @@ class _SellersScreenState extends State<SellersScreen> {
                       Text(
                         '${seller.totalSales}',
                         style: AppTextStyles.bodyMedium.copyWith(
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
@@ -423,7 +451,7 @@ class _SellersScreenState extends State<SellersScreen> {
                         '${NumberFormat('#,##0').format(seller.totalRevenue)} ج',
                         style: AppTextStyles.bodyMedium.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: AppColors.success,
+                          color: AppColors.success, // لون دلالي ثابت
                         ),
                       ),
                     ),
@@ -432,26 +460,25 @@ class _SellersScreenState extends State<SellersScreen> {
                         '${NumberFormat('#,##0').format(seller.pendingCommission)} ج',
                         style: AppTextStyles.bodyMedium.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: AppColors.warning,
+                          color: AppColors.warning, // لون دلالي ثابت
                         ),
                       ),
                     ),
                     DataCell(
                       Container(
                         padding: EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
+                          horizontal: AppSpacing.md,
+                          vertical: AppSpacing.xs,
                         ),
                         decoration: BoxDecoration(
-                          color: _getTierColor(
-                            seller.sellerTier,
-                          ).withOpacity(0.1),
+                          // لون الخلفية من لون التصنيف مع Opacity
+                          color: tierColor.withOpacity(0.15),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
                           seller.sellerTier,
                           style: TextStyle(
-                            color: _getTierColor(seller.sellerTier),
+                            color: tierColor, // لون النص من لون التصنيف
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
                           ),
@@ -459,6 +486,7 @@ class _SellersScreenState extends State<SellersScreen> {
                       ),
                     ),
                     DataCell(
+                      // الـ Switch يستخدم SwitchThemeData من الثيم الرئيسي
                       Switch(
                         value: seller.isActive,
                         onChanged: (value) {
@@ -475,7 +503,7 @@ class _SellersScreenState extends State<SellersScreen> {
                             onPressed: () =>
                                 _showSellerDetails(context, seller),
                             tooltip: 'عرض',
-                            color: AppColors.info,
+                            color: AppColors.info, // لون دلالي ثابت
                           ),
                           if (!seller.isVerified)
                             IconButton(
@@ -483,7 +511,7 @@ class _SellersScreenState extends State<SellersScreen> {
                               onPressed: () =>
                                   provider.verifySeller(seller.id, true),
                               tooltip: 'توثيق',
-                              color: AppColors.success,
+                              color: AppColors.success, // لون دلالي ثابت
                             ),
                           IconButton(
                             icon: Icon(Icons.attach_money, size: 18),
@@ -493,7 +521,7 @@ class _SellersScreenState extends State<SellersScreen> {
                               provider,
                             ),
                             tooltip: 'دفع عمولة',
-                            color: AppColors.warning,
+                            color: AppColors.warning, // لون دلالي ثابت
                           ),
                         ],
                       ),
@@ -508,6 +536,7 @@ class _SellersScreenState extends State<SellersScreen> {
     );
   }
 
+  // تم الاحتفاظ بألوان التصنيفات الثابتة لأنها ألوان دلالية محددة (Platinum, Gold, Bronze)
   Color _getTierColor(String tier) {
     switch (tier) {
       case 'Platinum':
@@ -515,7 +544,7 @@ class _SellersScreenState extends State<SellersScreen> {
       case 'Gold':
         return AppColors.warning;
       case 'Silver':
-        return AppColors.grey500;
+        return AppColors.grey600;
       case 'Bronze':
         return Color(0xFFCD7F32);
       default:
@@ -524,9 +553,12 @@ class _SellersScreenState extends State<SellersScreen> {
   }
 
   void _showSellerDetails(BuildContext context, Seller seller) {
+    final textTheme = Theme.of(context).textTheme;
+    // AlertDialog يستخدم DialogThemeData من الثيم
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        // عنوان النص يستخدم titleTextStyle من DialogThemeData
         title: Text('تفاصيل البائع'),
         content: SizedBox(
           width: 500,
@@ -535,32 +567,40 @@ class _SellersScreenState extends State<SellersScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _detailRow('الاسم', seller.name),
-                _detailRow('البريد', seller.email),
-                _detailRow('الهاتف', seller.phone),
-                _detailRow('المدينة', seller.city),
-                _detailRow('المتجر', seller.storeName ?? 'غير محدد'),
-                _detailRow('التصنيف', seller.sellerTier),
-                _detailRow('عدد المنتجات', '${seller.totalProducts}'),
-                _detailRow('عدد المبيعات', '${seller.totalSales}'),
+                _detailRow('الاسم', seller.name, textTheme),
+                _detailRow('البريد', seller.email, textTheme),
+                _detailRow('الهاتف', seller.phone, textTheme),
+                _detailRow('المدينة', seller.city, textTheme),
+                _detailRow('المتجر', seller.storeName ?? 'غير محدد', textTheme),
+                _detailRow('التصنيف', seller.sellerTier, textTheme),
+                _detailRow(
+                  'عدد المنتجات',
+                  '${seller.totalProducts}',
+                  textTheme,
+                ),
+                _detailRow('عدد المبيعات', '${seller.totalSales}', textTheme),
                 _detailRow(
                   'إجمالي الإيرادات',
                   '${NumberFormat('#,##0').format(seller.totalRevenue)} ج',
+                  textTheme,
                 ),
                 _detailRow(
                   'العمولة المدفوعة',
                   '${NumberFormat('#,##0').format(seller.totalCommissionPaid)} ج',
+                  textTheme,
                 ),
                 _detailRow(
                   'العمولة المعلقة',
                   '${NumberFormat('#,##0').format(seller.pendingCommission)} ج',
+                  textTheme,
                 ),
-                _detailRow('مستوى النشاط', seller.activityLevel),
+                _detailRow('مستوى النشاط', seller.activityLevel, textTheme),
               ],
             ),
           ),
         ),
         actions: [
+          // TextButton يستخدم TextButtonThemeData من الثيم الرئيسي
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text('إغلاق'),
@@ -570,9 +610,10 @@ class _SellersScreenState extends State<SellersScreen> {
     );
   }
 
-  Widget _detailRow(String label, String value) {
+  // تم تعديل الدالة لقبول TextTheme لجعل نصوصها ديناميكية
+  Widget _detailRow(String label, String value, TextTheme textTheme) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 8),
+      padding: EdgeInsets.symmetric(vertical: AppSpacing.sm),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -580,10 +621,14 @@ class _SellersScreenState extends State<SellersScreen> {
             width: 140,
             child: Text(
               '$label:',
-              style: TextStyle(fontWeight: FontWeight.bold),
+              // استخدام TextTheme لضبط اللون بناءً على الثيم
+              style: textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
-          Expanded(child: Text(value)),
+          // استخدام TextTheme لضبط اللون بناءً على الثيم
+          Expanded(child: Text(value, style: textTheme.bodyMedium)),
         ],
       ),
     );
@@ -598,6 +643,10 @@ class _SellersScreenState extends State<SellersScreen> {
       text: seller.pendingCommission.toStringAsFixed(2),
     );
 
+    // الحصول على ColorScheme لاستخدامه في SnackBar
+    final colorScheme = Theme.of(context).colorScheme;
+
+    // AlertDialog يستخدم DialogThemeData من الثيم
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -605,10 +654,12 @@ class _SellersScreenState extends State<SellersScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // النص سيعتمد على الثيم
             Text(
               'العمولة المعلقة: ${NumberFormat('#,##0').format(seller.pendingCommission)} ج',
             ),
-            SizedBox(height: 16),
+            SizedBox(height: AppSpacing.md),
+            // TextField يستخدم InputDecorationTheme من الثيم الرئيسي
             TextField(
               controller: amountController,
               keyboardType: TextInputType.number,
@@ -620,19 +671,25 @@ class _SellersScreenState extends State<SellersScreen> {
           ],
         ),
         actions: [
+          // TextButton يستخدم TextButtonThemeData من الثيم الرئيسي
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text('إلغاء'),
           ),
+          // ElevatedButton يستخدم ElevatedButtonThemeData من الثيم الرئيسي
           ElevatedButton(
             onPressed: () {
               final amount = double.tryParse(amountController.text) ?? 0;
               if (amount > 0) {
                 provider.payCommission(seller.id, amount);
                 Navigator.pop(context);
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text('تم دفع العمولة بنجاح')));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('تم دفع العمولة بنجاح'),
+                    // استخدام لون النجاح الديناميكي (Secondary)
+                    backgroundColor: colorScheme.secondary,
+                  ),
+                );
               }
             },
             child: Text('دفع'),

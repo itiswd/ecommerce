@@ -26,7 +26,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    // 1. استخراج خصائص الثيم الأساسية
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
 
     return Consumer<DashboardProvider>(
       builder: (context, dashProvider, child) {
@@ -35,32 +38,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
         }
 
         return SingleChildScrollView(
-          padding: EdgeInsets.all(24),
+          padding: EdgeInsets.all(AppSpacing.lg),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildHeader(dashProvider, isDark),
-              SizedBox(height: 24),
-              _buildStatsCards(dashProvider, isDark),
-              SizedBox(height: 24),
+              _buildHeader(dashProvider, textTheme),
+              SizedBox(height: AppSpacing.lg),
+              _buildStatsCards(dashProvider, colorScheme, textTheme),
+              SizedBox(height: AppSpacing.lg),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
                     flex: 2,
-                    child: _buildSalesChart(dashProvider, isDark),
+                    child: _buildSalesChart(dashProvider, theme),
                   ),
-                  SizedBox(width: 16),
-                  Expanded(child: _buildCategoryPieChart(dashProvider, isDark)),
+                  SizedBox(width: AppSpacing.md),
+                  Expanded(
+                    child: _buildCategoryPieChart(dashProvider, colorScheme),
+                  ),
                 ],
               ),
-              SizedBox(height: 24),
+              SizedBox(height: AppSpacing.lg),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(child: _buildRecentOrders(dashProvider, isDark)),
-                  SizedBox(width: 16),
-                  Expanded(child: _buildTopProducts(dashProvider, isDark)),
+                  Expanded(child: _buildRecentOrders(dashProvider, theme)),
+                  SizedBox(width: AppSpacing.md),
+                  Expanded(child: _buildTopProducts(dashProvider, theme)),
                 ],
               ),
             ],
@@ -70,62 +75,65 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildHeader(DashboardProvider provider, bool isDark) {
+  Widget _buildHeader(DashboardProvider provider, TextTheme textTheme) {
+    final theme = Theme.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'لوحة التحكم',
-              style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                color: isDark ? AppColors.darkTextPrimary : Colors.grey[800],
-              ),
-            ),
-            SizedBox(height: 4),
+            // استخدام AppTextStyles لضمان التناسق
+            Text('لوحة التحكم', style: AppTextStyles.h2),
+            SizedBox(height: AppSpacing.xs),
             Text(
               'مرحباً بك، إليك نظرة عامة على متجرك',
-              style: TextStyle(
-                fontSize: 16,
-                color: isDark ? AppColors.darkTextSecondary : Colors.grey[600],
+              style: AppTextStyles.bodyMedium.copyWith(
+                // استخدام لون النص الثانوي الديناميكي
+                color: textTheme.bodyMedium?.color,
               ),
             ),
           ],
         ),
         Row(
           children: [
-            _buildFilterChip('اليوم', true, isDark),
-            SizedBox(width: 8),
-            _buildFilterChip('هذا الأسبوع', false, isDark),
-            SizedBox(width: 8),
-            _buildFilterChip('هذا الشهر', false, isDark),
+            _buildFilterChip('اليوم', true, theme),
+            SizedBox(width: AppSpacing.sm),
+            _buildFilterChip('هذا الأسبوع', false, theme),
+            SizedBox(width: AppSpacing.sm),
+            _buildFilterChip('هذا الشهر', false, theme),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildFilterChip(String label, bool isSelected, bool isDark) {
+  Widget _buildFilterChip(String label, bool isSelected, ThemeData theme) {
     return ChoiceChip(
       label: Text(label),
       selected: isSelected,
-      onSelected: (selected) {},
-      selectedColor: Colors.blue,
-      backgroundColor: isDark ? AppColors.darkSurface : Colors.grey[100],
+      onSelected: (selected) {
+        // TODO: Implement actual filtering logic
+      },
+      // لون الاختيار من الـ Primary الديناميكي
+      selectedColor: theme.colorScheme.primary,
+      // خلفية الشريحة غير المختارة ديناميكية
+      backgroundColor: theme.brightness == Brightness.dark
+          ? AppColors.darkSurface
+          : AppColors.grey100,
       labelStyle: TextStyle(
-        color: isSelected
-            ? Colors.white
-            : isDark
-            ? AppColors.darkTextSecondary
-            : Colors.grey[700],
+        // لون النص ديناميكي
+        color: isSelected ? Colors.white : theme.textTheme.bodyMedium?.color,
       ),
     );
   }
 
-  Widget _buildStatsCards(DashboardProvider provider, bool isDark) {
+  Widget _buildStatsCards(
+    DashboardProvider provider,
+    ColorScheme colorScheme,
+    TextTheme textTheme,
+  ) {
+    // ألوان الحالات تبقى ثابتة للدلالة البصرية
     final stats = [
       {
         'title': 'إجمالي المبيعات',
@@ -133,7 +141,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         'change': '+12.5%',
         'isPositive': true,
         'icon': Icons.attach_money,
-        'color': Colors.blue,
+        'color': AppColors.primary,
       },
       {
         'title': 'الطلبات',
@@ -141,7 +149,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         'change': '+8.2%',
         'isPositive': true,
         'icon': Icons.shopping_cart,
-        'color': Colors.green,
+        'color': AppColors.success,
       },
       {
         'title': 'العملاء',
@@ -149,7 +157,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         'change': '+15.3%',
         'isPositive': true,
         'icon': Icons.people,
-        'color': Colors.purple,
+        'color': AppColors.info,
       },
       {
         'title': 'العمولة المكتسبة',
@@ -158,7 +166,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         'change': '+20.1%',
         'isPositive': true,
         'icon': Icons.trending_up,
-        'color': Colors.orange,
+        'color': AppColors.warning,
       },
     ];
 
@@ -167,8 +175,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       physics: NeverScrollableScrollPhysics(),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 4,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
+        crossAxisSpacing: AppSpacing.md,
+        mainAxisSpacing: AppSpacing.md,
         childAspectRatio: 1.5,
       ),
       itemCount: stats.length,
@@ -181,7 +189,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           isPositive: stat['isPositive'] as bool,
           icon: stat['icon'] as IconData,
           color: stat['color'] as Color,
-          isDark: isDark,
+          colorScheme: colorScheme,
+          textTheme: textTheme,
         );
       },
     );
@@ -194,21 +203,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
     required bool isPositive,
     required IconData icon,
     required Color color,
-    required bool isDark,
+    required ColorScheme colorScheme,
+    required TextTheme textTheme,
   }) {
     return Container(
-      padding: EdgeInsets.all(20),
+      padding: EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkCard : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: (isDark ? Colors.black : Colors.grey).withOpacity(0.1),
-            spreadRadius: 2,
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
+        // استخدام لون سطح البطاقة الديناميكي
+        color: colorScheme.surface,
+        borderRadius: AppBorderRadius.large,
+        boxShadow: [AppShadows.medium],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -218,33 +222,37 @@ class _DashboardScreenState extends State<DashboardScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                padding: EdgeInsets.all(12),
+                padding: EdgeInsets.all(AppSpacing.sm),
                 decoration: BoxDecoration(
                   color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppSpacing.md),
                 ),
                 child: Icon(icon, color: color, size: 24),
               ),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: EdgeInsets.symmetric(
+                  horizontal: AppSpacing.sm,
+                  vertical: AppSpacing.xs,
+                ),
                 decoration: BoxDecoration(
+                  // ألوان دلالية ثابتة مع شفافية
                   color: isPositive
-                      ? Colors.green.withOpacity(0.1)
-                      : Colors.red.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
+                      ? AppColors.success.withOpacity(0.1)
+                      : AppColors.error.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(AppSpacing.xs),
                 ),
                 child: Row(
                   children: [
                     Icon(
                       isPositive ? Icons.arrow_upward : Icons.arrow_downward,
                       size: 14,
-                      color: isPositive ? Colors.green : Colors.red,
+                      color: isPositive ? AppColors.success : AppColors.error,
                     ),
-                    SizedBox(width: 4),
+                    SizedBox(width: AppSpacing.xs),
                     Text(
                       change,
                       style: TextStyle(
-                        color: isPositive ? Colors.green : Colors.red,
+                        color: isPositive ? AppColors.success : AppColors.error,
                         fontWeight: FontWeight.bold,
                         fontSize: 12,
                       ),
@@ -259,22 +267,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               Text(
                 title,
-                style: TextStyle(
-                  color: isDark
-                      ? AppColors.darkTextSecondary
-                      : Colors.grey[600],
-                  fontSize: 14,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  // استخدام لون النص الثانوي الديناميكي
+                  color: textTheme.bodyMedium?.color,
                 ),
               ),
-              SizedBox(height: 4),
-              Text(
-                value,
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? AppColors.darkTextPrimary : Colors.grey[800],
-                ),
-              ),
+              SizedBox(height: AppSpacing.xs),
+              // استخدام AppTextStyles.h3 لضمان حجم ووزن الخط المناسب
+              Text(value, style: AppTextStyles.h3),
             ],
           ),
         ],
@@ -282,33 +282,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildSalesChart(DashboardProvider provider, bool isDark) {
+  Widget _buildSalesChart(DashboardProvider provider, ThemeData theme) {
+    // تحديد الألوان الديناميكية للـ Chart
+    final chartGridColor = theme.dividerColor;
+    final chartLabelColor = theme.textTheme.bodySmall?.color;
+    final chartTitleColor = theme.textTheme.titleMedium?.color;
+    final chartBackgroundColor = theme.colorScheme.surface;
+
     return Container(
-      padding: EdgeInsets.all(24),
+      padding: EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkCard : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: (isDark ? Colors.black : Colors.grey).withOpacity(0.1),
-            spreadRadius: 2,
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
+        // استخدام لون سطح البطاقة الديناميكي
+        color: chartBackgroundColor,
+        borderRadius: AppBorderRadius.large,
+        boxShadow: [AppShadows.medium],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'المبيعات الأسبوعية',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: isDark ? AppColors.darkTextPrimary : Colors.grey[800],
-            ),
+            style: AppTextStyles.h4.copyWith(color: chartTitleColor),
           ),
-          SizedBox(height: 24),
+          SizedBox(height: AppSpacing.lg),
           SizedBox(
             height: 250,
             child: LineChart(
@@ -317,10 +313,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   show: true,
                   drawVerticalLine: false,
                   getDrawingHorizontalLine: (value) {
-                    return FlLine(
-                      color: isDark ? AppColors.darkBorder : Colors.grey[200]!,
-                      strokeWidth: 1,
-                    );
+                    // لون خطوط الشبكة ديناميكي
+                    return FlLine(color: chartGridColor, strokeWidth: 1);
                   },
                 ),
                 titlesData: FlTitlesData(
@@ -339,11 +333,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ];
                         return Text(
                           days[value.toInt() % days.length],
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: isDark
-                                ? AppColors.darkTextSecondary
-                                : Colors.grey[600],
+                          // لون نص المحاور ديناميكي
+                          style: AppTextStyles.caption.copyWith(
+                            color: chartLabelColor,
                           ),
                         );
                       },
@@ -356,11 +348,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       getTitlesWidget: (value, meta) {
                         return Text(
                           '${(value / 1000).toInt()}k',
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: isDark
-                                ? AppColors.darkTextSecondary
-                                : Colors.grey[600],
+                          // لون نص المحاور ديناميكي
+                          style: AppTextStyles.caption.copyWith(
+                            color: chartLabelColor,
                           ),
                         );
                       },
@@ -380,12 +370,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       return FlSpot(e.key.toDouble(), e.value);
                     }).toList(),
                     isCurved: true,
-                    color: Colors.blue,
+                    // استخدام لون Primary ثابت للرسوم البيانية
+                    color: AppColors.primary,
                     barWidth: 3,
                     dotData: FlDotData(show: true),
                     belowBarData: BarAreaData(
                       show: true,
-                      color: Colors.blue.withOpacity(0.1),
+                      color: AppColors.primary.withOpacity(0.1),
                     ),
                   ),
                 ],
@@ -397,44 +388,40 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildCategoryPieChart(DashboardProvider provider, bool isDark) {
+  Widget _buildCategoryPieChart(
+    DashboardProvider provider,
+    ColorScheme colorScheme,
+  ) {
+    final chartTitleColor = Theme.of(context).textTheme.titleMedium?.color;
+
     return Container(
-      padding: EdgeInsets.all(24),
+      padding: EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkCard : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: (isDark ? Colors.black : Colors.grey).withOpacity(0.1),
-            spreadRadius: 2,
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
+        // استخدام لون سطح البطاقة الديناميكي
+        color: colorScheme.surface,
+        borderRadius: AppBorderRadius.large,
+        boxShadow: [AppShadows.medium],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'المنتجات حسب الفئة',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: isDark ? AppColors.darkTextPrimary : Colors.grey[800],
-            ),
+            style: AppTextStyles.h4.copyWith(color: chartTitleColor),
           ),
-          SizedBox(height: 24),
+          SizedBox(height: AppSpacing.lg),
           SizedBox(
             height: 250,
             child: PieChart(
               PieChartData(
                 sections: provider.categoryData.entries.map((entry) {
+                  // استخدام الألوان الدلالية من AppColors
                   final colors = [
-                    Colors.blue,
-                    Colors.green,
-                    Colors.orange,
-                    Colors.purple,
-                    Colors.red,
+                    AppColors.primary,
+                    AppColors.success,
+                    AppColors.warning,
+                    AppColors.info,
+                    AppColors.error,
                   ];
                   final index = provider.categoryData.keys.toList().indexOf(
                     entry.key,
@@ -461,20 +448,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildRecentOrders(DashboardProvider provider, bool isDark) {
+  Widget _buildRecentOrders(DashboardProvider provider, ThemeData theme) {
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+    final chartTitleColor = textTheme.titleMedium?.color;
+
     return Container(
-      padding: EdgeInsets.all(24),
+      padding: EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkCard : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: (isDark ? Colors.black : Colors.grey).withOpacity(0.1),
-            spreadRadius: 2,
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
+        // استخدام لون سطح البطاقة الديناميكي
+        color: colorScheme.surface,
+        borderRadius: AppBorderRadius.large,
+        boxShadow: [AppShadows.medium],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -484,61 +469,64 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               Text(
                 'أحدث الطلبات',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? AppColors.darkTextPrimary : Colors.grey[800],
-                ),
+                style: AppTextStyles.h4.copyWith(color: chartTitleColor),
               ),
+              // TextButton يستخدم TextButtonThemeData
               TextButton(onPressed: () {}, child: Text('عرض الكل')),
             ],
           ),
-          SizedBox(height: 16),
+          SizedBox(height: AppSpacing.md),
           ...provider.recentOrders.map(
-            (order) => _buildOrderItem(order, isDark),
+            (order) => _buildOrderItem(order, theme),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildOrderItem(Map<String, dynamic> order, bool isDark) {
+  Widget _buildOrderItem(Map<String, dynamic> order, ThemeData theme) {
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+    // لون خلفية العنصر ديناميكي: رمادي فاتح في الفاتح، وسطح داكن في الداكن
+    final itemBackgroundColor = theme.brightness == Brightness.dark
+        ? AppColors.darkSurface
+        : AppColors.grey50;
+    final statusColor = _getStatusColor(order['status']);
+
     return Container(
-      margin: EdgeInsets.only(bottom: 12),
-      padding: EdgeInsets.all(16),
+      margin: EdgeInsets.only(bottom: AppSpacing.md),
+      padding: EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurface : Colors.grey[50],
-        borderRadius: BorderRadius.circular(12),
+        color: itemBackgroundColor,
+        borderRadius: AppBorderRadius.medium,
       ),
       child: Row(
         children: [
           CircleAvatar(
-            backgroundColor: Colors.blue.withOpacity(0.1),
+            backgroundColor: colorScheme.primary.withOpacity(0.1),
             child: Text(
               order['customer'][0],
-              style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                color: colorScheme.primary,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
-          SizedBox(width: 12),
+          SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   order['customer'],
-                  style: TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                    color: isDark ? AppColors.darkTextPrimary : Colors.black,
                   ),
                 ),
                 Text(
                   order['product'],
-                  style: TextStyle(
-                    color: isDark
-                        ? AppColors.darkTextSecondary
-                        : Colors.grey[600],
-                    fontSize: 12,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: textTheme.bodySmall?.color,
                   ),
                 ),
               ],
@@ -549,23 +537,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               Text(
                 order['amount'],
-                style: TextStyle(
+                style: AppTextStyles.bodyMedium.copyWith(
                   fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                  color: isDark ? AppColors.darkTextPrimary : Colors.black,
                 ),
               ),
               Container(
-                margin: EdgeInsets.only(top: 4),
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                margin: EdgeInsets.only(top: AppSpacing.xs),
+                padding: EdgeInsets.symmetric(
+                  horizontal: AppSpacing.sm,
+                  vertical: AppSpacing.xs,
+                ),
                 decoration: BoxDecoration(
-                  color: _getStatusColor(order['status']).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  color: statusColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(AppSpacing.sm),
                 ),
                 child: Text(
                   order['status'],
                   style: TextStyle(
-                    color: _getStatusColor(order['status']),
+                    color: statusColor,
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
                   ),
@@ -578,50 +567,44 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  // استخدام AppColors بدلاً من Colors.green/orange/blue/grey
   Color _getStatusColor(String status) {
     switch (status) {
       case 'مكتمل':
-        return Colors.green;
+        return AppColors.success;
       case 'قيد المعالجة':
-        return Colors.orange;
+        return AppColors.warning;
       case 'قيد الشحن':
-        return Colors.blue;
+        return AppColors.info;
       default:
-        return Colors.grey;
+        return AppColors.grey500;
     }
   }
 
-  Widget _buildTopProducts(DashboardProvider provider, bool isDark) {
+  Widget _buildTopProducts(DashboardProvider provider, ThemeData theme) {
+    final colorScheme = theme.colorScheme;
+    final chartTitleColor = theme.textTheme.titleMedium?.color;
+
     return Container(
-      padding: EdgeInsets.all(24),
+      padding: EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkCard : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: (isDark ? Colors.black : Colors.grey).withOpacity(0.1),
-            spreadRadius: 2,
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
+        // استخدام لون سطح البطاقة الديناميكي
+        color: colorScheme.surface,
+        borderRadius: AppBorderRadius.large,
+        boxShadow: [AppShadows.medium],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'الأكثر مبيعاً',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: isDark ? AppColors.darkTextPrimary : Colors.grey[800],
-            ),
+            style: AppTextStyles.h4.copyWith(color: chartTitleColor),
           ),
-          SizedBox(height: 16),
+          SizedBox(height: AppSpacing.md),
           ...provider.topProducts.asMap().entries.map((entry) {
             final index = entry.key;
             final product = entry.value;
-            return _buildTopProductItem(index + 1, product, isDark);
+            return _buildTopProductItem(index + 1, product, theme);
           }),
         ],
       ),
@@ -631,14 +614,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildTopProductItem(
     int rank,
     Map<String, dynamic> product,
-    bool isDark,
+    ThemeData theme,
   ) {
+    final textTheme = theme.textTheme;
+    // لون خلفية العنصر ديناميكي: رمادي فاتح في الفاتح، وسطح داكن في الداكن
+    final itemBackgroundColor = theme.brightness == Brightness.dark
+        ? AppColors.darkSurface
+        : AppColors.grey50;
+
+    // لون دائرة الترتيب
+    final rankCircleColor = rank <= 3 ? AppColors.warning : AppColors.grey300;
+    // لون نص الترتيب
+    final rankTextColor = rank <= 3
+        ? Colors.white
+        : textTheme.bodyMedium?.color;
+
     return Container(
-      margin: EdgeInsets.only(bottom: 12),
-      padding: EdgeInsets.all(16),
+      margin: EdgeInsets.only(bottom: AppSpacing.md),
+      padding: EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurface : Colors.grey[50],
-        borderRadius: BorderRadius.circular(12),
+        color: itemBackgroundColor,
+        borderRadius: AppBorderRadius.medium,
       ),
       child: Row(
         children: [
@@ -646,45 +642,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: rank <= 3
-                  ? Colors.amber
-                  : (isDark ? AppColors.darkBorder : Colors.grey[300]),
+              color: rankCircleColor,
               shape: BoxShape.circle,
             ),
             child: Center(
               child: Text(
                 '$rank',
                 style: TextStyle(
-                  color: rank <= 3
-                      ? Colors.white
-                      : (isDark
-                            ? AppColors.darkTextSecondary
-                            : Colors.grey[700]),
+                  color: rankTextColor,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
           ),
-          SizedBox(width: 12),
+          SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   product['name'],
-                  style: TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                    color: isDark ? AppColors.darkTextPrimary : Colors.black,
                   ),
                 ),
                 Text(
                   '${product['sold']} مبيعة',
-                  style: TextStyle(
-                    color: isDark
-                        ? AppColors.darkTextSecondary
-                        : Colors.grey[600],
-                    fontSize: 12,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: textTheme.bodySmall?.color,
                   ),
                 ),
               ],
@@ -692,10 +677,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           Text(
             product['revenue'],
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontWeight: FontWeight.bold,
-              fontSize: 14,
-              color: Colors.green,
+              // لون دلالي ثابت
+              color: AppColors.success,
             ),
           ),
         ],

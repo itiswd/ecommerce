@@ -191,6 +191,9 @@ class AuthProvider extends ChangeNotifier {
 }
 
 // ===== Login Screen - شاشة تسجيل الدخول =====
+// ... الكود السابق لـ AuthProvider و MyApp ...
+
+// ===== Login Screen - شاشة تسجيل الدخول =====
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -214,17 +217,24 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // 1. استدعاء خصائص الثيم الأساسية مرة واحدة
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      // 2. استخدام لون خلفية الـ Scaffold الديناميكي
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Center(
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(24),
+          padding: EdgeInsets.all(AppSpacing.lg),
           child: Container(
             width: 450,
             constraints: BoxConstraints(maxWidth: 500),
             padding: EdgeInsets.all(40),
             decoration: BoxDecoration(
-              color: Colors.white,
+              // 3. استخدام لون الـ surface (خلفية البطاقات) الديناميكي
+              color: colorScheme.surface,
               borderRadius: AppBorderRadius.large,
               boxShadow: [AppShadows.large],
             ),
@@ -238,13 +248,15 @@ class _LoginScreenState extends State<LoginScreen> {
                   Container(
                     padding: EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.1),
+                      // 4. استخدام لون الـ Primary الديناميكي مع شفافية
+                      color: colorScheme.primary.withOpacity(0.1),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
                       Icons.store_rounded,
                       size: 60,
-                      color: AppColors.primary,
+                      // 5. استخدام لون الـ Primary الديناميكي للأيقونة
+                      color: colorScheme.primary,
                     ),
                   ),
                   SizedBox(height: AppSpacing.lg),
@@ -252,20 +264,24 @@ class _LoginScreenState extends State<LoginScreen> {
                   // Title
                   Text(
                     'مرحباً بك',
-                    style: AppTextStyles.h2.copyWith(color: AppColors.primary),
+                    // 6. استخدام لون الـ Primary الديناميكي للنص
+                    style: AppTextStyles.h2.copyWith(
+                      color: colorScheme.primary,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(height: AppSpacing.xs),
                   Text(
                     'سجل الدخول للمتابعة إلى لوحة التحكم',
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.textSecondary,
+                      // 7. استخدام لون النص الثانوي الديناميكي
+                      color: textTheme.bodyMedium?.color,
                     ),
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(height: AppSpacing.xl),
 
-                  // Email Field
+                  // Email Field (InputDecorationTheme يعالج الألوان)
                   TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
@@ -287,7 +303,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   SizedBox(height: AppSpacing.md),
 
-                  // Password Field
+                  // Password Field (InputDecorationTheme يعالج الألوان)
                   TextFormField(
                     controller: _passwordController,
                     obscureText: _obscurePassword,
@@ -319,7 +335,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                   ),
 
-                  // Forgot Password
+                  // Forgot Password (TextButtonThemeData يعالج الألوان)
                   Align(
                     alignment: Alignment.centerLeft,
                     child: TextButton(
@@ -340,16 +356,18 @@ class _LoginScreenState extends State<LoginScreen> {
                     height: 54,
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : _handleLogin,
+                      // 8. استخدام ألوان الـ Primary/OnPrimary الديناميكية للزر
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
+                        backgroundColor: colorScheme.primary,
+                        foregroundColor: colorScheme.onPrimary,
                       ),
                       child: _isLoading
                           ? SizedBox(
                               width: 20,
                               height: 20,
                               child: CircularProgressIndicator(
-                                color: Colors.white,
+                                // لون مؤشر التحميل
+                                color: colorScheme.onPrimary,
                                 strokeWidth: 2,
                               ),
                             )
@@ -380,7 +398,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         padding: EdgeInsets.symmetric(horizontal: 16),
                         child: Text(
                           'أو',
-                          style: TextStyle(color: AppColors.textSecondary),
+                          // 9. استخدام لون النص الثانوي الديناميكي
+                          style: TextStyle(color: textTheme.bodyMedium?.color),
                         ),
                       ),
                       Expanded(child: Divider()),
@@ -389,7 +408,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   SizedBox(height: AppSpacing.lg),
 
-                  // Demo Info
+                  // Demo Info - ملاحظة: هنا استخدمنا AppColors الثابتة للـ Info
+                  // لأنها ألوان دلالية (Info/Success/Error) وليست جزءًا من ColorScheme الافتراضي.
+                  // يفضل تعريفها كألوان امتداد للثيم (Theme Extensions) في المشاريع الأكبر.
                   Container(
                     padding: EdgeInsets.all(16),
                     decoration: BoxDecoration(
@@ -446,6 +467,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() => _isLoading = true);
 
+    // الحصول على الـ colorScheme هنا لاستخدامه في SnackBar
+    final colorScheme = Theme.of(context).colorScheme;
+
     try {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final success = await authProvider.login(
@@ -460,14 +484,16 @@ class _LoginScreenState extends State<LoginScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('مرحباً بك! تم تسجيل الدخول بنجاح'),
-            backgroundColor: AppColors.success,
+            // 10. استخدام لون النجاح الديناميكي (Secondary color)
+            backgroundColor: colorScheme.secondary,
           ),
         );
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('خطأ في البريد الإلكتروني أو كلمة المرور'),
-            backgroundColor: AppColors.error,
+            // 11. استخدام لون الخطأ الديناميكي
+            backgroundColor: colorScheme.error,
           ),
         );
       }
@@ -477,7 +503,8 @@ class _LoginScreenState extends State<LoginScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('حدث خطأ: $e'),
-            backgroundColor: AppColors.error,
+            // 12. استخدام لون الخطأ الديناميكي
+            backgroundColor: colorScheme.error,
           ),
         );
       }
