@@ -4,9 +4,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ThemeProvider extends ChangeNotifier {
   bool _isDarkMode = false;
+  bool _isInitialized = false;
   static const String _themeKey = 'theme_mode';
 
   bool get isDarkMode => _isDarkMode;
+  bool get isInitialized => _isInitialized;
   ThemeMode get themeMode => _isDarkMode ? ThemeMode.dark : ThemeMode.light;
 
   ThemeProvider() {
@@ -18,24 +20,27 @@ class ThemeProvider extends ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
       _isDarkMode = prefs.getBool(_themeKey) ?? false;
+      _isInitialized = true;
       notifyListeners();
     } catch (e) {
       print('Error loading theme: $e');
+      _isInitialized = true;
+      notifyListeners();
     }
   }
 
-  // تبديل الثيم
+  // تبديل الثيم فورًا
   Future<void> toggleTheme() async {
     _isDarkMode = !_isDarkMode;
-    notifyListeners();
+    notifyListeners(); // استدعاء فوري
     await _saveThemeToPrefs();
   }
 
-  // تعيين الثيم
+  // تعيين الثيم فورًا
   Future<void> setTheme(bool isDark) async {
     if (_isDarkMode == isDark) return;
     _isDarkMode = isDark;
-    notifyListeners();
+    notifyListeners(); // استدعاء فوري
     await _saveThemeToPrefs();
   }
 

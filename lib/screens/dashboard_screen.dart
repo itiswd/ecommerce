@@ -1,3 +1,4 @@
+import 'package:ecommerce_dashboard/constants/app_theme.dart';
 import 'package:ecommerce_dashboard/providers/dashboard_provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +16,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
-    // جلب البيانات عند فتح الصفحة
     Future.microtask(
       () => Provider.of<DashboardProvider>(
         context,
@@ -26,6 +26,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Consumer<DashboardProvider>(
       builder: (context, dashProvider, child) {
         if (dashProvider.isLoading) {
@@ -37,32 +39,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header
-              _buildHeader(dashProvider),
+              _buildHeader(dashProvider, isDark),
               SizedBox(height: 24),
-
-              // Stats Cards
-              _buildStatsCards(dashProvider),
+              _buildStatsCards(dashProvider, isDark),
               SizedBox(height: 24),
-
-              // Charts Section
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(flex: 2, child: _buildSalesChart(dashProvider)),
+                  Expanded(
+                    flex: 2,
+                    child: _buildSalesChart(dashProvider, isDark),
+                  ),
                   SizedBox(width: 16),
-                  Expanded(child: _buildCategoryPieChart(dashProvider)),
+                  Expanded(child: _buildCategoryPieChart(dashProvider, isDark)),
                 ],
               ),
               SizedBox(height: 24),
-
-              // Recent Orders & Top Products
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(child: _buildRecentOrders(dashProvider)),
+                  Expanded(child: _buildRecentOrders(dashProvider, isDark)),
                   SizedBox(width: 16),
-                  Expanded(child: _buildTopProducts(dashProvider)),
+                  Expanded(child: _buildTopProducts(dashProvider, isDark)),
                 ],
               ),
             ],
@@ -72,7 +70,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildHeader(DashboardProvider provider) {
+  Widget _buildHeader(DashboardProvider provider, bool isDark) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -84,42 +82,50 @@ class _DashboardScreenState extends State<DashboardScreen> {
               style: TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
-                color: Colors.grey[800],
+                color: isDark ? AppColors.darkTextPrimary : Colors.grey[800],
               ),
             ),
             SizedBox(height: 4),
             Text(
               'مرحباً بك، إليك نظرة عامة على متجرك',
-              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+              style: TextStyle(
+                fontSize: 16,
+                color: isDark ? AppColors.darkTextSecondary : Colors.grey[600],
+              ),
             ),
           ],
         ),
         Row(
           children: [
-            _buildFilterChip('اليوم', true),
+            _buildFilterChip('اليوم', true, isDark),
             SizedBox(width: 8),
-            _buildFilterChip('هذا الأسبوع', false),
+            _buildFilterChip('هذا الأسبوع', false, isDark),
             SizedBox(width: 8),
-            _buildFilterChip('هذا الشهر', false),
+            _buildFilterChip('هذا الشهر', false, isDark),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildFilterChip(String label, bool isSelected) {
+  Widget _buildFilterChip(String label, bool isSelected, bool isDark) {
     return ChoiceChip(
       label: Text(label),
       selected: isSelected,
       onSelected: (selected) {},
       selectedColor: Colors.blue,
+      backgroundColor: isDark ? AppColors.darkSurface : Colors.grey[100],
       labelStyle: TextStyle(
-        color: isSelected ? Colors.white : Colors.grey[700],
+        color: isSelected
+            ? Colors.white
+            : isDark
+            ? AppColors.darkTextSecondary
+            : Colors.grey[700],
       ),
     );
   }
 
-  Widget _buildStatsCards(DashboardProvider provider) {
+  Widget _buildStatsCards(DashboardProvider provider, bool isDark) {
     final stats = [
       {
         'title': 'إجمالي المبيعات',
@@ -175,6 +181,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           isPositive: stat['isPositive'] as bool,
           icon: stat['icon'] as IconData,
           color: stat['color'] as Color,
+          isDark: isDark,
         );
       },
     );
@@ -187,15 +194,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
     required bool isPositive,
     required IconData icon,
     required Color color,
+    required bool isDark,
   }) {
     return Container(
       padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppColors.darkCard : Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: (isDark ? Colors.black : Colors.grey).withOpacity(0.1),
             spreadRadius: 2,
             blurRadius: 8,
             offset: Offset(0, 2),
@@ -251,7 +259,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               Text(
                 title,
-                style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                style: TextStyle(
+                  color: isDark
+                      ? AppColors.darkTextSecondary
+                      : Colors.grey[600],
+                  fontSize: 14,
+                ),
               ),
               SizedBox(height: 4),
               Text(
@@ -259,7 +272,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Colors.grey[800],
+                  color: isDark ? AppColors.darkTextPrimary : Colors.grey[800],
                 ),
               ),
             ],
@@ -269,15 +282,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildSalesChart(DashboardProvider provider) {
+  Widget _buildSalesChart(DashboardProvider provider, bool isDark) {
     return Container(
       padding: EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppColors.darkCard : Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: (isDark ? Colors.black : Colors.grey).withOpacity(0.1),
             spreadRadius: 2,
             blurRadius: 8,
             offset: Offset(0, 2),
@@ -292,7 +305,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.grey[800],
+              color: isDark ? AppColors.darkTextPrimary : Colors.grey[800],
             ),
           ),
           SizedBox(height: 24),
@@ -300,7 +313,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
             height: 250,
             child: LineChart(
               LineChartData(
-                gridData: FlGridData(show: true, drawVerticalLine: false),
+                gridData: FlGridData(
+                  show: true,
+                  drawVerticalLine: false,
+                  getDrawingHorizontalLine: (value) {
+                    return FlLine(
+                      color: isDark ? AppColors.darkBorder : Colors.grey[200]!,
+                      strokeWidth: 1,
+                    );
+                  },
+                ),
                 titlesData: FlTitlesData(
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
@@ -317,13 +339,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ];
                         return Text(
                           days[value.toInt() % days.length],
-                          style: TextStyle(fontSize: 10),
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: isDark
+                                ? AppColors.darkTextSecondary
+                                : Colors.grey[600],
+                          ),
                         );
                       },
                     ),
                   ),
                   leftTitles: AxisTitles(
-                    sideTitles: SideTitles(showTitles: true, reservedSize: 40),
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 40,
+                      getTitlesWidget: (value, meta) {
+                        return Text(
+                          '${(value / 1000).toInt()}k',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: isDark
+                                ? AppColors.darkTextSecondary
+                                : Colors.grey[600],
+                          ),
+                        );
+                      },
+                    ),
                   ),
                   topTitles: AxisTitles(
                     sideTitles: SideTitles(showTitles: false),
@@ -356,15 +397,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildCategoryPieChart(DashboardProvider provider) {
+  Widget _buildCategoryPieChart(DashboardProvider provider, bool isDark) {
     return Container(
       padding: EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppColors.darkCard : Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: (isDark ? Colors.black : Colors.grey).withOpacity(0.1),
             spreadRadius: 2,
             blurRadius: 8,
             offset: Offset(0, 2),
@@ -379,7 +420,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.grey[800],
+              color: isDark ? AppColors.darkTextPrimary : Colors.grey[800],
             ),
           ),
           SizedBox(height: 24),
@@ -420,15 +461,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildRecentOrders(DashboardProvider provider) {
+  Widget _buildRecentOrders(DashboardProvider provider, bool isDark) {
     return Container(
       padding: EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppColors.darkCard : Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: (isDark ? Colors.black : Colors.grey).withOpacity(0.1),
             spreadRadius: 2,
             blurRadius: 8,
             offset: Offset(0, 2),
@@ -446,25 +487,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.grey[800],
+                  color: isDark ? AppColors.darkTextPrimary : Colors.grey[800],
                 ),
               ),
               TextButton(onPressed: () {}, child: Text('عرض الكل')),
             ],
           ),
           SizedBox(height: 16),
-          ...provider.recentOrders.map((order) => _buildOrderItem(order)),
+          ...provider.recentOrders.map(
+            (order) => _buildOrderItem(order, isDark),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildOrderItem(Map<String, dynamic> order) {
+  Widget _buildOrderItem(Map<String, dynamic> order, bool isDark) {
     return Container(
       margin: EdgeInsets.only(bottom: 12),
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey[50],
+        color: isDark ? AppColors.darkSurface : Colors.grey[50],
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -483,11 +526,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 Text(
                   order['customer'],
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: isDark ? AppColors.darkTextPrimary : Colors.black,
+                  ),
                 ),
                 Text(
                   order['product'],
-                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                  style: TextStyle(
+                    color: isDark
+                        ? AppColors.darkTextSecondary
+                        : Colors.grey[600],
+                    fontSize: 12,
+                  ),
                 ),
               ],
             ),
@@ -497,7 +549,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               Text(
                 order['amount'],
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                  color: isDark ? AppColors.darkTextPrimary : Colors.black,
+                ),
               ),
               Container(
                 margin: EdgeInsets.only(top: 4),
@@ -535,15 +591,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  Widget _buildTopProducts(DashboardProvider provider) {
+  Widget _buildTopProducts(DashboardProvider provider, bool isDark) {
     return Container(
       padding: EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppColors.darkCard : Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: (isDark ? Colors.black : Colors.grey).withOpacity(0.1),
             spreadRadius: 2,
             blurRadius: 8,
             offset: Offset(0, 2),
@@ -558,26 +614,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.grey[800],
+              color: isDark ? AppColors.darkTextPrimary : Colors.grey[800],
             ),
           ),
           SizedBox(height: 16),
           ...provider.topProducts.asMap().entries.map((entry) {
             final index = entry.key;
             final product = entry.value;
-            return _buildTopProductItem(index + 1, product);
+            return _buildTopProductItem(index + 1, product, isDark);
           }),
         ],
       ),
     );
   }
 
-  Widget _buildTopProductItem(int rank, Map<String, dynamic> product) {
+  Widget _buildTopProductItem(
+    int rank,
+    Map<String, dynamic> product,
+    bool isDark,
+  ) {
     return Container(
       margin: EdgeInsets.only(bottom: 12),
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey[50],
+        color: isDark ? AppColors.darkSurface : Colors.grey[50],
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -586,14 +646,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: rank <= 3 ? Colors.amber : Colors.grey[300],
+              color: rank <= 3
+                  ? Colors.amber
+                  : (isDark ? AppColors.darkBorder : Colors.grey[300]),
               shape: BoxShape.circle,
             ),
             child: Center(
               child: Text(
                 '$rank',
                 style: TextStyle(
-                  color: rank <= 3 ? Colors.white : Colors.grey[700],
+                  color: rank <= 3
+                      ? Colors.white
+                      : (isDark
+                            ? AppColors.darkTextSecondary
+                            : Colors.grey[700]),
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -606,11 +672,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 Text(
                   product['name'],
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: isDark ? AppColors.darkTextPrimary : Colors.black,
+                  ),
                 ),
                 Text(
                   '${product['sold']} مبيعة',
-                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                  style: TextStyle(
+                    color: isDark
+                        ? AppColors.darkTextSecondary
+                        : Colors.grey[600],
+                    fontSize: 12,
+                  ),
                 ),
               ],
             ),

@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:data_table_2/data_table_2.dart';
+import 'package:ecommerce_dashboard/constants/app_theme.dart';
 import 'package:ecommerce_dashboard/models/order.dart';
 import 'package:ecommerce_dashboard/providers/orders_provider.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +29,8 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Consumer<OrdersProvider>(
       builder: (context, ordersProvider, child) {
         return SingleChildScrollView(
@@ -35,13 +38,13 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildHeader(ordersProvider),
+              _buildHeader(ordersProvider, isDark),
               SizedBox(height: 24),
-              _buildStatsCards(ordersProvider),
+              _buildStatsCards(ordersProvider, isDark),
               SizedBox(height: 24),
-              _buildFiltersSection(),
+              _buildFiltersSection(isDark),
               SizedBox(height: 24),
-              _buildOrdersTable(ordersProvider),
+              _buildOrdersTable(ordersProvider, isDark),
             ],
           ),
         );
@@ -49,7 +52,7 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
     );
   }
 
-  Widget _buildHeader(OrdersProvider provider) {
+  Widget _buildHeader(OrdersProvider provider, bool isDark) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -61,13 +64,16 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
-                color: Colors.grey[800],
+                color: isDark ? AppColors.darkTextPrimary : Colors.grey[800],
               ),
             ),
             SizedBox(height: 4),
             Text(
               'إدارة طلبات العملاء',
-              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+              style: TextStyle(
+                fontSize: 14,
+                color: isDark ? AppColors.darkTextSecondary : Colors.grey[600],
+              ),
             ),
           ],
         ),
@@ -90,7 +96,7 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
     );
   }
 
-  Widget _buildStatsCards(OrdersProvider provider) {
+  Widget _buildStatsCards(OrdersProvider provider, bool isDark) {
     final stats = [
       {
         'title': 'إجمالي الطلبات',
@@ -125,11 +131,11 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
             margin: EdgeInsets.only(left: 16),
             padding: EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: isDark ? AppColors.darkCard : Colors.white,
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
+                  color: (isDark ? Colors.black : Colors.grey).withOpacity(0.1),
                   spreadRadius: 2,
                   blurRadius: 8,
                 ),
@@ -153,7 +159,12 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
                 SizedBox(height: 12),
                 Text(
                   stat['title'] as String,
-                  style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                  style: TextStyle(
+                    color: isDark
+                        ? AppColors.darkTextSecondary
+                        : Colors.grey[600],
+                    fontSize: 13,
+                  ),
                 ),
                 SizedBox(height: 4),
                 Text(
@@ -161,7 +172,9 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Colors.grey[800],
+                    color: isDark
+                        ? AppColors.darkTextPrimary
+                        : Colors.grey[800],
                   ),
                 ),
               ],
@@ -172,15 +185,15 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
     );
   }
 
-  Widget _buildFiltersSection() {
+  Widget _buildFiltersSection(bool isDark) {
     return Container(
       padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppColors.darkCard : Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: (isDark ? Colors.black : Colors.grey).withOpacity(0.1),
             spreadRadius: 2,
             blurRadius: 8,
           ),
@@ -195,13 +208,6 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
               decoration: InputDecoration(
                 hintText: 'ابحث عن طلب...',
                 prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
               ),
               onChanged: (value) => setState(() {}),
             ),
@@ -210,16 +216,7 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
           Expanded(
             child: DropdownButtonFormField<OrderStatus?>(
               initialValue: _selectedStatus,
-              decoration: InputDecoration(
-                labelText: 'حالة الطلب',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-              ),
+              decoration: InputDecoration(labelText: 'حالة الطلب'),
               items: [
                 DropdownMenuItem(value: null, child: Text('الكل')),
                 ...OrderStatus.values.map((status) {
@@ -236,16 +233,7 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
           Expanded(
             child: DropdownButtonFormField<String>(
               initialValue: _sortBy,
-              decoration: InputDecoration(
-                labelText: 'ترتيب حسب',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-              ),
+              decoration: InputDecoration(labelText: 'ترتيب حسب'),
               items: ['الأحدث', 'الأقدم', 'الأعلى قيمة', 'الأقل قيمة']
                   .map(
                     (sort) => DropdownMenuItem(value: sort, child: Text(sort)),
@@ -259,7 +247,7 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
     );
   }
 
-  Widget _buildOrdersTable(OrdersProvider provider) {
+  Widget _buildOrdersTable(OrdersProvider provider, bool isDark) {
     if (provider.isLoading) {
       return Center(
         child: Padding(
@@ -281,7 +269,6 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
       return matchesSearch && matchesStatus;
     }).toList();
 
-    // Sort
     switch (_sortBy) {
       case 'الأقدم':
         filteredOrders.sort((a, b) => a.createdAt.compareTo(b.createdAt));
@@ -298,11 +285,11 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppColors.darkCard : Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: (isDark ? Colors.black : Colors.grey).withOpacity(0.1),
             spreadRadius: 2,
             blurRadius: 8,
           ),
@@ -317,19 +304,31 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
               children: [
                 Text(
                   'قائمة الطلبات (${filteredOrders.length})',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? AppColors.darkTextPrimary : Colors.black,
+                  ),
                 ),
               ],
             ),
           ),
-          Divider(height: 1),
+          Divider(
+            height: 1,
+            color: isDark ? AppColors.darkDivider : AppColors.divider,
+          ),
           SizedBox(
             height: 600,
             child: DataTable2(
               columnSpacing: 12,
               horizontalMargin: 20,
               minWidth: 1200,
-              headingRowColor: WidgetStateProperty.all(Colors.grey[50]),
+              headingRowColor: WidgetStateProperty.all(
+                isDark ? AppColors.darkSurface : Colors.grey[50],
+              ),
+              dataRowColor: WidgetStateProperty.all(
+                isDark ? AppColors.darkCard : Colors.white,
+              ),
               columns: [
                 DataColumn2(
                   label: Text(
@@ -400,7 +399,9 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
                             order.customerPhone,
                             style: TextStyle(
                               fontSize: 11,
-                              color: Colors.grey[600],
+                              color: isDark
+                                  ? AppColors.darkTextSecondary
+                                  : Colors.grey[600],
                             ),
                           ),
                         ],
@@ -453,9 +454,8 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
                             ],
                           ),
                         ),
-                        onSelected: (newStatus) {
-                          provider.updateOrderStatus(order.id, newStatus);
-                        },
+                        onSelected: (newStatus) =>
+                            provider.updateOrderStatus(order.id, newStatus),
                         itemBuilder: (context) => OrderStatus.values
                             .map(
                               (status) => PopupMenuItem(
@@ -472,7 +472,8 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
                         children: [
                           IconButton(
                             icon: Icon(Icons.visibility, size: 18),
-                            onPressed: () => _showOrderDetails(context, order),
+                            onPressed: () =>
+                                _showOrderDetails(context, order, isDark),
                             tooltip: 'عرض',
                             color: Colors.blue,
                           ),
@@ -527,10 +528,11 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
     }
   }
 
-  void _showOrderDetails(BuildContext context, Order order) {
+  void _showOrderDetails(BuildContext context, Order order, bool isDark) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: isDark ? AppColors.darkCard : Colors.white,
         title: Text('تفاصيل الطلب #${order.id}'),
         content: SizedBox(
           width: 500,

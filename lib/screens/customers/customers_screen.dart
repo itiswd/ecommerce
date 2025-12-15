@@ -1,11 +1,10 @@
-// lib/screens/customers/customers_screen.dart
 import 'package:data_table_2/data_table_2.dart';
+import 'package:ecommerce_dashboard/constants/app_theme.dart';
+import 'package:ecommerce_dashboard/models/customer.dart';
 import 'package:ecommerce_dashboard/providers/customers_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-
-import '../../models/customer.dart';
 
 class CustomersScreen extends StatefulWidget {
   const CustomersScreen({super.key});
@@ -32,6 +31,8 @@ class _CustomersScreenState extends State<CustomersScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Consumer<CustomersProvider>(
       builder: (context, customersProvider, child) {
         return SingleChildScrollView(
@@ -39,13 +40,13 @@ class _CustomersScreenState extends State<CustomersScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildHeader(customersProvider),
+              _buildHeader(customersProvider, isDark),
               SizedBox(height: 24),
-              _buildStatsCards(customersProvider),
+              _buildStatsCards(customersProvider, isDark),
               SizedBox(height: 24),
-              _buildFiltersSection(),
+              _buildFiltersSection(isDark),
               SizedBox(height: 24),
-              _buildCustomersTable(customersProvider),
+              _buildCustomersTable(customersProvider, isDark),
             ],
           ),
         );
@@ -53,7 +54,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
     );
   }
 
-  Widget _buildHeader(CustomersProvider provider) {
+  Widget _buildHeader(CustomersProvider provider, bool isDark) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -65,13 +66,16 @@ class _CustomersScreenState extends State<CustomersScreen> {
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
-                color: Colors.grey[800],
+                color: isDark ? AppColors.darkTextPrimary : Colors.grey[800],
               ),
             ),
             SizedBox(height: 4),
             Text(
               'إدارة عملاء المتجر',
-              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+              style: TextStyle(
+                fontSize: 14,
+                color: isDark ? AppColors.darkTextSecondary : Colors.grey[600],
+              ),
             ),
           ],
         ),
@@ -94,7 +98,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
     );
   }
 
-  Widget _buildStatsCards(CustomersProvider provider) {
+  Widget _buildStatsCards(CustomersProvider provider, bool isDark) {
     final stats = [
       {
         'title': 'إجمالي العملاء',
@@ -130,11 +134,11 @@ class _CustomersScreenState extends State<CustomersScreen> {
             margin: EdgeInsets.only(left: 16),
             padding: EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: isDark ? AppColors.darkCard : Colors.white,
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
+                  color: (isDark ? Colors.black : Colors.grey).withOpacity(0.1),
                   spreadRadius: 2,
                   blurRadius: 8,
                 ),
@@ -158,7 +162,12 @@ class _CustomersScreenState extends State<CustomersScreen> {
                 SizedBox(height: 12),
                 Text(
                   stat['title'] as String,
-                  style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                  style: TextStyle(
+                    color: isDark
+                        ? AppColors.darkTextSecondary
+                        : Colors.grey[600],
+                    fontSize: 13,
+                  ),
                 ),
                 SizedBox(height: 4),
                 Text(
@@ -166,7 +175,9 @@ class _CustomersScreenState extends State<CustomersScreen> {
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Colors.grey[800],
+                    color: isDark
+                        ? AppColors.darkTextPrimary
+                        : Colors.grey[800],
                   ),
                 ),
               ],
@@ -177,15 +188,15 @@ class _CustomersScreenState extends State<CustomersScreen> {
     );
   }
 
-  Widget _buildFiltersSection() {
+  Widget _buildFiltersSection(bool isDark) {
     return Container(
       padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppColors.darkCard : Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: (isDark ? Colors.black : Colors.grey).withOpacity(0.1),
             spreadRadius: 2,
             blurRadius: 8,
           ),
@@ -200,13 +211,6 @@ class _CustomersScreenState extends State<CustomersScreen> {
               decoration: InputDecoration(
                 hintText: 'ابحث عن عميل...',
                 prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
               ),
               onChanged: (value) => setState(() {}),
             ),
@@ -215,16 +219,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
           Expanded(
             child: DropdownButtonFormField<String>(
               initialValue: _selectedTier,
-              decoration: InputDecoration(
-                labelText: 'تصنيف العميل',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-              ),
+              decoration: InputDecoration(labelText: 'تصنيف العميل'),
               items: ['الكل', 'VIP', 'Gold', 'Silver', 'Bronze']
                   .map(
                     (tier) => DropdownMenuItem(value: tier, child: Text(tier)),
@@ -237,16 +232,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
           Expanded(
             child: DropdownButtonFormField<String>(
               initialValue: _sortBy,
-              decoration: InputDecoration(
-                labelText: 'ترتيب حسب',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-              ),
+              decoration: InputDecoration(labelText: 'ترتيب حسب'),
               items: ['الأحدث', 'الأقدم', 'الأعلى إنفاقاً', 'الأكثر طلبات']
                   .map(
                     (sort) => DropdownMenuItem(value: sort, child: Text(sort)),
@@ -260,7 +246,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
     );
   }
 
-  Widget _buildCustomersTable(CustomersProvider provider) {
+  Widget _buildCustomersTable(CustomersProvider provider, bool isDark) {
     if (provider.isLoading) {
       return Center(
         child: Padding(
@@ -278,7 +264,6 @@ class _CustomersScreenState extends State<CustomersScreen> {
           .toList();
     }
 
-    // Sort
     switch (_sortBy) {
       case 'الأقدم':
         filteredCustomers.sort((a, b) => a.joinDate.compareTo(b.joinDate));
@@ -297,11 +282,11 @@ class _CustomersScreenState extends State<CustomersScreen> {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppColors.darkCard : Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: (isDark ? Colors.black : Colors.grey).withOpacity(0.1),
             spreadRadius: 2,
             blurRadius: 8,
           ),
@@ -316,19 +301,31 @@ class _CustomersScreenState extends State<CustomersScreen> {
               children: [
                 Text(
                   'قائمة العملاء (${filteredCustomers.length})',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? AppColors.darkTextPrimary : Colors.black,
+                  ),
                 ),
               ],
             ),
           ),
-          Divider(height: 1),
+          Divider(
+            height: 1,
+            color: isDark ? AppColors.darkDivider : AppColors.divider,
+          ),
           SizedBox(
             height: 600,
             child: DataTable2(
               columnSpacing: 12,
               horizontalMargin: 20,
               minWidth: 1200,
-              headingRowColor: WidgetStateProperty.all(Colors.grey[50]),
+              headingRowColor: WidgetStateProperty.all(
+                isDark ? AppColors.darkSurface : Colors.grey[50],
+              ),
+              dataRowColor: WidgetStateProperty.all(
+                isDark ? AppColors.darkCard : Colors.white,
+              ),
               columns: [
                 DataColumn2(
                   label: Text(
@@ -419,7 +416,9 @@ class _CustomersScreenState extends State<CustomersScreen> {
                                   'منذ ${_getTimeSinceJoin(customer.joinDate)}',
                                   style: TextStyle(
                                     fontSize: 11,
-                                    color: Colors.grey[600],
+                                    color: isDark
+                                        ? AppColors.darkTextSecondary
+                                        : Colors.grey[600],
                                   ),
                                 ),
                               ],
@@ -484,10 +483,8 @@ class _CustomersScreenState extends State<CustomersScreen> {
                     DataCell(
                       Switch(
                         value: customer.isActive,
-                        onChanged: (value) {
-                          provider.toggleCustomerStatus(customer.id);
-                        },
-                        activeThumbColor: Colors.green,
+                        onChanged: (value) =>
+                            provider.toggleCustomerStatus(customer.id),
                       ),
                     ),
                     DataCell(
@@ -497,7 +494,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
                           IconButton(
                             icon: Icon(Icons.visibility, size: 18),
                             onPressed: () =>
-                                _showCustomerDetails(context, customer),
+                                _showCustomerDetails(context, customer, isDark),
                             tooltip: 'عرض',
                             color: Colors.blue,
                           ),
@@ -562,10 +559,15 @@ class _CustomersScreenState extends State<CustomersScreen> {
     }
   }
 
-  void _showCustomerDetails(BuildContext context, Customer customer) {
+  void _showCustomerDetails(
+    BuildContext context,
+    Customer customer,
+    bool isDark,
+  ) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: isDark ? AppColors.darkCard : Colors.white,
         title: Text('تفاصيل العميل'),
         content: SizedBox(
           width: 400,
@@ -573,20 +575,22 @@ class _CustomersScreenState extends State<CustomersScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _detailRow('الاسم', customer.name),
-              _detailRow('البريد', customer.email),
-              _detailRow('الهاتف', customer.phone),
-              _detailRow('العنوان', customer.address),
-              _detailRow('المدينة', customer.city),
-              _detailRow('التصنيف', customer.customerTier),
-              _detailRow('عدد الطلبات', '${customer.totalOrders}'),
+              _detailRow('الاسم', customer.name, isDark),
+              _detailRow('البريد', customer.email, isDark),
+              _detailRow('الهاتف', customer.phone, isDark),
+              _detailRow('العنوان', customer.address, isDark),
+              _detailRow('المدينة', customer.city, isDark),
+              _detailRow('التصنيف', customer.customerTier, isDark),
+              _detailRow('عدد الطلبات', '${customer.totalOrders}', isDark),
               _detailRow(
                 'إجمالي الإنفاق',
                 '${NumberFormat('#,##0').format(customer.totalSpent)} ج',
+                isDark,
               ),
               _detailRow(
                 'متوسط الطلب',
                 '${NumberFormat('#,##0').format(customer.averageOrderValue)} ج',
+                isDark,
               ),
             ],
           ),
@@ -601,7 +605,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
     );
   }
 
-  Widget _detailRow(String label, String value) {
+  Widget _detailRow(String label, String value, bool isDark) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 8),
       child: Row(
