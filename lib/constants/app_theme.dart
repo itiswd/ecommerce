@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // الألوان الأساسية
-  static const Color primary = Color(0xFF2563EB); // أزرق
-  static const Color secondary = Color(0xFF10B981); // أخضر
-  static const Color accent = Color(0xFFF59E0B); // برتقالي
+  // الألوان الأساسية - Modern & Professional
+  static const Color primary = Color(0xFF2563EB); // أزرق حديث
+  static const Color secondary = Color(0xFF10B981); // أخضر نعناعي
+  static const Color accent = Color(0xFFF59E0B); // برتقالي ذهبي
   static const Color error = Color(0xFFEF4444); // أحمر
   static const Color success = Color(0xFF10B981); // أخضر
   static const Color warning = Color(0xFFF59E0B); // برتقالي
@@ -54,6 +54,7 @@ class AppTheme {
         fontWeight: FontWeight.bold,
         fontFamily: 'Cairo',
       ),
+      centerTitle: false,
     ),
 
     // Card
@@ -62,6 +63,7 @@ class AppTheme {
       color: AppColors.cardBackground,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       shadowColor: AppColors.grey200,
+      margin: EdgeInsets.zero,
     ),
 
     // Input
@@ -85,6 +87,11 @@ class AppTheme {
         borderSide: BorderSide(color: AppColors.error),
       ),
       contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      labelStyle: TextStyle(
+        fontFamily: 'Cairo',
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
+      ),
     ),
 
     // Buttons
@@ -109,6 +116,11 @@ class AppTheme {
         padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         side: BorderSide(color: AppColors.primary),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        textStyle: TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w600,
+          fontFamily: 'Cairo',
+        ),
       ),
     ),
 
@@ -116,6 +128,11 @@ class AppTheme {
       style: TextButton.styleFrom(
         foregroundColor: AppColors.primary,
         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        textStyle: TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w600,
+          fontFamily: 'Cairo',
+        ),
       ),
     ),
 
@@ -123,6 +140,13 @@ class AppTheme {
     dialogTheme: DialogThemeData(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       elevation: 4,
+      backgroundColor: Colors.white,
+      titleTextStyle: TextStyle(
+        fontSize: 20,
+        fontWeight: FontWeight.bold,
+        color: AppColors.textPrimary,
+        fontFamily: 'Cairo',
+      ),
     ),
 
     // Divider
@@ -130,6 +154,22 @@ class AppTheme {
       color: AppColors.divider,
       thickness: 1,
       space: 1,
+    ),
+
+    // Switch
+    switchTheme: SwitchThemeData(
+      thumbColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return AppColors.success;
+        }
+        return AppColors.grey400;
+      }),
+      trackColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return AppColors.success.withOpacity(0.5);
+        }
+        return AppColors.grey300;
+      }),
     ),
 
     // Color Scheme
@@ -165,6 +205,23 @@ class AppTheme {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ),
 
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: Color(0xFF1E293B),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Color(0xFF334155)),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Color(0xFF334155)),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: AppColors.primary, width: 2),
+      ),
+    ),
+
     colorScheme: ColorScheme.dark(
       primary: AppColors.primary,
       secondary: AppColors.secondary,
@@ -190,48 +247,56 @@ class AppTextStyles {
     fontSize: 32,
     fontWeight: FontWeight.bold,
     color: AppColors.textPrimary,
+    fontFamily: 'Cairo',
   );
 
   static const TextStyle h2 = TextStyle(
     fontSize: 24,
     fontWeight: FontWeight.bold,
     color: AppColors.textPrimary,
+    fontFamily: 'Cairo',
   );
 
   static const TextStyle h3 = TextStyle(
     fontSize: 20,
     fontWeight: FontWeight.bold,
     color: AppColors.textPrimary,
+    fontFamily: 'Cairo',
   );
 
   static const TextStyle h4 = TextStyle(
     fontSize: 18,
     fontWeight: FontWeight.w600,
     color: AppColors.textPrimary,
+    fontFamily: 'Cairo',
   );
 
   static const TextStyle bodyLarge = TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.normal,
     color: AppColors.textPrimary,
+    fontFamily: 'Cairo',
   );
 
   static const TextStyle bodyMedium = TextStyle(
     fontSize: 14,
     fontWeight: FontWeight.normal,
     color: AppColors.textPrimary,
+    fontFamily: 'Cairo',
   );
 
   static const TextStyle bodySmall = TextStyle(
     fontSize: 12,
     fontWeight: FontWeight.normal,
     color: AppColors.textSecondary,
+    fontFamily: 'Cairo',
   );
 
   static const TextStyle caption = TextStyle(
     fontSize: 11,
     fontWeight: FontWeight.normal,
     color: AppColors.textLight,
+    fontFamily: 'Cairo',
   );
 }
 

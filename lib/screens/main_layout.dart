@@ -1,3 +1,4 @@
+import 'package:ecommerce_dashboard/screens/customers/customers_screen.dart';
 import 'package:ecommerce_dashboard/screens/dashboard_screen.dart';
 import 'package:ecommerce_dashboard/screens/orders/orders_list_screen.dart';
 import 'package:ecommerce_dashboard/screens/products/products_list_screen.dart';
@@ -245,21 +246,30 @@ class _MainLayoutState extends State<MainLayout> {
 }
 
 // Placeholder Screens
-class CustomersScreen extends StatelessWidget {
-  const CustomersScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(child: Text('صفحة العملاء - قيد التطوير'));
-  }
-}
-
 class SellersScreen extends StatelessWidget {
   const SellersScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text('صفحة البائعين - قيد التطوير'));
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.store, size: 80, color: Colors.grey[300]),
+          SizedBox(height: 16),
+          Text(
+            'صفحة البائعين',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey[600],
+            ),
+          ),
+          SizedBox(height: 8),
+          Text('قيد التطوير', style: TextStyle(color: Colors.grey[500])),
+        ],
+      ),
+    );
   }
 }
 
@@ -268,7 +278,25 @@ class ReportsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text('صفحة التقارير - قيد التطوير'));
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.analytics, size: 80, color: Colors.grey[300]),
+          SizedBox(height: 16),
+          Text(
+            'صفحة التقارير',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey[600],
+            ),
+          ),
+          SizedBox(height: 8),
+          Text('قيد التطوير', style: TextStyle(color: Colors.grey[500])),
+        ],
+      ),
+    );
   }
 }
 
@@ -277,6 +305,24 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text('صفحة الإعدادات - قيد التطوير'));
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.settings, size: 80, color: Colors.grey[300]),
+          SizedBox(height: 16),
+          Text(
+            'صفحة الإعدادات',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey[600],
+            ),
+          ),
+          SizedBox(height: 8),
+          Text('قيد التطوير', style: TextStyle(color: Colors.grey[500])),
+        ],
+      ),
+    );
   }
 }
