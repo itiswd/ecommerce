@@ -1,4 +1,5 @@
 import 'package:ecommerce_dashboard/screens/dashboard_screen.dart';
+import 'package:ecommerce_dashboard/screens/products/products_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_admin_scaffold/admin_scaffold.dart';
 
@@ -14,7 +15,7 @@ class _MainLayoutState extends State<MainLayout> {
 
   final Map<String, Widget> _screens = {
     '/': DashboardScreen(),
-    '/products': ProductsScreen(),
+    '/products': ProductsListScreen(),
     '/orders': OrdersScreen(),
     '/customers': CustomersScreen(),
     '/sellers': SellersScreen(),
