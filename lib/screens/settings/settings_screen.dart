@@ -1,6 +1,8 @@
 // lib/screens/settings/settings_screen.dart
 import 'package:ecommerce_dashboard/constants/app_theme.dart';
+import 'package:ecommerce_dashboard/providers/theme_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -184,15 +186,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget _buildAppearanceSettings() {
     return _settingsCard('المظهر', Icons.palette, AppColors.info, [
-      SwitchListTile(
-        title: Text('الوضع الداكن'),
-        subtitle: Text('تفعيل الوضع الداكن للتطبيق'),
-        value: _darkMode,
-        onChanged: (value) {
-          setState(() => _darkMode = value);
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('سيتم تطبيق التغيير قريباً')));
+      Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) {
+          return SwitchListTile(
+            title: Text('الوضع الداكن'),
+            subtitle: Text('تفعيل الوضع الداكن للتطبيق'),
+            value: themeProvider.isDarkMode,
+            onChanged: (value) {
+              themeProvider.setTheme(value);
+              setState(() => _darkMode = value);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    value ? 'تم تفعيل الوضع الداكن' : 'تم تفعيل الوضع الفاتح',
+                  ),
+                  backgroundColor: AppColors.success,
+                ),
+              );
+            },
+          );
         },
       ),
       Divider(height: 1),

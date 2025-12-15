@@ -1,3 +1,4 @@
+import 'package:ecommerce_dashboard/providers/theme_provider.dart';
 import 'package:ecommerce_dashboard/screens/customers/customers_screen.dart';
 import 'package:ecommerce_dashboard/screens/dashboard_screen.dart';
 import 'package:ecommerce_dashboard/screens/orders/orders_list_screen.dart';
@@ -7,6 +8,7 @@ import 'package:ecommerce_dashboard/screens/sellers/sellers_screen.dart';
 import 'package:ecommerce_dashboard/screens/settings/settings_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_admin_scaffold/admin_scaffold.dart';
+import 'package:provider/provider.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
@@ -30,10 +32,13 @@ class _MainLayoutState extends State<MainLayout> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDark = themeProvider.isDarkMode;
+
     return AdminScaffold(
-      backgroundColor: Color(0xFFF5F7FA),
+      backgroundColor: isDark ? Color(0xFF0F172A) : Color(0xFFF5F7FA),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: isDark ? Color(0xFF1E293B) : Colors.white,
         elevation: 1,
         title: Row(
           children: [
@@ -42,7 +47,7 @@ class _MainLayoutState extends State<MainLayout> {
             Text(
               'متجري الإلكتروني',
               style: TextStyle(
-                color: Colors.grey[800],
+                color: isDark ? Colors.white : Colors.grey[800],
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
               ),
@@ -50,9 +55,34 @@ class _MainLayoutState extends State<MainLayout> {
           ],
         ),
         actions: [
+          // Theme Toggle Button - زر تبديل الثيم
+          IconButton(
+            icon: Icon(
+              isDark ? Icons.light_mode : Icons.dark_mode,
+              color: isDark ? Colors.amber : Colors.grey[700],
+            ),
+            onPressed: () {
+              themeProvider.toggleTheme();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    isDark
+                        ? 'تم التبديل للوضع الفاتح'
+                        : 'تم التبديل للوضع الداكن',
+                  ),
+                  duration: Duration(seconds: 1),
+                ),
+              );
+            },
+            tooltip: isDark ? 'الوضع الفاتح' : 'الوضع الداكن',
+          ),
+
           // Search Button
           IconButton(
-            icon: Icon(Icons.search, color: Colors.grey[700]),
+            icon: Icon(
+              Icons.search,
+              color: isDark ? Colors.white70 : Colors.grey[700],
+            ),
             onPressed: () {
               _showSearchDialog(context);
             },
@@ -65,7 +95,7 @@ class _MainLayoutState extends State<MainLayout> {
               IconButton(
                 icon: Icon(
                   Icons.notifications_outlined,
-                  color: Colors.grey[700],
+                  color: isDark ? Colors.white70 : Colors.grey[700],
                 ),
                 onPressed: () {
                   _showNotifications(context);
@@ -126,7 +156,10 @@ class _MainLayoutState extends State<MainLayout> {
                       ),
                     ],
                   ),
-                  Icon(Icons.arrow_drop_down, color: Colors.grey[700]),
+                  Icon(
+                    Icons.arrow_drop_down,
+                    color: isDark ? Colors.white70 : Colors.grey[700],
+                  ),
                 ],
               ),
               itemBuilder: (context) => [
@@ -180,15 +213,18 @@ class _MainLayoutState extends State<MainLayout> {
         ],
       ),
       sideBar: SideBar(
-        backgroundColor: Colors.white,
-        activeBackgroundColor: Colors.blue.withOpacity(0.1),
+        backgroundColor: isDark ? Color(0xFF1E293B) : Colors.white,
+        activeBackgroundColor: Colors.blue.withOpacity(isDark ? 0.2 : 0.1),
         activeIconColor: Colors.blue,
         activeTextStyle: TextStyle(
           color: Colors.blue,
           fontWeight: FontWeight.bold,
         ),
-        iconColor: Colors.grey[600],
-        textStyle: TextStyle(color: Colors.grey[700], fontSize: 14),
+        iconColor: isDark ? Colors.white70 : Colors.grey[600],
+        textStyle: TextStyle(
+          color: isDark ? Colors.white70 : Colors.grey[700],
+          fontSize: 14,
+        ),
         items: [
           AdminMenuItem(
             title: 'الرئيسية',

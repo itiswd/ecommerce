@@ -4,6 +4,7 @@ import 'package:ecommerce_dashboard/providers/dashboard_provider.dart';
 import 'package:ecommerce_dashboard/providers/orders_provider.dart';
 import 'package:ecommerce_dashboard/providers/products_provider.dart';
 import 'package:ecommerce_dashboard/providers/sellers_provider.dart';
+import 'package:ecommerce_dashboard/providers/theme_provider.dart';
 import 'package:ecommerce_dashboard/screens/main_layout.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -46,6 +47,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => DashboardProvider()),
         ChangeNotifierProvider(create: (_) => ProductsProvider()),
         ChangeNotifierProvider(create: (_) => OrdersProvider()),
@@ -53,50 +55,51 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => SellersProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
       ],
-      child: MaterialApp(
-        title: 'متجري الإلكتروني - لوحة التحكم',
-        debugShowCheckedModeBanner: false,
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) {
+          return MaterialApp(
+            title: 'متجري الإلكتروني - لوحة التحكم',
+            debugShowCheckedModeBanner: false,
 
-        // ===== RTL Support - تكوين كامل =====
-        locale: Locale('ar', 'EG'),
-        supportedLocales: [
-          Locale('ar', 'EG'),
-          Locale('ar', 'SA'),
-          Locale('ar'),
-          Locale('en', 'US'),
-        ],
-        localizationsDelegates: [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
+            // ===== RTL Support - تكوين كامل =====
+            locale: Locale('ar', 'EG'),
+            supportedLocales: [
+              Locale('ar', 'EG'),
+              Locale('ar', 'SA'),
+              Locale('ar'),
+              Locale('en', 'US'),
+            ],
+            localizationsDelegates: [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
 
-        // ===== Theme Configuration =====
-        theme: AppTheme.lightTheme.copyWith(
-          // تأكيد اتجاه RTL في الثيم
-          textTheme: AppTheme.lightTheme.textTheme.apply(fontFamily: 'Cairo'),
-        ),
-        darkTheme: AppTheme.darkTheme,
-        themeMode: ThemeMode.light,
+            // ===== Theme Configuration =====
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: themeProvider.themeMode,
 
-        // ===== Force RTL Direction =====
-        builder: (context, child) {
-          return Directionality(
-            textDirection: TextDirection.rtl,
-            child: MediaQuery(
-              data: MediaQuery.of(context).copyWith(
-                textScaler: TextScaler.linear(1.0), // منع التكبير الزائد
-              ),
-              child: child!,
-            ),
+            // ===== Force RTL Direction =====
+            builder: (context, child) {
+              return Directionality(
+                textDirection: TextDirection.rtl,
+                child: MediaQuery(
+                  data: MediaQuery.of(
+                    context,
+                  ).copyWith(textScaler: TextScaler.linear(1.0)),
+                  child: child!,
+                ),
+              );
+            },
+
+            // ===== Navigation =====
+            home: AuthWrapper(),
+            routes: {
+              '/login': (context) => LoginScreen(),
+              '/dashboard': (context) => MainLayout(),
+            },
           );
-        },
-
-        // ===== Navigation =====
-        home: AuthWrapper(),
-        routes: {
-          '/login': (context) => LoginScreen(),
-          '/dashboard': (context) => MainLayout(),
         },
       ),
     );
