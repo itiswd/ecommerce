@@ -248,10 +248,6 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          // حساب العرض المتاح لكل عنصر
-          final itemWidth =
-              (constraints.maxWidth - 48) / 4; // 48 للـ padding بين العناصر
-
           return Row(
             children: [
               // حقل البحث

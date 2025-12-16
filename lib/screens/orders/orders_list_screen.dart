@@ -34,16 +34,16 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
     return Consumer<OrdersProvider>(
       builder: (context, ordersProvider, child) {
         return SingleChildScrollView(
-          padding: EdgeInsets.all(24),
+          padding: const EdgeInsets.all(24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildHeader(ordersProvider, isDark),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               _buildStatsCards(ordersProvider, isDark),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               _buildFiltersSection(isDark),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               _buildOrdersTable(ordersProvider, isDark),
             ],
           ),
@@ -67,7 +67,7 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
                 color: isDark ? AppColors.darkTextPrimary : Colors.grey[800],
               ),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
               'إدارة طلبات العملاء',
               style: TextStyle(
@@ -81,14 +81,14 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
           children: [
             OutlinedButton.icon(
               onPressed: () {},
-              icon: Icon(Icons.filter_alt),
-              label: Text('فلترة متقدمة'),
+              icon: const Icon(Icons.filter_alt),
+              label: const Text('فلترة متقدمة'),
             ),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             ElevatedButton.icon(
               onPressed: () => provider.refresh(),
-              icon: Icon(Icons.refresh),
-              label: Text('تحديث'),
+              icon: const Icon(Icons.refresh),
+              label: const Text('تحديث'),
             ),
           ],
         ),
@@ -97,6 +97,9 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
   }
 
   Widget _buildStatsCards(OrdersProvider provider, bool isDark) {
+    // 0.1 * 255 = 25 (0x19)
+    const int alpha10 = 0x19;
+
     final stats = [
       {
         'title': 'إجمالي الطلبات',
@@ -128,14 +131,17 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
       children: stats.map((stat) {
         return Expanded(
           child: Container(
-            margin: EdgeInsets.only(left: 16),
-            padding: EdgeInsets.all(20),
+            margin: const EdgeInsets.only(left: 16),
+            padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: isDark ? AppColors.darkCard : Colors.white,
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: (isDark ? Colors.black : Colors.grey).withOpacity(0.1),
+                  // 0.1 * 255 = 25 (0x19)
+                  color: (isDark ? Colors.black : Colors.grey).withAlpha(
+                    alpha10,
+                  ),
                   spreadRadius: 2,
                   blurRadius: 8,
                 ),
@@ -145,9 +151,10 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: (stat['color'] as Color).withOpacity(0.1),
+                    // استخدام withAlpha
+                    color: (stat['color'] as Color).withAlpha(alpha10),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(
@@ -156,7 +163,7 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
                     size: 24,
                   ),
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 Text(
                   stat['title'] as String,
                   style: TextStyle(
@@ -166,7 +173,7 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
                     fontSize: 13,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   stat['value'] as String,
                   style: TextStyle(
@@ -186,70 +193,101 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
   }
 
   Widget _buildFiltersSection(bool isDark) {
+    const int alpha10 = 0x19;
+
     return Container(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16), // زيادة الـ padding قليلاً
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: (isDark ? Colors.black : Colors.grey).withOpacity(0.1),
+            color: (isDark ? Colors.black : Colors.grey).withAlpha(alpha10),
             spreadRadius: 2,
             blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 2,
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'ابحث عن طلب...',
-                prefixIcon: Icon(Icons.search),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return Row(
+            children: [
+              // 1. حقل البحث
+              Expanded(
+                // flex: 2 في التخطيط الواسع، و flex: 1 في الضيق لتأخذ العرض كاملاً
+                flex: 2,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 8),
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: const InputDecoration(
+                      hintText: 'ابحث عن طلب...',
+                      prefixIcon: Icon(Icons.search),
+                      isDense: true,
+                    ),
+                    onChanged: (value) => setState(() {}),
+                  ),
+                ),
               ),
-              onChanged: (value) => setState(() {}),
-            ),
-          ),
-          SizedBox(width: 16),
-          Expanded(
-            child: DropdownButtonFormField<OrderStatus?>(
-              initialValue: _selectedStatus,
-              decoration: InputDecoration(labelText: 'حالة الطلب'),
-              items: [
-                DropdownMenuItem(value: null, child: Text('الكل')),
-                ...OrderStatus.values.map((status) {
-                  return DropdownMenuItem(
-                    value: status,
-                    child: Text(status.arabicName),
-                  );
-                }),
-              ],
-              onChanged: (value) => setState(() => _selectedStatus = value),
-            ),
-          ),
-          SizedBox(width: 16),
-          Expanded(
-            child: DropdownButtonFormField<String>(
-              initialValue: _sortBy,
-              decoration: InputDecoration(labelText: 'ترتيب حسب'),
-              items: ['الأحدث', 'الأقدم', 'الأعلى قيمة', 'الأقل قيمة']
-                  .map(
-                    (sort) => DropdownMenuItem(value: sort, child: Text(sort)),
-                  )
-                  .toList(),
-              onChanged: (value) => setState(() => _sortBy = value!),
-            ),
-          ),
-        ],
+
+              // 2. حقل حالة الطلب
+              Expanded(
+                flex: 1,
+                child: DropdownButtonFormField<OrderStatus?>(
+                  initialValue: _selectedStatus,
+                  decoration: const InputDecoration(
+                    labelText: 'حالة الطلب',
+                    isDense: true,
+                  ),
+                  items: [
+                    const DropdownMenuItem(value: null, child: Text('الكل')),
+                    ...OrderStatus.values.map((status) {
+                      return DropdownMenuItem(
+                        value: status,
+                        child: Text(
+                          status.arabicName,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      );
+                    }),
+                  ],
+                  isExpanded: true,
+                  onChanged: (value) => setState(() => _selectedStatus = value),
+                ),
+              ),
+
+              // 3. حقل الترتيب
+              Expanded(
+                flex: 1,
+                child: DropdownButtonFormField<String>(
+                  initialValue: _sortBy,
+                  decoration: const InputDecoration(
+                    labelText: 'ترتيب حسب',
+                    isDense: true,
+                  ),
+                  items: const ['الأحدث', 'الأقدم', 'الأعلى قيمة', 'الأقل قيمة']
+                      .map(
+                        (sort) => DropdownMenuItem(
+                          value: sort,
+                          child: Text(sort, overflow: TextOverflow.ellipsis),
+                        ),
+                      )
+                      .toList(),
+                  isExpanded: true,
+                  onChanged: (value) => setState(() => _sortBy = value!),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 
   Widget _buildOrdersTable(OrdersProvider provider, bool isDark) {
     if (provider.isLoading) {
-      return Center(
+      return const Center(
         child: Padding(
           padding: EdgeInsets.all(40),
           child: CircularProgressIndicator(),
@@ -257,6 +295,7 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
       );
     }
 
+    // منطق الفلترة والترتيب
     var filteredOrders = provider.orders.where((order) {
       bool matchesSearch =
           _searchController.text.isEmpty ||
@@ -283,13 +322,17 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
         filteredOrders.sort((a, b) => b.createdAt.compareTo(a.createdAt));
     }
 
+    // 0.1 * 255 = 25 (0x19)
+    const int alpha10 = 0x19;
+
     return Container(
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: (isDark ? Colors.black : Colors.grey).withOpacity(0.1),
+            // استخدام withAlpha
+            color: (isDark ? Colors.black : Colors.grey).withAlpha(alpha10),
             spreadRadius: 2,
             blurRadius: 8,
           ),
@@ -298,7 +341,7 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
       child: Column(
         children: [
           Padding(
-            padding: EdgeInsets.all(20),
+            padding: const EdgeInsets.all(20),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -329,8 +372,9 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
               dataRowColor: WidgetStateProperty.all(
                 isDark ? AppColors.darkCard : Colors.white,
               ),
-              columns: [
+              columns: const [
                 DataColumn2(
+                  headingRowAlignment: MainAxisAlignment.center,
                   label: Text(
                     'رقم الطلب',
                     style: TextStyle(fontWeight: FontWeight.bold),
@@ -338,6 +382,7 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
                   size: ColumnSize.S,
                 ),
                 DataColumn2(
+                  headingRowAlignment: MainAxisAlignment.center,
                   label: Text(
                     'العميل',
                     style: TextStyle(fontWeight: FontWeight.bold),
@@ -345,36 +390,42 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
                   size: ColumnSize.L,
                 ),
                 DataColumn2(
+                  headingRowAlignment: MainAxisAlignment.center,
                   label: Text(
                     'المنتجات',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
                 DataColumn2(
+                  headingRowAlignment: MainAxisAlignment.center,
                   label: Text(
                     'المبلغ الإجمالي',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
                 DataColumn2(
+                  headingRowAlignment: MainAxisAlignment.center,
                   label: Text(
                     'طريقة الدفع',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
                 DataColumn2(
+                  headingRowAlignment: MainAxisAlignment.center,
                   label: Text(
                     'التاريخ',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
                 DataColumn2(
+                  headingRowAlignment: MainAxisAlignment.center,
                   label: Text(
                     'الحالة',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
                 DataColumn2(
+                  headingRowAlignment: MainAxisAlignment.center,
                   label: Text(
                     'الإجراءات',
                     style: TextStyle(fontWeight: FontWeight.bold),
@@ -385,103 +436,147 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
               rows: filteredOrders.map((order) {
                 return DataRow(
                   cells: [
-                    DataCell(Text('#${order.id}')),
+                    // Order ID
+                    DataCell(Center(child: Text('#${order.id}'))),
+                    // Customer Info
                     DataCell(
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            order.customerName,
-                            style: TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                          Text(
-                            order.customerPhone,
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: isDark
-                                  ? AppColors.darkTextSecondary
-                                  : Colors.grey[600],
+                      Center(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              order.customerName,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Text(
+                              order.customerPhone,
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: isDark
+                                    ? AppColors.darkTextSecondary
+                                    : Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    // Number of Items
+                    DataCell(Center(child: Text('${order.items.length} منتج'))),
+                    // Grand Total
+                    DataCell(
+                      Center(
+                        child: Text(
+                          '${NumberFormat('#,##0').format(order.grandTotal)} ج',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                    // Payment Method
+                    DataCell(
+                      Center(
+                        child: Text(
+                          _getPaymentMethodArabic(order.paymentMethod),
+                        ),
+                      ),
+                    ),
+                    // Order Date
+                    DataCell(
+                      Center(
+                        child: Text(
+                          DateFormat(
+                            'dd/MM/yyyy',
+                            'ar',
+                          ).format(order.createdAt),
+                        ),
+                      ),
+                    ),
+                    // Order Status with PopupMenu
+                    DataCell(
+                      Center(
+                        child: PopupMenuButton<OrderStatus>(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              // استخدام withAlpha
+                              color: _getStatusColor(
+                                order.status,
+                              ).withAlpha(alpha10),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  order.status.arabicName,
+                                  style: TextStyle(
+                                    color: _getStatusColor(order.status),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.arrow_drop_down,
+                                  size: 16,
+                                  color: _getStatusColor(order.status),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                    DataCell(Text('${order.items.length} منتج')),
-                    DataCell(
-                      Text(
-                        '${NumberFormat('#,##0').format(order.grandTotal)} ج',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    DataCell(
-                      Text(_getPaymentMethodArabic(order.paymentMethod)),
-                    ),
-                    DataCell(
-                      Text(
-                        DateFormat('dd/MM/yyyy', 'ar').format(order.createdAt),
-                      ),
-                    ),
-                    DataCell(
-                      PopupMenuButton<OrderStatus>(
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: _getStatusColor(
-                              order.status,
-                            ).withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                order.status.arabicName,
-                                style: TextStyle(
-                                  color: _getStatusColor(order.status),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
+                          onSelected: (newStatus) {
+                            // 1. استخراج الـ provider قبل الـ await/async gap
+                            final providerInstance =
+                                Provider.of<OrdersProvider>(
+                                  context,
+                                  listen: false,
+                                );
+                            // 2. التحقق من mounted قبل استخدام أي BuildContext (خاصة بعد تحديث الـ UI)
+                            if (!mounted) return;
+
+                            providerInstance.updateOrderStatus(
+                              order.id,
+                              newStatus,
+                            );
+                          },
+                          itemBuilder: (context) => OrderStatus.values
+                              .map(
+                                (status) => PopupMenuItem(
+                                  value: status,
+                                  child: Text(status.arabicName),
                                 ),
-                              ),
-                              Icon(
-                                Icons.arrow_drop_down,
-                                size: 16,
-                                color: _getStatusColor(order.status),
-                              ),
-                            ],
-                          ),
+                              )
+                              .toList(),
                         ),
-                        onSelected: (newStatus) =>
-                            provider.updateOrderStatus(order.id, newStatus),
-                        itemBuilder: (context) => OrderStatus.values
-                            .map(
-                              (status) => PopupMenuItem(
-                                value: status,
-                                child: Text(status.arabicName),
-                              ),
-                            )
-                            .toList(),
                       ),
                     ),
+                    // Actions
                     DataCell(
                       Row(
-                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          IconButton(
-                            icon: Icon(Icons.visibility, size: 18),
-                            onPressed: () =>
+                          InkWell(
+                            onTap: () =>
                                 _showOrderDetails(context, order, isDark),
-                            tooltip: 'عرض',
-                            color: Colors.blue,
+                            child: Icon(
+                              Icons.visibility,
+                              size: 18,
+                              color: Colors.blue,
+                            ),
                           ),
-                          IconButton(
-                            icon: Icon(Icons.delete, size: 18),
-                            onPressed: () => _confirmDelete(context, order),
-                            tooltip: 'حذف',
-                            color: Colors.red,
+
+                          InkWell(
+                            onTap: () => _confirmDelete(context, order),
+                            child: Icon(
+                              Icons.delete,
+                              size: 18,
+                              color: Colors.red,
+                            ),
                           ),
                         ],
                       ),
@@ -543,12 +638,12 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
               children: [
                 Text(
                   'العميل: ${order.customerName}',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 Text('الهاتف: ${order.customerPhone}'),
                 Text('العنوان: ${order.customerAddress}'),
-                Divider(),
-                Text(
+                const Divider(),
+                const Text(
                   'المنتجات:',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
@@ -567,7 +662,7 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
                     ),
                   ),
                 ),
-                Divider(),
+                const Divider(),
                 Text(
                   'المجموع: ${NumberFormat('#,##0').format(order.totalAmount)} ج',
                 ),
@@ -576,7 +671,10 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
                 ),
                 Text(
                   'الإجمالي: ${NumberFormat('#,##0').format(order.grandTotal)} ج',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
                 ),
               ],
             ),
@@ -585,7 +683,7 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('إغلاق'),
+            child: const Text('إغلاق'),
           ),
         ],
       ),
@@ -596,26 +694,33 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('تأكيد الحذف'),
+        title: const Text('تأكيد الحذف'),
         content: Text('هل أنت متأكد من حذف الطلب #${order.id}؟'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('إلغاء'),
+            child: const Text('إلغاء'),
           ),
           ElevatedButton(
             onPressed: () {
-              Provider.of<OrdersProvider>(
+              // فصل الـ Provider عن السياق قبل إغلاق الـ Dialog/العودة منه
+              final provider = Provider.of<OrdersProvider>(
                 context,
                 listen: false,
-              ).deleteOrder(order.id);
+              );
+
               Navigator.pop(context);
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text('تم حذف الطلب بنجاح')));
+              provider.deleteOrder(order.id);
+
+              // التحقق من mounted قبل ScaffoldMessenger
+              if (!mounted) return;
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('تم حذف الطلب بنجاح')),
+              );
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: Text('حذف'),
+            child: const Text('حذف'),
           ),
         ],
       ),
