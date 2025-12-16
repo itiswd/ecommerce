@@ -32,13 +32,21 @@ class AppColors {
   static const Color darkSurface = Color(0xFF334155);
 
   // النصوص
-  static const Color textPrimary = Color(0xFF1F2937);
-  static const Color textSecondary = Color(0xFF6B7280);
+  static const Color textPrimary = Color(
+    0xFF1F2937,
+  ); // Dark Text (used in light mode)
+  static const Color textSecondary = Color(
+    0xFF6B7280,
+  ); // Secondary Dark Text (used in light mode)
   static const Color textLight = Color(0xFF9CA3AF);
 
   // النصوص الداكنة
-  static const Color darkTextPrimary = Color(0xFFF1F5F9);
-  static const Color darkTextSecondary = Color(0xFF94A3B8);
+  static const Color darkTextPrimary = Color(
+    0xFFF1F5F9,
+  ); // Light Text (used in dark mode)
+  static const Color darkTextSecondary = Color(
+    0xFF94A3B8,
+  ); // Secondary Light Text (used in dark mode)
   static const Color darkTextLight = Color(0xFF64748B);
 
   // الحدود

@@ -28,7 +28,7 @@ void main() async {
     print('❌ Firebase initialization error: $e');
   }
 
-  // تهيئة التواريخ بالعربية
+  // تهيئة التواريخ
   try {
     await initializeDateFormatting('ar', null);
     Intl.defaultLocale = 'ar';
@@ -37,7 +37,7 @@ void main() async {
     print('❌ Locale initialization error: $e');
   }
 
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -61,15 +61,15 @@ class MyApp extends StatelessWidget {
             title: 'متجري الإلكتروني - لوحة التحكم',
             debugShowCheckedModeBanner: false,
 
-            // ===== RTL Support - تكوين كامل =====
-            locale: Locale('ar', 'EG'),
-            supportedLocales: [
+            // ===== RTL Support =====
+            locale: const Locale('ar', 'EG'),
+            supportedLocales: const [
               Locale('ar', 'EG'),
               Locale('ar', 'SA'),
               Locale('ar'),
               Locale('en', 'US'),
             ],
-            localizationsDelegates: [
+            localizationsDelegates: const [
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
@@ -87,17 +87,17 @@ class MyApp extends StatelessWidget {
                 child: MediaQuery(
                   data: MediaQuery.of(
                     context,
-                  ).copyWith(textScaler: TextScaler.linear(1.0)),
+                  ).copyWith(textScaler: const TextScaler.linear(1.0)),
                   child: child!,
                 ),
               );
             },
 
             // ===== Navigation =====
-            home: AuthWrapper(),
+            home: const AuthWrapper(),
             routes: {
-              '/login': (context) => LoginScreen(),
-              '/dashboard': (context) => MainLayout(),
+              '/login': (context) => const LoginScreen(),
+              '/dashboard': (context) => const MainLayout(),
             },
           );
         },
@@ -106,7 +106,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// ===== Auth Wrapper - للتحكم في التنقل =====
+// ===== Auth Wrapper =====
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
 
@@ -114,18 +114,16 @@ class AuthWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<AuthProvider>(
       builder: (context, authProvider, child) {
-        // يمكن إضافة منطق التحقق من تسجيل الدخول هنا
         if (authProvider.isAuthenticated) {
-          return MainLayout();
+          return const MainLayout();
         }
-        // في الوقت الحالي نعرض Dashboard مباشرة
-        return MainLayout();
+        return const MainLayout();
       },
     );
   }
 }
 
-// ===== Auth Provider - إدارة حالة المصادقة =====
+// ===== Auth Provider =====
 class AuthProvider extends ChangeNotifier {
   bool _isAuthenticated = true;
   String? _userId;
@@ -146,10 +144,8 @@ class AuthProvider extends ChangeNotifier {
       _isLoading = true;
       notifyListeners();
 
-      // محاكاة API call
-      await Future.delayed(Duration(seconds: 1));
+      await Future.delayed(const Duration(seconds: 1));
 
-      // في التطبيق الحقيقي، استخدم Firebase Auth
       if (email.isNotEmpty && password.isNotEmpty) {
         _isAuthenticated = true;
         _userId = '123';
@@ -183,17 +179,12 @@ class AuthProvider extends ChangeNotifier {
 
   // Check Auth Status
   Future<void> checkAuthStatus() async {
-    // يمكن التحقق من Firebase Auth هنا
-    // للآن نفترض أن المستخدم مسجل دخول
     _isAuthenticated = true;
     notifyListeners();
   }
 }
 
-// ===== Login Screen - شاشة تسجيل الدخول =====
-// ... الكود السابق لـ AuthProvider و MyApp ...
-
-// ===== Login Screen - شاشة تسجيل الدخول =====
+// ===== Login Screen =====
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -205,6 +196,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+
+  // تم إعادة تعريف _isLoading محليًا للتحكم في حالة الزرار
   bool _isLoading = false;
   bool _obscurePassword = true;
 
@@ -217,29 +210,22 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // 1. استدعاء خصائص الثيم الأساسية مرة واحدة
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
 
-    // **التعديل من هنا: إضافة دعم التجاوبية**
     final isMobile = AppResponsive.isMobile(context);
 
     return Scaffold(
-      // 2. استخدام لون خلفية الـ Scaffold الديناميكي
       backgroundColor: theme.scaffoldBackgroundColor,
       body: Center(
         child: SingleChildScrollView(
-          // ضبط الـ padding بناءً على حجم الشاشة
           padding: EdgeInsets.all(isMobile ? AppSpacing.md : AppSpacing.lg),
           child: Container(
-            // **تعديل**: تحديد العرض ليكون ملء الشاشة على الجوال (Mobile)
             width: isMobile ? double.infinity : 450,
-            constraints: BoxConstraints(maxWidth: 500),
-            // **تعديل**: تقليل الـ padding الداخلي على الجوال
+            constraints: const BoxConstraints(maxWidth: 500),
             padding: EdgeInsets.all(isMobile ? 24 : 40),
             decoration: BoxDecoration(
-              // 3. استخدام لون الـ surface (خلفية البطاقات) الديناميكي
               color: colorScheme.surface,
               borderRadius: AppBorderRadius.large,
               boxShadow: [AppShadows.large],
@@ -252,16 +238,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   // Logo
                   Container(
-                    padding: EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      // 4. استخدام لون الـ Primary الديناميكي مع شفافية
-                      color: colorScheme.primary.withOpacity(0.1),
+                      // 0.1 * 255 = 25 (0x19)
+                      color: colorScheme.primary.withAlpha(0x19),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
                       Icons.store_rounded,
                       size: 60,
-                      // 5. استخدام لون الـ Primary الديناميكي للأيقونة
                       color: colorScheme.primary,
                     ),
                   ),
@@ -270,7 +255,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   // Title
                   Text(
                     'مرحباً بك',
-                    // 6. استخدام لون الـ Primary الديناميكي للنص
                     style: AppTextStyles.h2.copyWith(
                       color: colorScheme.primary,
                     ),
@@ -280,19 +264,18 @@ class _LoginScreenState extends State<LoginScreen> {
                   Text(
                     'سجل الدخول للمتابعة إلى لوحة التحكم',
                     style: AppTextStyles.bodyMedium.copyWith(
-                      // 7. استخدام لون النص الثانوي الديناميكي
                       color: textTheme.bodyMedium?.color,
                     ),
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(height: AppSpacing.xl),
 
-                  // Email Field (InputDecorationTheme يعالج الألوان)
+                  // Email Field
                   TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     textDirection: TextDirection.ltr,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'البريد الإلكتروني',
                       hintText: 'example@email.com',
                       prefixIcon: Icon(Icons.email_outlined),
@@ -309,14 +292,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   SizedBox(height: AppSpacing.md),
 
-                  // Password Field (InputDecorationTheme يعالج الألوان)
+                  // Password Field
                   TextFormField(
                     controller: _passwordController,
                     obscureText: _obscurePassword,
                     decoration: InputDecoration(
                       labelText: 'كلمة المرور',
                       hintText: '••••••••',
-                      prefixIcon: Icon(Icons.lock_outline),
+                      prefixIcon: const Icon(Icons.lock_outline),
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscurePassword
@@ -341,17 +324,16 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                   ),
 
-                  // Forgot Password (TextButtonThemeData يعالج الألوان)
+                  // Forgot Password
                   Align(
                     alignment: Alignment.centerLeft,
                     child: TextButton(
                       onPressed: () {
-                        // TODO: Implement forgot password
-                        ScaffoldMessenger.of(
-                          context,
-                        ).showSnackBar(SnackBar(content: Text('قريباً...')));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('قريباً...')),
+                        );
                       },
-                      child: Text('نسيت كلمة المرور؟'),
+                      child: const Text('نسيت كلمة المرور؟'),
                     ),
                   ),
 
@@ -361,23 +343,23 @@ class _LoginScreenState extends State<LoginScreen> {
                   SizedBox(
                     height: 54,
                     child: ElevatedButton(
+                      // استخدام _isLoading المحلي
                       onPressed: _isLoading ? null : _handleLogin,
-                      // 8. استخدام ألوان الـ Primary/OnPrimary الديناميكية للزر
                       style: ElevatedButton.styleFrom(
                         backgroundColor: colorScheme.primary,
                         foregroundColor: colorScheme.onPrimary,
                       ),
+                      // استخدام _isLoading المحلي
                       child: _isLoading
                           ? SizedBox(
                               width: 20,
                               height: 20,
                               child: CircularProgressIndicator(
-                                // لون مؤشر التحميل
                                 color: colorScheme.onPrimary,
                                 strokeWidth: 2,
                               ),
                             )
-                          : Row(
+                          : const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
@@ -399,34 +381,33 @@ class _LoginScreenState extends State<LoginScreen> {
                   // Divider
                   Row(
                     children: [
-                      Expanded(child: Divider()),
+                      const Expanded(child: Divider()),
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Text(
                           'أو',
-                          // 9. استخدام لون النص الثانوي الديناميكي
                           style: TextStyle(color: textTheme.bodyMedium?.color),
                         ),
                       ),
-                      Expanded(child: Divider()),
+                      const Expanded(child: Divider()),
                     ],
                   ),
 
                   SizedBox(height: AppSpacing.lg),
 
-                  // Demo Info - ملاحظة: هنا استخدمنا AppColors الثابتة للـ Info
-                  // لأنها ألوان دلالية (Info/Success/Error) وليست جزءًا من ColorScheme الافتراضي.
-                  // يفضل تعريفها كألوان امتداد للثيم (Theme Extensions) في المشاريع الأكبر.
+                  // Demo Info
                   Container(
-                    padding: EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: AppColors.info.withOpacity(0.1),
+                      // 0.1 * 255 = 25 (0x19)
+                      color: AppColors.info.withAlpha(0x19),
                       borderRadius: AppBorderRadius.medium,
                       border: Border.all(
-                        color: AppColors.info.withOpacity(0.3),
+                        // 0.3 * 255 = 76.5 (0x4D)
+                        color: AppColors.info.withAlpha(0x4D),
                       ),
                     ),
-                    child: Column(
+                    child: const Column(
                       children: [
                         Row(
                           children: [
@@ -471,9 +452,9 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
+    // يتم تعيين _isLoading محليًا
     setState(() => _isLoading = true);
 
-    // الحصول على الـ colorScheme هنا لاستخدامه في SnackBar
     final colorScheme = Theme.of(context).colorScheme;
 
     try {
@@ -483,33 +464,32 @@ class _LoginScreenState extends State<LoginScreen> {
         _passwordController.text,
       );
 
+      // يتم إيقاف التحميل محليًا
       setState(() => _isLoading = false);
 
       if (success && mounted) {
         Navigator.of(context).pushReplacementNamed('/dashboard');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('مرحباً بك! تم تسجيل الدخول بنجاح'),
-            // 10. استخدام لون النجاح الديناميكي (Secondary color)
+            content: const Text('مرحباً بك! تم تسجيل الدخول بنجاح'),
             backgroundColor: colorScheme.secondary,
           ),
         );
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('خطأ في البريد الإلكتروني أو كلمة المرور'),
-            // 11. استخدام لون الخطأ الديناميكي
+            content: const Text('خطأ في البريد الإلكتروني أو كلمة المرور'),
             backgroundColor: colorScheme.error,
           ),
         );
       }
     } catch (e) {
+      // إيقاف التحميل في حالة الخطأ
       setState(() => _isLoading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('حدث خطأ: $e'),
-            // 12. استخدام لون الخطأ الديناميكي
             backgroundColor: colorScheme.error,
           ),
         );

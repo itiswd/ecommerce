@@ -36,40 +36,45 @@ class _MainLayoutState extends State<MainLayout> {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final theme = Theme.of(context);
     final isDark = themeProvider.isDarkMode;
-    final colorScheme = theme.colorScheme;
-    final iconTheme = theme.iconTheme;
-    final textTheme = theme.textTheme;
-
-    // تحديد خلفية الشريط الجانبي
+    final primaryColor = theme.colorScheme.primary;
+    final secondaryColor = theme.colorScheme.secondary;
+    final appBarBackgroundColor = isDark
+        ? AppColors.darkCard
+        : AppColors.cardBackground;
     final sideBarBackgroundColor = isDark
         ? AppColors.darkCard
         : AppColors.cardBackground;
+    final primaryTextColor = isDark
+        ? AppColors.darkTextPrimary
+        : AppColors.textPrimary;
+    final secondaryTextColor = isDark
+        ? AppColors.darkTextSecondary
+        : AppColors.textSecondary;
 
     return AdminScaffold(
-      // 1. خلفية الشاشة الرئيسية
+      key: ValueKey('admin_scaffold_${isDark ? 'dark' : 'light'}'),
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        // استخدام خصائص الثيم لضمان التناسق (خاصة لون أيقونة الدرج)
-        backgroundColor: theme.appBarTheme.backgroundColor,
+        toolbarHeight: 72,
+        backgroundColor: appBarBackgroundColor,
         elevation: theme.appBarTheme.elevation,
-        iconTheme: theme.appBarTheme.iconTheme, // لضمان لون أيقونة الدرج/الرجوع
+        iconTheme: IconThemeData(color: primaryTextColor),
         title: Row(
           children: [
-            Icon(Icons.store, color: colorScheme.primary, size: 28),
-            SizedBox(width: AppSpacing.md),
             Text(
               'متجري الإلكتروني',
-              // الاعتماد على style الـ AppBarTheme لتجنب التكرار
-              style: theme.appBarTheme.titleTextStyle,
+              style: theme.appBarTheme.titleTextStyle?.copyWith(
+                color: primaryTextColor,
+              ),
             ),
           ],
         ),
         actions: [
-          // Theme Toggle Button - زر تبديل الثيم
+          // Theme Toggle Button
           IconButton(
             icon: Icon(
               isDark ? Icons.light_mode : Icons.dark_mode,
-              color: isDark ? AppColors.warning : AppColors.grey700,
+              color: primaryTextColor,
             ),
             onPressed: () {
               themeProvider.toggleTheme();
@@ -80,7 +85,7 @@ class _MainLayoutState extends State<MainLayout> {
                         ? 'تم التبديل للوضع الفاتح'
                         : 'تم التبديل للوضع الداكن',
                   ),
-                  backgroundColor: colorScheme.secondary,
+                  backgroundColor: secondaryColor,
                   duration: Duration(seconds: 1),
                 ),
               );
@@ -88,9 +93,9 @@ class _MainLayoutState extends State<MainLayout> {
             tooltip: isDark ? 'الوضع الفاتح' : 'الوضع الداكن',
           ),
 
-          // Search Button (لون الأيقونة يتبع IconTheme)
+          // Search Button
           IconButton(
-            icon: Icon(Icons.search, color: iconTheme.color),
+            icon: Icon(Icons.search, color: primaryTextColor),
             onPressed: () {
               _showSearchDialog(context);
             },
@@ -103,7 +108,7 @@ class _MainLayoutState extends State<MainLayout> {
               IconButton(
                 icon: Icon(
                   Icons.notifications_outlined,
-                  color: iconTheme.color,
+                  color: primaryTextColor,
                 ),
                 onPressed: () {
                   _showNotifications(context);
@@ -116,7 +121,7 @@ class _MainLayoutState extends State<MainLayout> {
                 child: Container(
                   padding: EdgeInsets.all(4),
                   decoration: BoxDecoration(
-                    color: AppColors.error, // لون دلالي ثابت
+                    color: AppColors.error,
                     shape: BoxShape.circle,
                   ),
                   constraints: BoxConstraints(minWidth: 16, minHeight: 16),
@@ -142,7 +147,7 @@ class _MainLayoutState extends State<MainLayout> {
               icon: Row(
                 children: [
                   CircleAvatar(
-                    backgroundColor: colorScheme.primary,
+                    backgroundColor: primaryColor,
                     child: Text('م', style: TextStyle(color: Colors.white)),
                   ),
                   SizedBox(width: AppSpacing.sm),
@@ -154,27 +159,31 @@ class _MainLayoutState extends State<MainLayout> {
                         'محمد أحمد',
                         style: AppTextStyles.bodyMedium.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: textTheme.bodyLarge?.color,
+                          color: primaryTextColor,
                         ),
                       ),
                       Text(
                         'مدير',
                         style: AppTextStyles.caption.copyWith(
-                          color: textTheme.bodySmall?.color,
+                          color: secondaryTextColor,
                         ),
                       ),
                     ],
                   ),
-                  Icon(Icons.arrow_drop_down, color: iconTheme.color),
+                  Icon(Icons.arrow_drop_down, color: primaryTextColor),
                 ],
               ),
               itemBuilder: (context) => [
                 PopupMenuItem<String>(
                   value: 'profile',
-                  // ListTile Text color will follow theme's text color
                   child: ListTile(
-                    leading: Icon(Icons.person, color: iconTheme.color),
-                    title: Text('الملف الشخصي', style: textTheme.bodyMedium),
+                    leading: Icon(Icons.person, color: primaryTextColor),
+                    title: Text(
+                      'الملف الشخصي',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: primaryTextColor,
+                      ),
+                    ),
                     dense: true,
                     contentPadding: EdgeInsets.zero,
                   ),
@@ -182,8 +191,13 @@ class _MainLayoutState extends State<MainLayout> {
                 PopupMenuItem<String>(
                   value: 'settings',
                   child: ListTile(
-                    leading: Icon(Icons.settings, color: iconTheme.color),
-                    title: Text('الإعدادات', style: textTheme.bodyMedium),
+                    leading: Icon(Icons.settings, color: primaryTextColor),
+                    title: Text(
+                      'الإعدادات',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: primaryTextColor,
+                      ),
+                    ),
                     dense: true,
                     contentPadding: EdgeInsets.zero,
                   ),
@@ -219,22 +233,19 @@ class _MainLayoutState extends State<MainLayout> {
           ),
         ],
       ),
+      // sideBar
       sideBar: SideBar(
-        // 4. تعيين خلفية الشريط الجانبي بشكل صريح (لضمان تطابق الدرج/السيرفيس)
         backgroundColor: sideBarBackgroundColor,
-        // لون الخلفية النشط من Primary
-        activeBackgroundColor: colorScheme.primary.withOpacity(0.15),
-        activeIconColor: colorScheme.primary,
-        // تعيين لون النص النشط بشكل صريح (صحيح)
+        activeBackgroundColor: primaryColor.withAlpha(0x26),
+        activeIconColor: primaryColor,
         activeTextStyle: TextStyle(
-          color: colorScheme.primary,
+          color: primaryColor,
           fontWeight: FontWeight.bold,
         ),
-        // لون الأيقونات العادي يتبع IconTheme (صحيح)
-        iconColor: iconTheme.color,
-        // تعيين لون النص العادي بشكل صريح (صحيح)
+        borderColor: secondaryTextColor.withAlpha(64),
+        iconColor: primaryTextColor,
         textStyle: TextStyle(
-          color: textTheme.bodyMedium?.color,
+          color: secondaryTextColor,
           fontSize: 14,
           fontFamily: 'Cairo',
         ),
@@ -285,12 +296,8 @@ class _MainLayoutState extends State<MainLayout> {
           height: 100,
           width: double.infinity,
           decoration: BoxDecoration(
-            // Gradient الهيدر ديناميكي (يعتمد على Primary)
             gradient: LinearGradient(
-              colors: [
-                colorScheme.primary,
-                colorScheme.primary.withOpacity(0.8),
-              ],
+              colors: [primaryColor, primaryColor.withAlpha(0xCC)],
             ),
           ),
           child: Center(
@@ -314,10 +321,14 @@ class _MainLayoutState extends State<MainLayout> {
         footer: Container(
           height: 50,
           width: double.infinity,
-          // 5. خلفية الفوتر (تتبع لون السطح الداكن/الفاتح)
-          color: isDark ? AppColors.darkSurface : AppColors.grey100,
+          color: sideBarBackgroundColor.withAlpha(128),
           child: Center(
-            child: Text('الإصدار 1.0.0', style: textTheme.bodySmall),
+            child: Text(
+              'الإصدار 1.0.0',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: secondaryTextColor,
+              ),
+            ),
           ),
         ),
       ),
@@ -444,16 +455,18 @@ class _MainLayoutState extends State<MainLayout> {
       margin: EdgeInsets.only(bottom: AppSpacing.md),
       padding: EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.05),
+        color: color.withAlpha(0x0C), // 0.05 * 255 ≈ 12 (0x0C)
         borderRadius: AppBorderRadius.small,
-        border: Border.all(color: color.withOpacity(0.2)),
+        border: Border.all(
+          color: color.withAlpha(0x33),
+        ), // 0.2 * 255 ≈ 51 (0x33)
       ),
       child: Row(
         children: [
           Container(
             padding: EdgeInsets.all(AppSpacing.sm),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withAlpha(0x19), // 0.1 * 255 ≈ 25 (0x19)
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: color, size: 20),
@@ -513,7 +526,9 @@ class _MainLayoutState extends State<MainLayout> {
             SizedBox(height: AppSpacing.sm),
             Chip(
               label: Text('مدير'),
-              backgroundColor: colorScheme.primary.withOpacity(0.1),
+              backgroundColor: colorScheme.primary.withAlpha(
+                0x19,
+              ), // 0.1 * 255 ≈ 25 (0x19)
               labelStyle: TextStyle(color: colorScheme.primary),
             ),
           ],
@@ -538,8 +553,6 @@ class _MainLayoutState extends State<MainLayout> {
   }
 
   void _confirmLogout(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
