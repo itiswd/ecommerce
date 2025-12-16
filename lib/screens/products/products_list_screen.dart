@@ -38,16 +38,16 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
     return Consumer<ProductsProvider>(
       builder: (context, productsProvider, child) {
         return SingleChildScrollView(
-          padding: EdgeInsets.all(24),
+          padding: const EdgeInsets.all(24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildHeader(productsProvider, isDark),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               _buildStatsCards(productsProvider, isDark),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               _buildFiltersSection(isDark),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               _buildProductsTable(productsProvider, isDark),
             ],
           ),
@@ -71,7 +71,7 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
                 color: isDark ? AppColors.darkTextPrimary : Colors.grey[800],
               ),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
               'إدارة منتجات المتجر',
               style: TextStyle(
@@ -85,19 +85,25 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
           children: [
             OutlinedButton.icon(
               onPressed: () => provider.exportProducts(),
-              icon: Icon(Icons.download),
-              label: Text('تصدير'),
+              icon: const Icon(Icons.download),
+              label: const Text('تصدير'),
               style: OutlinedButton.styleFrom(
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
               ),
             ),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             ElevatedButton.icon(
               onPressed: () => _showAddProductDialog(context),
-              icon: Icon(Icons.add),
-              label: Text('إضافة منتج'),
+              icon: const Icon(Icons.add),
+              label: const Text('إضافة منتج'),
               style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
               ),
             ),
           ],
@@ -107,6 +113,11 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
   }
 
   Widget _buildStatsCards(ProductsProvider provider, bool isDark) {
+    // 0.1 * 255 = 25 (0x19)
+    const int alpha10 = 0x19;
+    // 0.1 * 255 = 25 (0x19)
+    const int alphaShadow = 0x19;
+
     final stats = [
       {
         'title': 'إجمالي المنتجات',
@@ -142,17 +153,20 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
       children: stats.map((stat) {
         return Expanded(
           child: Container(
-            margin: EdgeInsets.only(left: 16),
-            padding: EdgeInsets.all(20),
+            margin: const EdgeInsets.only(left: 16),
+            padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: isDark ? AppColors.darkCard : Colors.white,
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: (isDark ? Colors.black : Colors.grey).withOpacity(0.1),
+                  // استخدام withAlpha
+                  color: (isDark ? Colors.black : Colors.grey).withAlpha(
+                    alphaShadow,
+                  ),
                   spreadRadius: 2,
                   blurRadius: 8,
-                  offset: Offset(0, 2),
+                  offset: const Offset(0, 2),
                 ),
               ],
             ),
@@ -163,9 +177,10 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Container(
-                      padding: EdgeInsets.all(10),
+                      padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: (stat['color'] as Color).withOpacity(0.1),
+                        // استخدام withAlpha
+                        color: (stat['color'] as Color).withAlpha(alpha10),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(
@@ -185,7 +200,7 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
                     ),
                   ],
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 Text(
                   stat['title'] as String,
                   style: TextStyle(
@@ -195,7 +210,7 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
                     fontSize: 13,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   stat['value'] as String,
                   style: TextStyle(
@@ -215,92 +230,162 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
   }
 
   Widget _buildFiltersSection(bool isDark) {
+    const int alphaShadow = 0x19;
+
     return Container(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: (isDark ? Colors.black : Colors.grey).withOpacity(0.1),
+            color: (isDark ? Colors.black : Colors.grey).withAlpha(alphaShadow),
             spreadRadius: 2,
             blurRadius: 8,
-            offset: Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 2,
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'ابحث عن منتج...',
-                prefixIcon: Icon(Icons.search),
-              ),
-              onChanged: (value) => setState(() {}),
-            ),
-          ),
-          SizedBox(width: 16),
-          Expanded(
-            child: DropdownButtonFormField<String>(
-              initialValue: _selectedCategory,
-              decoration: InputDecoration(labelText: 'الفئة'),
-              items: ['الكل', 'إلكترونيات', 'ملابس', 'كتب', 'أثاث', 'أخرى']
-                  .map(
-                    (category) => DropdownMenuItem(
-                      value: category,
-                      child: Text(category),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // حساب العرض المتاح لكل عنصر
+          final itemWidth =
+              (constraints.maxWidth - 48) / 4; // 48 للـ padding بين العناصر
+
+          return Row(
+            children: [
+              // حقل البحث
+              Expanded(
+                flex: 2,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: const InputDecoration(
+                      hintText: 'ابحث عن منتج...',
+                      prefixIcon: Icon(Icons.search),
+                      isDense: true,
+                      contentPadding: EdgeInsets.symmetric(vertical: 12),
                     ),
-                  )
-                  .toList(),
-              onChanged: (value) => setState(() => _selectedCategory = value!),
-            ),
-          ),
-          SizedBox(width: 16),
-          Expanded(
-            child: DropdownButtonFormField<String>(
-              initialValue: _selectedStatus,
-              decoration: InputDecoration(labelText: 'الحالة'),
-              items: ['الكل', 'نشط', 'غير نشط', 'نفذ من المخزون']
-                  .map(
-                    (status) =>
-                        DropdownMenuItem(value: status, child: Text(status)),
-                  )
-                  .toList(),
-              onChanged: (value) => setState(() => _selectedStatus = value!),
-            ),
-          ),
-          SizedBox(width: 16),
-          Expanded(
-            child: DropdownButtonFormField<String>(
-              initialValue: _sortBy,
-              decoration: InputDecoration(labelText: 'ترتيب حسب'),
-              items:
-                  [
-                        'الأحدث',
-                        'الأقدم',
-                        'السعر: الأعلى',
-                        'السعر: الأقل',
-                        'الأكثر مبيعاً',
-                      ]
-                      .map(
-                        (sort) =>
-                            DropdownMenuItem(value: sort, child: Text(sort)),
-                      )
-                      .toList(),
-              onChanged: (value) => setState(() => _sortBy = value!),
-            ),
-          ),
-        ],
+                    onChanged: (value) => setState(() {}),
+                  ),
+                ),
+              ),
+
+              // الفئة
+              Expanded(
+                flex: 1,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: DropdownButtonFormField<String>(
+                    initialValue: _selectedCategory,
+                    decoration: const InputDecoration(
+                      labelText: 'الفئة',
+                      isDense: true,
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 12,
+                      ),
+                    ),
+                    isExpanded: true,
+                    items:
+                        ['الكل', 'إلكترونيات', 'ملابس', 'كتب', 'أثاث', 'أخرى']
+                            .map(
+                              (category) => DropdownMenuItem(
+                                value: category,
+                                child: Text(
+                                  category,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            )
+                            .toList(),
+                    onChanged: (value) =>
+                        setState(() => _selectedCategory = value!),
+                  ),
+                ),
+              ),
+
+              // الحالة
+              Expanded(
+                flex: 1,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: DropdownButtonFormField<String>(
+                    initialValue: _selectedStatus,
+                    decoration: const InputDecoration(
+                      labelText: 'الحالة',
+                      isDense: true,
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 12,
+                      ),
+                    ),
+                    isExpanded: true,
+                    items: ['الكل', 'نشط', 'غير نشط', 'نفذ من المخزون']
+                        .map(
+                          (status) => DropdownMenuItem(
+                            value: status,
+                            child: Text(
+                              status,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (value) =>
+                        setState(() => _selectedStatus = value!),
+                  ),
+                ),
+              ),
+
+              // ترتيب حسب
+              Expanded(
+                flex: 1,
+                child: DropdownButtonFormField<String>(
+                  initialValue: _sortBy,
+                  decoration: const InputDecoration(
+                    labelText: 'ترتيب حسب',
+                    isDense: true,
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 12,
+                    ),
+                  ),
+                  isExpanded: true,
+                  items:
+                      [
+                            'الأحدث',
+                            'الأقدم',
+                            'السعر: الأعلى',
+                            'السعر: الأقل',
+                            'الأكثر مبيعاً',
+                          ]
+                          .map(
+                            (sort) => DropdownMenuItem(
+                              value: sort,
+                              child: Text(
+                                sort,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          )
+                          .toList(),
+                  onChanged: (value) => setState(() => _sortBy = value!),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 
   Widget _buildProductsTable(ProductsProvider provider, bool isDark) {
+    const int alpha10 = 0x19;
+
     if (provider.isLoading) {
-      return Center(
+      return const Center(
         child: Padding(
           padding: EdgeInsets.all(40),
           child: CircularProgressIndicator(),
@@ -351,17 +436,17 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: (isDark ? Colors.black : Colors.grey).withOpacity(0.1),
+            color: (isDark ? Colors.black : Colors.grey).withAlpha(alpha10),
             spreadRadius: 2,
             blurRadius: 8,
-            offset: Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Column(
         children: [
           Padding(
-            padding: EdgeInsets.all(20),
+            padding: const EdgeInsets.all(20),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -376,7 +461,7 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
                 Row(
                   children: [
                     IconButton(
-                      icon: Icon(Icons.refresh),
+                      icon: const Icon(Icons.refresh),
                       onPressed: () => provider.loadProducts(),
                       tooltip: 'تحديث',
                     ),
@@ -387,13 +472,16 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
           ),
           Divider(
             height: 1,
-            color: isDark ? AppColors.darkDivider : AppColors.divider,
+            color: isDark
+                ? AppColors.divider.withAlpha(128)
+                : AppColors.darkDivider.withAlpha(128),
           ),
           SizedBox(
             height: 600,
             child: DataTable2(
+              dataRowHeight: 80,
               columnSpacing: 12,
-              horizontalMargin: 20,
+              horizontalMargin: 8,
               minWidth: 1200,
               headingRowColor: WidgetStateProperty.all(
                 isDark ? AppColors.darkSurface : Colors.grey[50],
@@ -401,8 +489,9 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
               dataRowColor: WidgetStateProperty.all(
                 isDark ? AppColors.darkCard : Colors.white,
               ),
-              columns: [
+              columns: const [
                 DataColumn2(
+                  headingRowAlignment: MainAxisAlignment.center,
                   label: Text(
                     'المنتج',
                     style: TextStyle(fontWeight: FontWeight.bold),
@@ -410,48 +499,56 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
                   size: ColumnSize.L,
                 ),
                 DataColumn2(
+                  headingRowAlignment: MainAxisAlignment.center,
                   label: Text(
                     'الفئة',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
                 DataColumn2(
+                  headingRowAlignment: MainAxisAlignment.center,
                   label: Text(
                     'السعر',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
                 DataColumn2(
+                  headingRowAlignment: MainAxisAlignment.center,
                   label: Text(
                     'المخزون',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
                 DataColumn2(
+                  headingRowAlignment: MainAxisAlignment.center,
                   label: Text(
                     'المبيعات',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
                 DataColumn2(
+                  headingRowAlignment: MainAxisAlignment.center,
                   label: Text(
                     'العمولة',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
                 DataColumn2(
+                  headingRowAlignment: MainAxisAlignment.center,
                   label: Text(
                     'البائع',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
                 DataColumn2(
+                  headingRowAlignment: MainAxisAlignment.center,
                   label: Text(
                     'الحالة',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
                 DataColumn2(
+                  headingRowAlignment: MainAxisAlignment.center,
                   label: Text(
                     'الإجراءات',
                     style: TextStyle(fontWeight: FontWeight.bold),
@@ -462,20 +559,22 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
               rows: filteredProducts.map((product) {
                 return DataRow(
                   cells: [
+                    // Product Cell
                     DataCell(
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           ClipRRect(
                             borderRadius: BorderRadius.circular(8),
                             child: product.images.isNotEmpty
                                 ? CachedNetworkImage(
                                     imageUrl: product.images.first,
-                                    width: 50,
-                                    height: 50,
+                                    width: 40,
+                                    height: 40,
                                     fit: BoxFit.cover,
                                     placeholder: (context, url) => Container(
-                                      width: 50,
-                                      height: 50,
+                                      width: 40,
+                                      height: 40,
                                       color: isDark
                                           ? AppColors.darkSurface
                                           : Colors.grey[200],
@@ -486,8 +585,8 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
                                     ),
                                     errorWidget: (context, url, error) =>
                                         Container(
-                                          width: 50,
-                                          height: 50,
+                                          width: 40,
+                                          height: 40,
                                           color: isDark
                                               ? AppColors.darkSurface
                                               : Colors.grey[200],
@@ -498,8 +597,8 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
                                         ),
                                   )
                                 : Container(
-                                    width: 50,
-                                    height: 50,
+                                    width: 40,
+                                    height: 40,
                                     color: isDark
                                         ? AppColors.darkSurface
                                         : Colors.grey[200],
@@ -509,7 +608,7 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
                                     ),
                                   ),
                           ),
-                          SizedBox(width: 12),
+                          const SizedBox(width: 4),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -517,8 +616,8 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
                               children: [
                                 Text(
                                   product.name,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
                                     fontSize: 14,
                                   ),
                                   maxLines: 1,
@@ -527,7 +626,7 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
                                 Text(
                                   'رقم: ${product.id}',
                                   style: TextStyle(
-                                    fontSize: 11,
+                                    fontSize: 10,
                                     color: isDark
                                         ? AppColors.darkTextSecondary
                                         : Colors.grey[600],
@@ -539,37 +638,48 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
                         ],
                       ),
                     ),
+                    // Category Cell
                     DataCell(
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.blue.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          product.category,
-                          style: TextStyle(
-                            color: Colors.blue[700],
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
+                      Center(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            // استخدام withAlpha
+                            color: Colors.blue.withAlpha(
+                              0x19,
+                            ), // 0.1 * 255 = 25
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            product.category,
+                            style: TextStyle(
+                              color: Colors.blue[700],
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ),
                       ),
                     ),
+                    // Price Cell
                     DataCell(
-                      Text(
-                        '${NumberFormat('#,##0').format(product.price)} ج',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
+                      Center(
+                        child: Text(
+                          '${NumberFormat('#,##0').format(product.price)} ج',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
                         ),
                       ),
                     ),
+                    // Stock Cell
                     DataCell(
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
                             Icons.inventory_2,
@@ -580,7 +690,7 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
                                 ? Colors.orange
                                 : Colors.green,
                           ),
-                          SizedBox(width: 6),
+                          const SizedBox(width: 6),
                           Text(
                             '${product.stock}',
                             style: TextStyle(
@@ -591,60 +701,84 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
                                   : (isDark
                                         ? AppColors.darkTextPrimary
                                         : Colors.grey[800]),
-                              fontWeight: FontWeight.w500,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ],
                       ),
                     ),
+                    // Sales Cell
                     DataCell(
-                      Text(
-                        '${product.soldCount}',
-                        style: TextStyle(fontWeight: FontWeight.w500),
-                      ),
-                    ),
-                    DataCell(
-                      Text(
-                        '${(product.commission * 100).toInt()}%',
-                        style: TextStyle(
-                          color: Colors.green[700],
-                          fontWeight: FontWeight.bold,
+                      Center(
+                        child: Text(
+                          '${product.soldCount}',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
+                    // Commission Cell
                     DataCell(
-                      Text(product.sellerName, style: TextStyle(fontSize: 13)),
-                    ),
-                    DataCell(
-                      Switch(
-                        value: product.isActive,
-                        onChanged: (value) =>
-                            provider.toggleProductStatus(product.id),
+                      Center(
+                        child: Text(
+                          '${(product.commission * 100).toInt()}%',
+                          style: TextStyle(
+                            color: Colors.green[700],
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
+                    // Seller Cell
+                    DataCell(
+                      Center(
+                        child: Text(
+                          product.sellerName,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    // Status Cell
+                    DataCell(
+                      Center(
+                        child: Switch(
+                          value: product.isActive,
+                          onChanged: (value) =>
+                              provider.toggleProductStatus(product.id),
+                        ),
+                      ),
+                    ),
+                    // Actions Cell
                     DataCell(
                       Row(
-                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          IconButton(
-                            icon: Icon(Icons.visibility, size: 18),
-                            onPressed: () =>
-                                _showProductDetails(context, product),
-                            tooltip: 'عرض',
-                            color: Colors.blue,
+                          InkWell(
+                            onTap: () => _showProductDetails(context, product),
+                            child: Icon(
+                              Icons.visibility,
+                              size: 16,
+                              color: Colors.blue,
+                            ),
                           ),
-                          IconButton(
-                            icon: Icon(Icons.edit, size: 18),
-                            onPressed: () =>
+                          InkWell(
+                            onTap: () =>
                                 _showEditProductDialog(context, product),
-                            tooltip: 'تعديل',
-                            color: Colors.orange,
+                            child: Icon(
+                              Icons.edit,
+                              size: 16,
+                              color: Colors.orange,
+                            ),
                           ),
-                          IconButton(
-                            icon: Icon(Icons.delete, size: 18),
-                            onPressed: () => _confirmDelete(context, product),
-                            tooltip: 'حذف',
-                            color: Colors.red,
+                          InkWell(
+                            onTap: () => _confirmDelete(context, product),
+                            child: Icon(
+                              Icons.delete,
+                              size: 16,
+                              color: Colors.red,
+                            ),
                           ),
                         ],
                       ),
@@ -661,7 +795,7 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
 
   Widget _buildEmptyState(bool isDark) {
     return Container(
-      padding: EdgeInsets.all(60),
+      padding: const EdgeInsets.all(60),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -671,7 +805,7 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.inventory_2_outlined, size: 80, color: Colors.grey[300]),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               'لا توجد منتجات',
               style: TextStyle(
@@ -680,18 +814,18 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
                 color: isDark ? AppColors.darkTextSecondary : Colors.grey[600],
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               'ابدأ بإضافة منتجاتك الأولى',
               style: TextStyle(
                 color: isDark ? AppColors.darkTextLight : Colors.grey[500],
               ),
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             ElevatedButton.icon(
               onPressed: () => _showAddProductDialog(context),
-              icon: Icon(Icons.add),
-              label: Text('إضافة منتج جديد'),
+              icon: const Icon(Icons.add),
+              label: const Text('إضافة منتج جديد'),
             ),
           ],
         ),
@@ -700,7 +834,10 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
   }
 
   void _showAddProductDialog(BuildContext context) {
-    showDialog(context: context, builder: (context) => AddEditProductDialog());
+    showDialog(
+      context: context,
+      builder: (context) => const AddEditProductDialog(),
+    );
   }
 
   void _showEditProductDialog(BuildContext context, Product product) {
@@ -721,26 +858,36 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('تأكيد الحذف'),
+        title: const Text('تأكيد الحذف'),
         content: Text('هل أنت متأكد من حذف "${product.name}"؟'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('إلغاء'),
+            child: const Text('إلغاء'),
           ),
           ElevatedButton(
-            onPressed: () {
-              Provider.of<ProductsProvider>(
+            onPressed: () async {
+              // 1. استخدام provider محليًا قبل الـ await (رغم عدم وجود await هنا، الأفضل هو فصل الـ provider عن الـ context)
+              final provider = Provider.of<ProductsProvider>(
                 context,
                 listen: false,
-              ).deleteProduct(product.id);
+              );
+
+              // 2. إغلاق الـ Dialog
               Navigator.pop(context);
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text('تم حذف المنتج بنجاح')));
+
+              // 3. تنفيذ الحذف
+              provider.deleteProduct(product.id);
+
+              // 4. استخدام mounted للتحقق قبل ScaffoldMessenger
+              if (!mounted) return;
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('تم حذف المنتج بنجاح')),
+              );
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: Text('حذف'),
+            child: const Text('حذف'),
           ),
         ],
       ),
