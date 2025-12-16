@@ -16,17 +16,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(
-      () => Provider.of<DashboardProvider>(
-        context,
-        listen: false,
-      ).loadDashboardData(),
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<DashboardProvider>().loadDashboardData();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    // 1. استخراج خصائص الثيم الأساسية
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
@@ -34,7 +31,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Consumer<DashboardProvider>(
       builder: (context, dashProvider, child) {
         if (dashProvider.isLoading) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         }
 
         return SingleChildScrollView(
@@ -83,13 +80,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // استخدام AppTextStyles لضمان التناسق
-            Text('لوحة التحكم', style: AppTextStyles.h2),
+            Text(
+              'لوحة التحكم',
+              style: AppTextStyles.h2.copyWith(
+                color: textTheme.headlineMedium?.color,
+              ),
+            ),
             SizedBox(height: AppSpacing.xs),
             Text(
               'مرحباً بك، إليك نظرة عامة على متجرك',
               style: AppTextStyles.bodyMedium.copyWith(
-                // استخدام لون النص الثانوي الديناميكي
                 color: textTheme.bodyMedium?.color,
               ),
             ),
@@ -113,16 +113,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
       label: Text(label),
       selected: isSelected,
       onSelected: (selected) {
-        // TODO: Implement actual filtering logic
+        // Implement actual filtering logic
       },
-      // لون الاختيار من الـ Primary الديناميكي
       selectedColor: theme.colorScheme.primary,
-      // خلفية الشريحة غير المختارة ديناميكية
+      checkmarkColor: Colors.white,
+      side: BorderSide(
+        color: isSelected ? theme.colorScheme.primary : theme.dividerColor,
+        width: 0.5,
+      ),
       backgroundColor: theme.brightness == Brightness.dark
           ? AppColors.darkSurface
           : AppColors.grey100,
       labelStyle: TextStyle(
-        // لون النص ديناميكي
         color: isSelected ? Colors.white : theme.textTheme.bodyMedium?.color,
       ),
     );
@@ -133,7 +135,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     ColorScheme colorScheme,
     TextTheme textTheme,
   ) {
-    // ألوان الحالات تبقى ثابتة للدلالة البصرية
+    // بيانات البطاقات الإحصائية
     final stats = [
       {
         'title': 'إجمالي المبيعات',
@@ -172,12 +174,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return GridView.builder(
       shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 4,
         crossAxisSpacing: AppSpacing.md,
         mainAxisSpacing: AppSpacing.md,
-        childAspectRatio: 1.5,
+        childAspectRatio: 1.6,
       ),
       itemCount: stats.length,
       itemBuilder: (context, index) {
@@ -206,10 +208,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
     required ColorScheme colorScheme,
     required TextTheme textTheme,
   }) {
+    const alpha10 = 0x19;
+
     return Container(
       padding: EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        // استخدام لون سطح البطاقة الديناميكي
         color: colorScheme.surface,
         borderRadius: AppBorderRadius.large,
         boxShadow: [AppShadows.medium],
@@ -224,7 +227,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Container(
                 padding: EdgeInsets.all(AppSpacing.sm),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withAlpha(alpha10),
                   borderRadius: BorderRadius.circular(AppSpacing.md),
                 ),
                 child: Icon(icon, color: color, size: 24),
@@ -235,10 +238,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   vertical: AppSpacing.xs,
                 ),
                 decoration: BoxDecoration(
-                  // ألوان دلالية ثابتة مع شفافية
                   color: isPositive
-                      ? AppColors.success.withOpacity(0.1)
-                      : AppColors.error.withOpacity(0.1),
+                      ? AppColors.success.withAlpha(alpha10)
+                      : AppColors.error.withAlpha(alpha10),
                   borderRadius: BorderRadius.circular(AppSpacing.xs),
                 ),
                 child: Row(
@@ -268,12 +270,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Text(
                 title,
                 style: AppTextStyles.bodyMedium.copyWith(
-                  // استخدام لون النص الثانوي الديناميكي
                   color: textTheme.bodyMedium?.color,
                 ),
               ),
               SizedBox(height: AppSpacing.xs),
-              // استخدام AppTextStyles.h3 لضمان حجم ووزن الخط المناسب
               Text(value, style: AppTextStyles.h3),
             ],
           ),
@@ -283,16 +283,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildSalesChart(DashboardProvider provider, ThemeData theme) {
-    // تحديد الألوان الديناميكية للـ Chart
     final chartGridColor = theme.dividerColor;
     final chartLabelColor = theme.textTheme.bodySmall?.color;
     final chartTitleColor = theme.textTheme.titleMedium?.color;
     final chartBackgroundColor = theme.colorScheme.surface;
+    const alpha10 = 0x19;
 
     return Container(
       padding: EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        // استخدام لون سطح البطاقة الديناميكي
         color: chartBackgroundColor,
         borderRadius: AppBorderRadius.large,
         boxShadow: [AppShadows.medium],
@@ -313,7 +312,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   show: true,
                   drawVerticalLine: false,
                   getDrawingHorizontalLine: (value) {
-                    // لون خطوط الشبكة ديناميكي
                     return FlLine(color: chartGridColor, strokeWidth: 1);
                   },
                 ),
@@ -333,7 +331,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ];
                         return Text(
                           days[value.toInt() % days.length],
-                          // لون نص المحاور ديناميكي
                           style: AppTextStyles.caption.copyWith(
                             color: chartLabelColor,
                           ),
@@ -348,7 +345,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       getTitlesWidget: (value, meta) {
                         return Text(
                           '${(value / 1000).toInt()}k',
-                          // لون نص المحاور ديناميكي
                           style: AppTextStyles.caption.copyWith(
                             color: chartLabelColor,
                           ),
@@ -356,10 +352,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       },
                     ),
                   ),
-                  topTitles: AxisTitles(
+                  topTitles: const AxisTitles(
                     sideTitles: SideTitles(showTitles: false),
                   ),
-                  rightTitles: AxisTitles(
+                  rightTitles: const AxisTitles(
                     sideTitles: SideTitles(showTitles: false),
                   ),
                 ),
@@ -370,13 +366,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       return FlSpot(e.key.toDouble(), e.value);
                     }).toList(),
                     isCurved: true,
-                    // استخدام لون Primary ثابت للرسوم البيانية
                     color: AppColors.primary,
                     barWidth: 3,
-                    dotData: FlDotData(show: true),
+                    dotData: const FlDotData(show: true),
                     belowBarData: BarAreaData(
                       show: true,
-                      color: AppColors.primary.withOpacity(0.1),
+                      // استخدام withAlpha
+                      color: AppColors.primary.withAlpha(alpha10),
                     ),
                   ),
                 ],
@@ -397,7 +393,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Container(
       padding: EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        // استخدام لون سطح البطاقة الديناميكي
         color: colorScheme.surface,
         borderRadius: AppBorderRadius.large,
         boxShadow: [AppShadows.medium],
@@ -415,7 +410,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: PieChart(
               PieChartData(
                 sections: provider.categoryData.entries.map((entry) {
-                  // استخدام الألوان الدلالية من AppColors
                   final colors = [
                     AppColors.primary,
                     AppColors.success,
@@ -431,7 +425,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     title: '${entry.value}%',
                     color: colors[index % colors.length],
                     radius: 100,
-                    titleStyle: TextStyle(
+                    titleStyle: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
@@ -456,7 +450,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Container(
       padding: EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        // استخدام لون سطح البطاقة الديناميكي
         color: colorScheme.surface,
         borderRadius: AppBorderRadius.large,
         boxShadow: [AppShadows.medium],
@@ -471,8 +464,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 'أحدث الطلبات',
                 style: AppTextStyles.h4.copyWith(color: chartTitleColor),
               ),
-              // TextButton يستخدم TextButtonThemeData
-              TextButton(onPressed: () {}, child: Text('عرض الكل')),
+              TextButton(onPressed: () {}, child: const Text('عرض الكل')),
             ],
           ),
           SizedBox(height: AppSpacing.md),
@@ -487,11 +479,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildOrderItem(Map<String, dynamic> order, ThemeData theme) {
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
-    // لون خلفية العنصر ديناميكي: رمادي فاتح في الفاتح، وسطح داكن في الداكن
     final itemBackgroundColor = theme.brightness == Brightness.dark
         ? AppColors.darkSurface
         : AppColors.grey50;
     final statusColor = _getStatusColor(order['status']);
+    const alpha10 = 0x19;
 
     return Container(
       margin: EdgeInsets.only(bottom: AppSpacing.md),
@@ -503,7 +495,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Row(
         children: [
           CircleAvatar(
-            backgroundColor: colorScheme.primary.withOpacity(0.1),
+            backgroundColor: colorScheme.primary.withAlpha(alpha10),
             child: Text(
               order['customer'][0],
               style: TextStyle(
@@ -548,7 +540,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   vertical: AppSpacing.xs,
                 ),
                 decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.1),
+                  // استخدام withAlpha
+                  color: statusColor.withAlpha(alpha10),
                   borderRadius: BorderRadius.circular(AppSpacing.sm),
                 ),
                 child: Text(
@@ -567,7 +560,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  // استخدام AppColors بدلاً من Colors.green/orange/blue/grey
   Color _getStatusColor(String status) {
     switch (status) {
       case 'مكتمل':
@@ -588,7 +580,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Container(
       padding: EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        // استخدام لون سطح البطاقة الديناميكي
         color: colorScheme.surface,
         borderRadius: AppBorderRadius.large,
         boxShadow: [AppShadows.medium],
@@ -617,14 +608,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
     ThemeData theme,
   ) {
     final textTheme = theme.textTheme;
-    // لون خلفية العنصر ديناميكي: رمادي فاتح في الفاتح، وسطح داكن في الداكن
     final itemBackgroundColor = theme.brightness == Brightness.dark
         ? AppColors.darkSurface
         : AppColors.grey50;
 
-    // لون دائرة الترتيب
     final rankCircleColor = rank <= 3 ? AppColors.warning : AppColors.grey300;
-    // لون نص الترتيب
     final rankTextColor = rank <= 3
         ? Colors.white
         : textTheme.bodyMedium?.color;
@@ -679,7 +667,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             product['revenue'],
             style: AppTextStyles.bodyMedium.copyWith(
               fontWeight: FontWeight.bold,
-              // لون دلالي ثابت
               color: AppColors.success,
             ),
           ),
