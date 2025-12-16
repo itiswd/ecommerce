@@ -222,16 +222,22 @@ class _LoginScreenState extends State<LoginScreen> {
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
 
+    // **التعديل من هنا: إضافة دعم التجاوبية**
+    final isMobile = AppResponsive.isMobile(context);
+
     return Scaffold(
       // 2. استخدام لون خلفية الـ Scaffold الديناميكي
       backgroundColor: theme.scaffoldBackgroundColor,
       body: Center(
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(AppSpacing.lg),
+          // ضبط الـ padding بناءً على حجم الشاشة
+          padding: EdgeInsets.all(isMobile ? AppSpacing.md : AppSpacing.lg),
           child: Container(
-            width: 450,
+            // **تعديل**: تحديد العرض ليكون ملء الشاشة على الجوال (Mobile)
+            width: isMobile ? double.infinity : 450,
             constraints: BoxConstraints(maxWidth: 500),
-            padding: EdgeInsets.all(40),
+            // **تعديل**: تقليل الـ padding الداخلي على الجوال
+            padding: EdgeInsets.all(isMobile ? 24 : 40),
             decoration: BoxDecoration(
               // 3. استخدام لون الـ surface (خلفية البطاقات) الديناميكي
               color: colorScheme.surface,

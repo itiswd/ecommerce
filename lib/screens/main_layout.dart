@@ -40,37 +40,27 @@ class _MainLayoutState extends State<MainLayout> {
     final iconTheme = theme.iconTheme;
     final textTheme = theme.textTheme;
 
-    // تعيين الخلفيات الرئيسية بشكل صريح لفرض تطبيق الثيم
-    final appBarBackgroundColor = isDark
-        ? AppColors.darkCard
-        : AppColors.cardBackground;
+    // تحديد خلفية الشريط الجانبي
     final sideBarBackgroundColor = isDark
         ? AppColors.darkCard
         : AppColors.cardBackground;
-    final primaryTextColor = isDark
-        ? AppColors.darkTextPrimary
-        : AppColors.grey800;
 
     return AdminScaffold(
       // 1. خلفية الشاشة الرئيسية
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        // 2. تعيين خلفية الـ AppBar بشكل صريح
-        backgroundColor: appBarBackgroundColor,
+        // استخدام خصائص الثيم لضمان التناسق (خاصة لون أيقونة الدرج)
+        backgroundColor: theme.appBarTheme.backgroundColor,
         elevation: theme.appBarTheme.elevation,
+        iconTheme: theme.appBarTheme.iconTheme, // لضمان لون أيقونة الدرج/الرجوع
         title: Row(
           children: [
             Icon(Icons.store, color: colorScheme.primary, size: 28),
             SizedBox(width: AppSpacing.md),
             Text(
               'متجري الإلكتروني',
-              // 3. التعيين الصريح للون النص في الـ AppBar
-              style: TextStyle(
-                color: primaryTextColor,
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-                fontFamily: 'Cairo',
-              ),
+              // الاعتماد على style الـ AppBarTheme لتجنب التكرار
+              style: theme.appBarTheme.titleTextStyle,
             ),
           ],
         ),
@@ -181,9 +171,10 @@ class _MainLayoutState extends State<MainLayout> {
               itemBuilder: (context) => [
                 PopupMenuItem<String>(
                   value: 'profile',
+                  // ListTile Text color will follow theme's text color
                   child: ListTile(
-                    leading: Icon(Icons.person),
-                    title: Text('الملف الشخصي'),
+                    leading: Icon(Icons.person, color: iconTheme.color),
+                    title: Text('الملف الشخصي', style: textTheme.bodyMedium),
                     dense: true,
                     contentPadding: EdgeInsets.zero,
                   ),
@@ -191,8 +182,8 @@ class _MainLayoutState extends State<MainLayout> {
                 PopupMenuItem<String>(
                   value: 'settings',
                   child: ListTile(
-                    leading: Icon(Icons.settings),
-                    title: Text('الإعدادات'),
+                    leading: Icon(Icons.settings, color: iconTheme.color),
+                    title: Text('الإعدادات', style: textTheme.bodyMedium),
                     dense: true,
                     contentPadding: EdgeInsets.zero,
                   ),
@@ -229,19 +220,19 @@ class _MainLayoutState extends State<MainLayout> {
         ],
       ),
       sideBar: SideBar(
-        // 4. تعيين خلفية الشريط الجانبي بشكل صريح
+        // 4. تعيين خلفية الشريط الجانبي بشكل صريح (لضمان تطابق الدرج/السيرفيس)
         backgroundColor: sideBarBackgroundColor,
         // لون الخلفية النشط من Primary
         activeBackgroundColor: colorScheme.primary.withOpacity(0.15),
         activeIconColor: colorScheme.primary,
-        // تعيين لون النص النشط بشكل صريح
+        // تعيين لون النص النشط بشكل صريح (صحيح)
         activeTextStyle: TextStyle(
           color: colorScheme.primary,
           fontWeight: FontWeight.bold,
         ),
-        // لون الأيقونات العادي يتبع IconTheme
+        // لون الأيقونات العادي يتبع IconTheme (صحيح)
         iconColor: iconTheme.color,
-        // تعيين لون النص العادي بشكل صريح
+        // تعيين لون النص العادي بشكل صريح (صحيح)
         textStyle: TextStyle(
           color: textTheme.bodyMedium?.color,
           fontSize: 14,

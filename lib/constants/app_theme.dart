@@ -467,3 +467,22 @@ class AppShadows {
     offset: Offset(0, 4),
   );
 }
+
+// التجاوبية (Responsiveness)
+class AppResponsive {
+  static const int mobileBreakpoint = 600;
+  static const int tabletBreakpoint = 1000;
+
+  static bool isMobile(BuildContext context) {
+    return MediaQuery.of(context).size.width < mobileBreakpoint;
+  }
+
+  static bool isTablet(BuildContext context) {
+    return MediaQuery.of(context).size.width >= mobileBreakpoint &&
+        MediaQuery.of(context).size.width < tabletBreakpoint;
+  }
+
+  static bool isDesktop(BuildContext context) {
+    return MediaQuery.of(context).size.width >= tabletBreakpoint;
+  }
+}
