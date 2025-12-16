@@ -29,7 +29,6 @@ class _SellersScreenState extends State<SellersScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // 1. استخراج خصائص الثيم الأساسية لسهولة الاستخدام الديناميكي
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
@@ -66,13 +65,11 @@ class _SellersScreenState extends State<SellersScreen> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // TextStyles بدون لون محدد ترث لون النص الأساسي من الثيم
             Text('البائعون', style: AppTextStyles.h2),
             SizedBox(height: AppSpacing.xs),
             Text(
               'إدارة البائعين والعمولات',
               style: AppTextStyles.bodyMedium.copyWith(
-                // استخدام لون النص الثانوي الديناميكي
                 color: textTheme.bodyMedium?.color,
               ),
             ),
@@ -80,17 +77,16 @@ class _SellersScreenState extends State<SellersScreen> {
         ),
         Row(
           children: [
-            // الأزرار تستخدم ثيمات ElevatedButtonThemeData و OutlinedButtonThemeData
             OutlinedButton.icon(
               onPressed: () {},
-              icon: Icon(Icons.file_download),
-              label: Text('تصدير'),
+              icon: const Icon(Icons.file_download),
+              label: const Text('تصدير'),
             ),
             SizedBox(width: AppSpacing.md),
             ElevatedButton.icon(
               onPressed: () => provider.refresh(),
-              icon: Icon(Icons.refresh),
-              label: Text('تحديث'),
+              icon: const Icon(Icons.refresh),
+              label: const Text('تحديث'),
             ),
           ],
         ),
@@ -99,7 +95,9 @@ class _SellersScreenState extends State<SellersScreen> {
   }
 
   Widget _buildStatsCards(SellersProvider provider, ColorScheme colorScheme) {
-    // ألوان الحالة (Status Colors) تبقى ثابتة من AppColors لأنها ذات دلالة محددة
+    // 0.1 * 255 = 25 (0x19)
+    const int alpha10 = 0x19;
+
     final stats = [
       {
         'title': 'إجمالي البائعين',
@@ -135,7 +133,6 @@ class _SellersScreenState extends State<SellersScreen> {
             margin: EdgeInsets.only(left: AppSpacing.md),
             padding: EdgeInsets.all(AppSpacing.lg),
             decoration: BoxDecoration(
-              // استخدام لون سطح البطاقة الديناميكي
               color: colorScheme.surface,
               borderRadius: AppBorderRadius.medium,
               boxShadow: [AppShadows.medium],
@@ -146,7 +143,8 @@ class _SellersScreenState extends State<SellersScreen> {
                 Container(
                   padding: EdgeInsets.all(AppSpacing.sm),
                   decoration: BoxDecoration(
-                    color: (stat['color'] as Color).withOpacity(0.1),
+                    // استخدام withAlpha
+                    color: (stat['color'] as Color).withAlpha(alpha10),
                     borderRadius: BorderRadius.circular(AppSpacing.md),
                   ),
                   child: Icon(
@@ -169,56 +167,84 @@ class _SellersScreenState extends State<SellersScreen> {
 
   Widget _buildFiltersSection(ColorScheme colorScheme) {
     return Container(
-      padding: EdgeInsets.all(AppSpacing.lg),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        // استخدام لون سطح البطاقة الديناميكي
         color: colorScheme.surface,
         borderRadius: AppBorderRadius.medium,
         boxShadow: [AppShadows.medium],
       ),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 2,
-            child: TextField(
-              controller: _searchController,
-              // حقول الإدخال تستخدم InputDecorationTheme من الثيم الرئيسي
-              decoration: InputDecoration(
-                hintText: 'ابحث عن بائع...',
-                prefixIcon: Icon(Icons.search),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return
+          // 1. حقل البحث
+          Row(
+            children: [
+              Expanded(
+                flex: 2,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: const InputDecoration(
+                      hintText: 'ابحث عن بائع...',
+                      prefixIcon: Icon(Icons.search),
+                      isDense: true,
+                    ),
+                    onChanged: (value) => setState(() {}),
+                  ),
+                ),
               ),
-              onChanged: (value) => setState(() {}),
-            ),
-          ),
-          SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: DropdownButtonFormField<String>(
-              initialValue: _selectedTier,
-              // حقول الإدخال تستخدم InputDecorationTheme من الثيم الرئيسي
-              decoration: InputDecoration(labelText: 'التصنيف'),
-              items: ['الكل', 'Platinum', 'Gold', 'Silver', 'Bronze']
-                  .map(
-                    (tier) => DropdownMenuItem(value: tier, child: Text(tier)),
-                  )
-                  .toList(),
-              onChanged: (value) => setState(() => _selectedTier = value!),
-            ),
-          ),
-          SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: DropdownButtonFormField<String>(
-              initialValue: _sortBy,
-              // حقول الإدخال تستخدم InputDecorationTheme من الثيم الرئيسي
-              decoration: InputDecoration(labelText: 'ترتيب حسب'),
-              items: ['الأحدث', 'الأقدم', 'الأعلى مبيعات', 'الأكثر منتجات']
-                  .map(
-                    (sort) => DropdownMenuItem(value: sort, child: Text(sort)),
-                  )
-                  .toList(),
-              onChanged: (value) => setState(() => _sortBy = value!),
-            ),
-          ),
-        ],
+
+              // 2. حقل التصنيف
+              Expanded(
+                flex: 1,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: DropdownButtonFormField<String>(
+                    initialValue: _selectedTier,
+                    decoration: const InputDecoration(
+                      labelText: 'التصنيف',
+                      isDense: true,
+                    ),
+                    items: ['الكل', 'Platinum', 'Gold', 'Silver', 'Bronze']
+                        .map(
+                          (tier) => DropdownMenuItem(
+                            value: tier,
+                            child: Text(tier, overflow: TextOverflow.ellipsis),
+                          ),
+                        )
+                        .toList(),
+                    isExpanded: true,
+                    onChanged: (value) =>
+                        setState(() => _selectedTier = value!),
+                  ),
+                ),
+              ),
+
+              // 3. حقل الترتيب
+              Expanded(
+                flex: 1,
+                child: DropdownButtonFormField<String>(
+                  initialValue: _sortBy,
+                  decoration: const InputDecoration(
+                    labelText: 'ترتيب حسب',
+                    isDense: true,
+                  ),
+                  items: ['الأحدث', 'الأقدم', 'الأعلى مبيعات', 'الأكثر منتجات']
+                      .map(
+                        (sort) => DropdownMenuItem(
+                          value: sort,
+                          child: Text(sort, overflow: TextOverflow.ellipsis),
+                        ),
+                      )
+                      .toList(),
+                  isExpanded: true,
+                  onChanged: (value) => setState(() => _sortBy = value!),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -228,7 +254,7 @@ class _SellersScreenState extends State<SellersScreen> {
       return Center(
         child: Padding(
           padding: EdgeInsets.all(AppSpacing.xl),
-          child: CircularProgressIndicator(),
+          child: const CircularProgressIndicator(),
         ),
       );
     }
@@ -260,9 +286,11 @@ class _SellersScreenState extends State<SellersScreen> {
         filteredSellers.sort((a, b) => b.joinDate.compareTo(a.joinDate));
     }
 
+    // 0.15 * 255 ≈ 38 (0x26)
+    const int alpha15 = 0x26;
+
     return Container(
       decoration: BoxDecoration(
-        // استخدام لون سطح البطاقة الديناميكي
         color: theme.colorScheme.surface,
         borderRadius: AppBorderRadius.medium,
         boxShadow: [AppShadows.medium],
@@ -281,22 +309,22 @@ class _SellersScreenState extends State<SellersScreen> {
               ],
             ),
           ),
-          // استخدام DividerThemeData من الثيم
-          Divider(height: 1, color: theme.dividerColor),
+          Divider(height: 1, color: theme.dividerColor.withAlpha(128)),
           SizedBox(
             height: 600,
             child: DataTable2(
               columnSpacing: 12,
               horizontalMargin: 20,
               minWidth: 1400,
-              // لون رأس الجدول يتغير بناءً على وضع الثيم (فاتح/داكن)
               headingRowColor: WidgetStateProperty.all(
                 theme.brightness == Brightness.light
                     ? AppColors.grey50
                     : AppColors.darkSurface,
               ),
               columns: [
+                // Seller Name
                 DataColumn2(
+                  headingRowAlignment: MainAxisAlignment.center,
                   label: Text(
                     'البائع',
                     style: AppTextStyles.bodyMedium.copyWith(
@@ -305,7 +333,9 @@ class _SellersScreenState extends State<SellersScreen> {
                   ),
                   size: ColumnSize.L,
                 ),
+                // Store Name
                 DataColumn2(
+                  headingRowAlignment: MainAxisAlignment.center,
                   label: Text(
                     'المتجر',
                     style: AppTextStyles.bodyMedium.copyWith(
@@ -313,7 +343,9 @@ class _SellersScreenState extends State<SellersScreen> {
                     ),
                   ),
                 ),
+                // Total Products
                 DataColumn2(
+                  headingRowAlignment: MainAxisAlignment.center,
                   label: Text(
                     'المنتجات',
                     style: AppTextStyles.bodyMedium.copyWith(
@@ -321,7 +353,9 @@ class _SellersScreenState extends State<SellersScreen> {
                     ),
                   ),
                 ),
+                // Total Sales
                 DataColumn2(
+                  headingRowAlignment: MainAxisAlignment.center,
                   label: Text(
                     'المبيعات',
                     style: AppTextStyles.bodyMedium.copyWith(
@@ -329,7 +363,9 @@ class _SellersScreenState extends State<SellersScreen> {
                     ),
                   ),
                 ),
+                // Total Revenue
                 DataColumn2(
+                  headingRowAlignment: MainAxisAlignment.center,
                   label: Text(
                     'الإيرادات',
                     style: AppTextStyles.bodyMedium.copyWith(
@@ -337,7 +373,9 @@ class _SellersScreenState extends State<SellersScreen> {
                     ),
                   ),
                 ),
+                // Pending Commission
                 DataColumn2(
+                  headingRowAlignment: MainAxisAlignment.center,
                   label: Text(
                     'العمولة المعلقة',
                     style: AppTextStyles.bodyMedium.copyWith(
@@ -345,7 +383,9 @@ class _SellersScreenState extends State<SellersScreen> {
                     ),
                   ),
                 ),
+                // Seller Tier
                 DataColumn2(
+                  headingRowAlignment: MainAxisAlignment.center,
                   label: Text(
                     'التصنيف',
                     style: AppTextStyles.bodyMedium.copyWith(
@@ -353,7 +393,9 @@ class _SellersScreenState extends State<SellersScreen> {
                     ),
                   ),
                 ),
+                // Status
                 DataColumn2(
+                  headingRowAlignment: MainAxisAlignment.center,
                   label: Text(
                     'الحالة',
                     style: AppTextStyles.bodyMedium.copyWith(
@@ -361,7 +403,9 @@ class _SellersScreenState extends State<SellersScreen> {
                     ),
                   ),
                 ),
+                // Actions
                 DataColumn2(
+                  headingRowAlignment: MainAxisAlignment.center,
                   label: Text(
                     'الإجراءات',
                     style: AppTextStyles.bodyMedium.copyWith(
@@ -375,21 +419,22 @@ class _SellersScreenState extends State<SellersScreen> {
                 final tierColor = _getTierColor(seller.sellerTier);
                 return DataRow(
                   cells: [
+                    // Seller Info
                     DataCell(
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           CircleAvatar(
-                            // لون التصنيف ثابت للدلالة
                             backgroundColor: tierColor,
                             child: Text(
                               seller.name[0],
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
-                          SizedBox(width: AppSpacing.md),
+                          SizedBox(width: AppSpacing.sm),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -400,12 +445,12 @@ class _SellersScreenState extends State<SellersScreen> {
                                     Text(
                                       seller.name,
                                       style: AppTextStyles.bodyMedium.copyWith(
-                                        fontWeight: FontWeight.w600,
+                                        fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                     if (seller.isVerified) ...[
                                       SizedBox(width: AppSpacing.xs),
-                                      Icon(
+                                      const Icon(
                                         Icons.verified,
                                         size: 16,
                                         color: AppColors.info,
@@ -413,7 +458,6 @@ class _SellersScreenState extends State<SellersScreen> {
                                     ],
                                   ],
                                 ),
-                                // TextStyles بدون لون محدد ترث لون النص الأساسي من الثيم
                                 Text(
                                   seller.email,
                                   style: AppTextStyles.bodySmall,
@@ -424,104 +468,125 @@ class _SellersScreenState extends State<SellersScreen> {
                         ],
                       ),
                     ),
+                    // Store Name
                     DataCell(
-                      Text(
-                        seller.storeName ?? 'غير محدد',
-                        style: AppTextStyles.bodySmall,
-                      ),
-                    ),
-                    DataCell(
-                      Text(
-                        '${seller.totalProducts}',
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    DataCell(
-                      Text(
-                        '${seller.totalSales}',
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    DataCell(
-                      Text(
-                        '${NumberFormat('#,##0').format(seller.totalRevenue)} ج',
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.success, // لون دلالي ثابت
-                        ),
-                      ),
-                    ),
-                    DataCell(
-                      Text(
-                        '${NumberFormat('#,##0').format(seller.pendingCommission)} ج',
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.warning, // لون دلالي ثابت
-                        ),
-                      ),
-                    ),
-                    DataCell(
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: AppSpacing.md,
-                          vertical: AppSpacing.xs,
-                        ),
-                        decoration: BoxDecoration(
-                          // لون الخلفية من لون التصنيف مع Opacity
-                          color: tierColor.withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
+                      Center(
                         child: Text(
-                          seller.sellerTier,
-                          style: TextStyle(
-                            color: tierColor, // لون النص من لون التصنيف
-                            fontSize: 12,
+                          seller.storeName ?? 'غير محدد',
+                          style: AppTextStyles.bodySmall,
+                        ),
+                      ),
+                    ),
+                    // Total Products
+                    DataCell(
+                      Center(
+                        child: Text(
+                          '${seller.totalProducts}',
+                          style: AppTextStyles.bodyMedium.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
                     ),
+                    // Total Sales
                     DataCell(
-                      // الـ Switch يستخدم SwitchThemeData من الثيم الرئيسي
-                      Switch(
-                        value: seller.isActive,
-                        onChanged: (value) {
-                          provider.toggleSellerStatus(seller.id);
-                        },
+                      Center(
+                        child: Text(
+                          '${seller.totalSales}',
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ),
+                    // Total Revenue
+                    DataCell(
+                      Center(
+                        child: Text(
+                          '${NumberFormat('#,##0').format(seller.totalRevenue)} ج',
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.success,
+                          ),
+                        ),
+                      ),
+                    ),
+                    // Pending Commission
+                    DataCell(
+                      Center(
+                        child: Text(
+                          '${NumberFormat('#,##0').format(seller.pendingCommission)} ج',
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.warning,
+                          ),
+                        ),
+                      ),
+                    ),
+                    // Seller Tier
+                    DataCell(
+                      Center(
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: AppSpacing.md,
+                            vertical: AppSpacing.xs,
+                          ),
+                          decoration: BoxDecoration(
+                            // استخدام withAlpha
+                            color: tierColor.withAlpha(alpha15),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            seller.sellerTier,
+                            style: TextStyle(
+                              color: tierColor,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    // Status
+                    DataCell(
+                      Center(
+                        child: Switch(
+                          value: seller.isActive,
+                          onChanged: (value) {
+                            provider.toggleSellerStatus(seller.id);
+                          },
+                        ),
+                      ),
+                    ),
+                    // Actions
                     DataCell(
                       Row(
-                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           IconButton(
-                            icon: Icon(Icons.visibility, size: 18),
+                            icon: const Icon(Icons.visibility, size: 18),
                             onPressed: () =>
                                 _showSellerDetails(context, seller),
                             tooltip: 'عرض',
-                            color: AppColors.info, // لون دلالي ثابت
+                            color: AppColors.info,
                           ),
                           if (!seller.isVerified)
                             IconButton(
-                              icon: Icon(Icons.verified_user, size: 18),
+                              icon: const Icon(Icons.verified_user, size: 18),
                               onPressed: () =>
                                   provider.verifySeller(seller.id, true),
                               tooltip: 'توثيق',
-                              color: AppColors.success, // لون دلالي ثابت
+                              color: AppColors.success,
                             ),
                           IconButton(
-                            icon: Icon(Icons.attach_money, size: 18),
+                            icon: const Icon(Icons.attach_money, size: 18),
                             onPressed: () => _showPayCommissionDialog(
                               context,
                               seller,
                               provider,
                             ),
                             tooltip: 'دفع عمولة',
-                            color: AppColors.warning, // لون دلالي ثابت
+                            color: AppColors.warning,
                           ),
                         ],
                       ),
@@ -536,17 +601,17 @@ class _SellersScreenState extends State<SellersScreen> {
     );
   }
 
-  // تم الاحتفاظ بألوان التصنيفات الثابتة لأنها ألوان دلالية محددة (Platinum, Gold, Bronze)
+  // تم الاحتفاظ بألوان التصنيفات الثابتة لأنها ألوان دلالية محددة
   Color _getTierColor(String tier) {
     switch (tier) {
       case 'Platinum':
-        return Color(0xFF9333EA);
+        return const Color(0xFF9333EA);
       case 'Gold':
         return AppColors.warning;
       case 'Silver':
         return AppColors.grey600;
       case 'Bronze':
-        return Color(0xFFCD7F32);
+        return const Color(0xFFCD7F32);
       default:
         return AppColors.grey500;
     }
@@ -554,12 +619,10 @@ class _SellersScreenState extends State<SellersScreen> {
 
   void _showSellerDetails(BuildContext context, Seller seller) {
     final textTheme = Theme.of(context).textTheme;
-    // AlertDialog يستخدم DialogThemeData من الثيم
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        // عنوان النص يستخدم titleTextStyle من DialogThemeData
-        title: Text('تفاصيل البائع'),
+        title: const Text('تفاصيل البائع'),
         content: SizedBox(
           width: 500,
           child: SingleChildScrollView(
@@ -600,17 +663,15 @@ class _SellersScreenState extends State<SellersScreen> {
           ),
         ),
         actions: [
-          // TextButton يستخدم TextButtonThemeData من الثيم الرئيسي
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('إغلاق'),
+            child: const Text('إغلاق'),
           ),
         ],
       ),
     );
   }
 
-  // تم تعديل الدالة لقبول TextTheme لجعل نصوصها ديناميكية
   Widget _detailRow(String label, String value, TextTheme textTheme) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: AppSpacing.sm),
@@ -621,13 +682,11 @@ class _SellersScreenState extends State<SellersScreen> {
             width: 140,
             child: Text(
               '$label:',
-              // استخدام TextTheme لضبط اللون بناءً على الثيم
               style: textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
           ),
-          // استخدام TextTheme لضبط اللون بناءً على الثيم
           Expanded(child: Text(value, style: textTheme.bodyMedium)),
         ],
       ),
@@ -643,27 +702,23 @@ class _SellersScreenState extends State<SellersScreen> {
       text: seller.pendingCommission.toStringAsFixed(2),
     );
 
-    // الحصول على ColorScheme لاستخدامه في SnackBar
     final colorScheme = Theme.of(context).colorScheme;
 
-    // AlertDialog يستخدم DialogThemeData من الثيم
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('دفع عمولة'),
+        title: const Text('دفع عمولة'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // النص سيعتمد على الثيم
             Text(
               'العمولة المعلقة: ${NumberFormat('#,##0').format(seller.pendingCommission)} ج',
             ),
             SizedBox(height: AppSpacing.md),
-            // TextField يستخدم InputDecorationTheme من الثيم الرئيسي
             TextField(
               controller: amountController,
               keyboardType: TextInputType.number,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'المبلغ المراد دفعه',
                 suffixText: 'جنيه',
               ),
@@ -671,28 +726,26 @@ class _SellersScreenState extends State<SellersScreen> {
           ],
         ),
         actions: [
-          // TextButton يستخدم TextButtonThemeData من الثيم الرئيسي
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('إلغاء'),
+            child: const Text('إلغاء'),
           ),
-          // ElevatedButton يستخدم ElevatedButtonThemeData من الثيم الرئيسي
           ElevatedButton(
             onPressed: () {
               final amount = double.tryParse(amountController.text) ?? 0;
               if (amount > 0) {
                 provider.payCommission(seller.id, amount);
                 Navigator.pop(context);
+                if (!mounted) return; // فحص mounted
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('تم دفع العمولة بنجاح'),
-                    // استخدام لون النجاح الديناميكي (Secondary)
+                    content: const Text('تم دفع العمولة بنجاح'),
                     backgroundColor: colorScheme.secondary,
                   ),
                 );
               }
             },
-            child: Text('دفع'),
+            child: const Text('دفع'),
           ),
         ],
       ),
