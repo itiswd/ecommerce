@@ -1,4 +1,5 @@
 import 'package:ecommerce_dashboard/constants/app_theme.dart';
+import 'package:ecommerce_dashboard/models/order.dart';
 import 'package:ecommerce_dashboard/providers/dashboard_provider.dart';
 import 'package:ecommerce_dashboard/providers/orders_provider.dart';
 import 'package:ecommerce_dashboard/providers/products_provider.dart';
@@ -24,6 +25,47 @@ class _DashboardScreenState extends State<DashboardScreen> {
       if (!mounted) return;
       context.read<DashboardProvider>().loadDashboardData();
     });
+  }
+
+  // ============================================
+  // الدوال المساعدة الجديدة (الألوان والأسماء)
+  // ============================================
+
+  Color _getStatusColor(OrderStatus status) {
+    switch (status) {
+      case OrderStatus.delivered:
+        return AppColors.success;
+      case OrderStatus.pending:
+        return AppColors.warning;
+      case OrderStatus.shipped:
+      case OrderStatus.processing:
+        return AppColors.info;
+      case OrderStatus.confirmed:
+        return Colors.blue;
+      case OrderStatus.cancelled:
+        return AppColors.error;
+      case OrderStatus.returned:
+        return Colors.brown;
+    }
+  }
+
+  String _getStatusArabicName(OrderStatus status) {
+    switch (status) {
+      case OrderStatus.pending:
+        return 'قيد الانتظار';
+      case OrderStatus.confirmed:
+        return 'مؤكد';
+      case OrderStatus.processing:
+        return 'قيد التجهيز';
+      case OrderStatus.shipped:
+        return 'قيد الشحن';
+      case OrderStatus.delivered:
+        return 'تم التوصيل';
+      case OrderStatus.cancelled:
+        return 'ملغي';
+      case OrderStatus.returned:
+        return 'مرتجع';
+    }
   }
 
   @override
@@ -91,6 +133,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  // ============================================
+  // دوال بناء العناصر (UI Widgets)
+  // ============================================
+
   Widget _buildHeader(DashboardProvider provider, TextTheme textTheme) {
     final theme = Theme.of(context);
     return Row(
@@ -114,14 +160,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     vertical: AppSpacing.xs,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.success.withAlpha(0x19),
+                    color: AppColors.success.withAlpha(25),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
                     children: [
                       Icon(Icons.circle, size: 8, color: AppColors.success),
                       SizedBox(width: 4),
-                      Text(
+                      const Text(
                         'مباشر',
                         style: TextStyle(
                           fontSize: 11,
@@ -165,7 +211,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 context.read<OrdersProvider>().refresh();
                 context.read<ProductsProvider>().refresh();
               },
-              icon: Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh),
               tooltip: 'تحديث البيانات',
             ),
           ],
@@ -281,15 +327,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     required ColorScheme colorScheme,
     required TextTheme textTheme,
   }) {
-    const alpha10 = 0x19;
-
     return Container(
       padding: EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: AppBorderRadius.large,
         boxShadow: [AppShadows.medium],
-        border: Border.all(color: color.withAlpha(0x33), width: 1),
+        border: Border.all(color: color.withAlpha(51), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -301,7 +345,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Container(
                 padding: EdgeInsets.all(AppSpacing.sm),
                 decoration: BoxDecoration(
-                  color: color.withAlpha(alpha10),
+                  color: color.withAlpha(25),
                   borderRadius: BorderRadius.circular(AppSpacing.md),
                 ),
                 child: Icon(icon, color: color, size: 24),
@@ -313,8 +357,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
                 decoration: BoxDecoration(
                   color: isPositive
-                      ? AppColors.success.withAlpha(alpha10)
-                      : AppColors.error.withAlpha(alpha10),
+                      ? AppColors.success.withAlpha(25)
+                      : AppColors.error.withAlpha(25),
                   borderRadius: BorderRadius.circular(AppSpacing.xs),
                 ),
                 child: Row(
@@ -365,16 +409,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildSalesChart(DashboardProvider provider, ThemeData theme) {
-    final chartGridColor = theme.dividerColor;
-    final chartLabelColor = theme.textTheme.bodySmall?.color;
-    final chartTitleColor = theme.textTheme.titleMedium?.color;
-    final chartBackgroundColor = theme.colorScheme.surface;
-    const alpha10 = 0x19;
-
     return Container(
       padding: EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: chartBackgroundColor,
+        color: theme.colorScheme.surface,
         borderRadius: AppBorderRadius.large,
         boxShadow: [AppShadows.medium],
       ),
@@ -389,19 +427,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 children: [
                   Text(
                     'المبيعات الأسبوعية',
-                    style: AppTextStyles.h4.copyWith(color: chartTitleColor),
+                    style: AppTextStyles.h4.copyWith(
+                      color: theme.textTheme.titleMedium?.color,
+                    ),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
                     'آخر 7 أيام',
-                    style: TextStyle(fontSize: 12, color: chartLabelColor),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: theme.textTheme.bodySmall?.color,
+                    ),
                   ),
                 ],
               ),
               Row(
                 children: [
                   _buildLegendItem('المبيعات', AppColors.primary),
-                  SizedBox(width: 16),
+                  const SizedBox(width: 16),
                   _buildLegendItem('الهدف', AppColors.success),
                 ],
               ),
@@ -415,9 +458,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 gridData: FlGridData(
                   show: true,
                   drawVerticalLine: false,
-                  getDrawingHorizontalLine: (value) {
-                    return FlLine(color: chartGridColor, strokeWidth: 1);
-                  },
+                  getDrawingHorizontalLine: (value) =>
+                      FlLine(color: theme.dividerColor, strokeWidth: 1),
                 ),
                 titlesData: FlTitlesData(
                   bottomTitles: AxisTitles(
@@ -436,7 +478,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         return Text(
                           days[value.toInt() % days.length],
                           style: AppTextStyles.caption.copyWith(
-                            color: chartLabelColor,
+                            color: theme.textTheme.bodySmall?.color,
                           ),
                         );
                       },
@@ -446,14 +488,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     sideTitles: SideTitles(
                       showTitles: true,
                       reservedSize: 40,
-                      getTitlesWidget: (value, meta) {
-                        return Text(
-                          '${(value / 1000).toInt()}k',
-                          style: AppTextStyles.caption.copyWith(
-                            color: chartLabelColor,
-                          ),
-                        );
-                      },
+                      getTitlesWidget: (value, meta) => Text(
+                        '${(value / 1000).toInt()}k',
+                        style: AppTextStyles.caption.copyWith(
+                          color: theme.textTheme.bodySmall?.color,
+                        ),
+                      ),
                     ),
                   ),
                   topTitles: const AxisTitles(
@@ -466,26 +506,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 borderData: FlBorderData(show: false),
                 lineBarsData: [
                   LineChartBarData(
-                    spots: provider.salesData.asMap().entries.map((e) {
-                      return FlSpot(e.key.toDouble(), e.value);
-                    }).toList(),
+                    spots: provider.salesData
+                        .asMap()
+                        .entries
+                        .map((e) => FlSpot(e.key.toDouble(), e.value))
+                        .toList(),
                     isCurved: true,
                     color: AppColors.primary,
                     barWidth: 3,
-                    dotData: FlDotData(
-                      show: true,
-                      getDotPainter: (spot, percent, barData, index) {
-                        return FlDotCirclePainter(
-                          radius: 4,
-                          color: AppColors.primary,
-                          strokeWidth: 2,
-                          strokeColor: Colors.white,
-                        );
-                      },
-                    ),
                     belowBarData: BarAreaData(
                       show: true,
-                      color: AppColors.primary.withAlpha(alpha10),
+                      color: AppColors.primary.withAlpha(25),
                     ),
                   ),
                 ],
@@ -508,8 +539,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
             borderRadius: BorderRadius.circular(3),
           ),
         ),
-        SizedBox(width: 6),
-        Text(label, style: TextStyle(fontSize: 12)),
+        const SizedBox(width: 6),
+        Text(label, style: const TextStyle(fontSize: 12)),
       ],
     );
   }
@@ -518,8 +549,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     OrdersProvider ordersProvider,
     ColorScheme colorScheme,
   ) {
-    final chartTitleColor = Theme.of(context).textTheme.titleMedium?.color;
-
     final statusData = [
       {
         'status': 'مكتمل',
@@ -553,19 +582,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'حالة الطلبات',
-            style: AppTextStyles.h4.copyWith(color: chartTitleColor),
-          ),
-          SizedBox(height: 4),
-          Text(
-            'توزيع الطلبات حسب الحالة',
-            style: TextStyle(
-              fontSize: 12,
-              color: Theme.of(context).textTheme.bodySmall?.color,
-            ),
-          ),
-          SizedBox(height: AppSpacing.lg),
+          Text('حالة الطلبات', style: AppTextStyles.h4),
+          const SizedBox(height: AppSpacing.lg),
           SizedBox(
             height: 200,
             child: PieChart(
@@ -574,7 +592,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   final count = data['count'] as int;
                   final total = ordersProvider.totalOrders;
                   final percentage = total > 0 ? (count / total * 100) : 0;
-
                   return PieChartSectionData(
                     value: count.toDouble(),
                     title: '${percentage.toStringAsFixed(0)}%',
@@ -587,7 +604,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   );
                 }).toList(),
-                sectionsSpace: 2,
                 centerSpaceRadius: 40,
               ),
             ),
@@ -606,16 +622,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       data['status'] as String,
-                      style: TextStyle(fontSize: 13),
+                      style: const TextStyle(fontSize: 13),
                     ),
                   ),
                   Text(
                     '${data['count']}',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
@@ -627,16 +643,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildRecentOrders(OrdersProvider provider, ThemeData theme) {
-    final colorScheme = theme.colorScheme;
-    final textTheme = theme.textTheme;
-    final chartTitleColor = textTheme.titleMedium?.color;
-
     final recentOrders = provider.orders.take(5).toList();
-
     return Container(
       padding: EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: colorScheme.surface,
+        color: theme.colorScheme.surface,
         borderRadius: AppBorderRadius.large,
         boxShadow: [AppShadows.medium],
       ),
@@ -646,35 +657,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'أحدث الطلبات',
-                    style: AppTextStyles.h4.copyWith(color: chartTitleColor),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    'آخر ${recentOrders.length} طلبات',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: textTheme.bodySmall?.color,
-                    ),
-                  ),
-                ],
-              ),
+              Text('أحدث الطلبات', style: AppTextStyles.h4),
               TextButton(onPressed: () {}, child: const Text('عرض الكل')),
             ],
           ),
           SizedBox(height: AppSpacing.md),
           if (recentOrders.isEmpty)
-            Center(
+            const Center(
               child: Padding(
-                padding: const EdgeInsets.all(40),
-                child: Text(
-                  'لا توجد طلبات حتى الآن',
-                  style: TextStyle(color: textTheme.bodySmall?.color),
-                ),
+                padding: EdgeInsets.all(40),
+                child: Text('لا توجد طلبات'),
               ),
             )
           else
@@ -684,31 +676,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildOrderItem(order, ThemeData theme) {
-    final colorScheme = theme.colorScheme;
-    final textTheme = theme.textTheme;
-    final itemBackgroundColor = theme.brightness == Brightness.dark
-        ? AppColors.darkSurface
-        : AppColors.grey50;
+  Widget _buildOrderItem(Order order, ThemeData theme) {
     final statusColor = _getStatusColor(order.status);
-    const alpha10 = 0x19;
-
     return Container(
       margin: EdgeInsets.only(bottom: AppSpacing.md),
       padding: EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: itemBackgroundColor,
+        color: theme.brightness == Brightness.dark
+            ? AppColors.darkSurface
+            : AppColors.grey50,
         borderRadius: AppBorderRadius.medium,
         border: Border.all(color: theme.dividerColor, width: 0.5),
       ),
       child: Row(
         children: [
           CircleAvatar(
-            backgroundColor: colorScheme.primary.withAlpha(alpha10),
+            backgroundColor: theme.colorScheme.primary.withAlpha(25),
             child: Text(
               order.customerName[0],
               style: TextStyle(
-                color: colorScheme.primary,
+                color: theme.colorScheme.primary,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -720,14 +707,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 Text(
                   order.customerName,
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 Text(
                   'طلب #${order.id}',
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: textTheme.bodySmall?.color,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: theme.textTheme.bodySmall?.color,
                   ),
                 ),
               ],
@@ -738,25 +724,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               Text(
                 '${NumberFormat('#,##0').format(order.grandTotal)} ج',
-                style: AppTextStyles.bodyMedium.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               Container(
-                margin: EdgeInsets.only(top: AppSpacing.xs),
-                padding: EdgeInsets.symmetric(
-                  horizontal: AppSpacing.sm,
-                  vertical: AppSpacing.xs,
-                ),
+                margin: const EdgeInsets.only(top: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: statusColor.withAlpha(alpha10),
-                  borderRadius: BorderRadius.circular(AppSpacing.sm),
+                  color: statusColor.withAlpha(25),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  order.status.arabicName,
+                  _getStatusArabicName(order.status),
                   style: TextStyle(
                     color: statusColor,
-                    fontSize: 11,
+                    fontSize: 10,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -768,31 +749,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Color _getStatusColor(status) {
-    switch (status.toString()) {
-      case 'OrderStatus.delivered':
-        return AppColors.success;
-      case 'OrderStatus.pending':
-        return AppColors.warning;
-      case 'OrderStatus.shipped':
-        return AppColors.info;
-      case 'OrderStatus.cancelled':
-        return AppColors.error;
-      default:
-        return AppColors.grey500;
-    }
-  }
-
   Widget _buildTopProducts(ProductsProvider provider, ThemeData theme) {
-    final colorScheme = theme.colorScheme;
-    final chartTitleColor = theme.textTheme.titleMedium?.color;
-
     final topProducts = provider.getTopSellingProducts(limit: 5);
-
     return Container(
       padding: EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: colorScheme.surface,
+        color: theme.colorScheme.surface,
         borderRadius: AppBorderRadius.large,
         boxShadow: [AppShadows.medium],
       ),
@@ -802,83 +764,51 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'الأكثر مبيعاً',
-                    style: AppTextStyles.h4.copyWith(color: chartTitleColor),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    'أفضل ${topProducts.length} منتجات',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: theme.textTheme.bodySmall?.color,
-                    ),
-                  ),
-                ],
-              ),
+              Text('الأكثر مبيعاً', style: AppTextStyles.h4),
               TextButton(onPressed: () {}, child: const Text('عرض الكل')),
             ],
           ),
           SizedBox(height: AppSpacing.md),
           if (topProducts.isEmpty)
-            Center(
+            const Center(
               child: Padding(
-                padding: const EdgeInsets.all(40),
-                child: Text(
-                  'لا توجد منتجات حتى الآن',
-                  style: TextStyle(color: theme.textTheme.bodySmall?.color),
-                ),
+                padding: EdgeInsets.all(40),
+                child: Text('لا توجد منتجات'),
               ),
             )
           else
-            ...topProducts.asMap().entries.map((entry) {
-              final index = entry.key;
-              final product = entry.value;
-              return _buildTopProductItem(index + 1, product, theme);
-            }),
+            ...topProducts.asMap().entries.map(
+              (entry) =>
+                  _buildTopProductItem(entry.key + 1, entry.value, theme),
+            ),
         ],
       ),
     );
   }
 
-  Widget _buildTopProductItem(int rank, product, ThemeData theme) {
-    final textTheme = theme.textTheme;
-    final itemBackgroundColor = theme.brightness == Brightness.dark
-        ? AppColors.darkSurface
-        : AppColors.grey50;
-
-    final rankCircleColor = rank <= 3 ? AppColors.warning : AppColors.grey300;
-    final rankTextColor = rank <= 3
-        ? Colors.white
-        : textTheme.bodyMedium?.color;
-
+  Widget _buildTopProductItem(int rank, dynamic product, ThemeData theme) {
+    final rankColor = rank <= 3 ? AppColors.warning : AppColors.grey300;
     return Container(
       margin: EdgeInsets.only(bottom: AppSpacing.md),
       padding: EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: itemBackgroundColor,
+        color: theme.brightness == Brightness.dark
+            ? AppColors.darkSurface
+            : AppColors.grey50,
         borderRadius: AppBorderRadius.medium,
         border: Border.all(color: theme.dividerColor, width: 0.5),
       ),
       child: Row(
         children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: rankCircleColor,
-              shape: BoxShape.circle,
-            ),
-            child: Center(
-              child: Text(
-                '$rank',
-                style: TextStyle(
-                  color: rankTextColor,
-                  fontWeight: FontWeight.bold,
-                ),
+          CircleAvatar(
+            radius: 14,
+            backgroundColor: rankColor,
+            child: Text(
+              '$rank',
+              style: const TextStyle(
+                fontSize: 12,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ),
@@ -889,39 +819,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 Text(
                   product.name,
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
                   '${product.soldCount} مبيعة',
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: textTheme.bodySmall?.color,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: theme.textTheme.bodySmall?.color,
                   ),
                 ),
               ],
             ),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                '${NumberFormat('#,##0').format(product.totalRevenue)} ج',
-                style: AppTextStyles.bodyMedium.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.success,
-                ),
-              ),
-              Text(
-                '${NumberFormat('#,##0').format(product.totalCommission)} ج عمولة',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: textTheme.bodySmall?.color,
-                ),
-              ),
-            ],
+          Text(
+            '${NumberFormat('#,##0').format(product.totalRevenue)} ج',
+            style: const TextStyle(
+              color: AppColors.success,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ],
       ),
@@ -929,39 +846,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildQuickActions(ThemeData theme) {
-    final colorScheme = theme.colorScheme;
-
     final actions = [
       {
         'title': 'إضافة منتج',
         'icon': Icons.add_box,
         'color': AppColors.primary,
-        'onTap': () {},
       },
       {
         'title': 'عرض الطلبات',
         'icon': Icons.shopping_bag,
         'color': AppColors.success,
-        'onTap': () {},
       },
       {
         'title': 'إدارة البانرات',
         'icon': Icons.image,
         'color': AppColors.warning,
-        'onTap': () {},
       },
-      {
-        'title': 'التقارير',
-        'icon': Icons.assessment,
-        'color': AppColors.info,
-        'onTap': () {},
-      },
+      {'title': 'التقارير', 'icon': Icons.assessment, 'color': AppColors.info},
     ];
 
     return Container(
       padding: EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: colorScheme.surface,
+        color: theme.colorScheme.surface,
         borderRadius: AppBorderRadius.large,
         boxShadow: [AppShadows.medium],
       ),
@@ -971,47 +878,46 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Text('إجراءات سريعة', style: AppTextStyles.h4),
           SizedBox(height: AppSpacing.md),
           Row(
-            children: actions.map((action) {
-              return Expanded(
-                child: Padding(
-                  padding: EdgeInsets.only(left: AppSpacing.md),
-                  child: InkWell(
-                    onTap: action['onTap'] as VoidCallback,
-                    borderRadius: AppBorderRadius.medium,
-                    child: Container(
-                      padding: EdgeInsets.all(AppSpacing.lg),
-                      decoration: BoxDecoration(
-                        color: (action['color'] as Color).withAlpha(0x19),
-                        borderRadius: AppBorderRadius.medium,
-                        border: Border.all(
-                          color: (action['color'] as Color).withAlpha(0x33),
-                          width: 1,
-                        ),
-                      ),
-                      child: Column(
-                        children: [
-                          Icon(
-                            action['icon'] as IconData,
-                            size: 32,
-                            color: action['color'] as Color,
-                          ),
-                          SizedBox(height: AppSpacing.sm),
-                          Text(
-                            action['title'] as String,
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.bold,
-                              color: action['color'] as Color,
+            children: actions
+                .map(
+                  (action) => Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: InkWell(
+                        onTap: () {},
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          decoration: BoxDecoration(
+                            color: (action['color'] as Color).withAlpha(25),
+                            borderRadius: AppBorderRadius.medium,
+                            border: Border.all(
+                              color: (action['color'] as Color).withAlpha(51),
                             ),
-                            textAlign: TextAlign.center,
                           ),
-                        ],
+                          child: Column(
+                            children: [
+                              Icon(
+                                action['icon'] as IconData,
+                                color: action['color'] as Color,
+                                size: 28,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                action['title'] as String,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: action['color'] as Color,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              );
-            }).toList(),
+                )
+                .toList(),
           ),
         ],
       ),
