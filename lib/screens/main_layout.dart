@@ -1,5 +1,6 @@
 import 'package:ecommerce_dashboard/constants/app_theme.dart';
 import 'package:ecommerce_dashboard/providers/theme_provider.dart';
+import 'package:ecommerce_dashboard/screens/banners/banners_screen.dart';
 import 'package:ecommerce_dashboard/screens/cashback/cashback_screen.dart';
 import 'package:ecommerce_dashboard/screens/dashboard_screen.dart';
 import 'package:ecommerce_dashboard/screens/orders/orders_list_screen.dart';
@@ -23,7 +24,7 @@ class _MainLayoutState extends State<MainLayout> {
     '/': DashboardScreen(),
     '/products': ProductsListScreen(),
     '/orders': OrdersListScreen(),
-    // '/banners': BannersScreen(),
+    '/banners': BannersScreen(),
     '/cashback': CashbackScreen(),
     '/settings': SettingsScreen(),
   };

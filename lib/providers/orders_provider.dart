@@ -87,6 +87,7 @@ class OrdersProvider extends ChangeNotifier {
         customerName: 'أحمد محمد',
         customerPhone: '01012345678',
         customerAddress: 'القاهرة، مصر الجديدة، شارع الحجاز',
+        city: 'القاهرة',
         items: [
           OrderItem(
             productId: '1',
@@ -98,9 +99,11 @@ class OrdersProvider extends ChangeNotifier {
             commission: 0.10,
           ),
         ],
-        totalAmount: 45000,
+        subtotal: 45000,
         shippingFee: 50,
-        totalCommission: 4500,
+        totalAmount: 45050,
+        cashbackEarned: 450,
+        cashbackUsed: 0,
         status: OrderStatus.delivered,
         paymentMethod: PaymentMethod.cashOnDelivery,
         isPaid: true,
@@ -113,6 +116,7 @@ class OrdersProvider extends ChangeNotifier {
         customerName: 'سارة علي',
         customerPhone: '01098765432',
         customerAddress: 'الجيزة، الدقي، شارع التحرير',
+        city: 'الجيزة',
         items: [
           OrderItem(
             productId: '2',
@@ -133,9 +137,11 @@ class OrdersProvider extends ChangeNotifier {
             commission: 0.15,
           ),
         ],
-        totalAmount: 63500,
+        subtotal: 63500,
         shippingFee: 50,
-        totalCommission: 7875,
+        totalAmount: 63550,
+        cashbackEarned: 635,
+        cashbackUsed: 0,
         status: OrderStatus.shipped,
         paymentMethod: PaymentMethod.creditCard,
         isPaid: true,
@@ -147,6 +153,7 @@ class OrdersProvider extends ChangeNotifier {
         customerName: 'محمود حسن',
         customerPhone: '01155556666',
         customerAddress: 'الإسكندرية، سموحة، شارع الجيش',
+        city: 'الإسكندرية',
         items: [
           OrderItem(
             productId: '4',
@@ -158,9 +165,11 @@ class OrdersProvider extends ChangeNotifier {
             commission: 0.20,
           ),
         ],
-        totalAmount: 500,
+        subtotal: 500,
         shippingFee: 30,
-        totalCommission: 100,
+        totalAmount: 530,
+        cashbackEarned: 5,
+        cashbackUsed: 0,
         status: OrderStatus.confirmed,
         paymentMethod: PaymentMethod.mobileWallet,
         isPaid: true,
@@ -172,6 +181,7 @@ class OrdersProvider extends ChangeNotifier {
         customerName: 'فاطمة أحمد',
         customerPhone: '01044443333',
         customerAddress: 'المنصورة، شارع الجمهورية',
+        city: 'المنصورة',
         items: [
           OrderItem(
             productId: '5',
@@ -183,13 +193,43 @@ class OrdersProvider extends ChangeNotifier {
             commission: 0.10,
           ),
         ],
-        totalAmount: 3500,
+        subtotal: 3500,
         shippingFee: 80,
-        totalCommission: 350,
+        totalAmount: 3580,
+        cashbackEarned: 35,
+        cashbackUsed: 0,
         status: OrderStatus.pending,
         paymentMethod: PaymentMethod.cashOnDelivery,
         isPaid: false,
         createdAt: DateTime.now(),
+      ),
+      Order(
+        id: '5',
+        customerId: 'customer_1',
+        customerName: 'أحمد محمد',
+        customerPhone: '01012345678',
+        customerAddress: 'القاهرة، مصر الجديدة، شارع الحجاز',
+        city: 'القاهرة',
+        items: [
+          OrderItem(
+            productId: '3',
+            productName: 'سماعات Sony WH-1000XM5',
+            productImage:
+                'https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=400',
+            price: 8500,
+            quantity: 1,
+            commission: 0.15,
+          ),
+        ],
+        subtotal: 8500,
+        shippingFee: 50,
+        totalAmount: 8350,
+        cashbackEarned: 85,
+        cashbackUsed: 200,
+        status: OrderStatus.processing,
+        paymentMethod: PaymentMethod.cashOnDelivery,
+        isPaid: false,
+        createdAt: DateTime.now().subtract(Duration(hours: 12)),
       ),
     ];
 
@@ -207,6 +247,7 @@ class OrdersProvider extends ChangeNotifier {
         customerName: 'أحمد محمد',
         customerPhone: '01012345678',
         customerAddress: 'القاهرة، مصر الجديدة',
+        city: 'القاهرة',
         items: [
           OrderItem(
             productId: '1',
@@ -217,9 +258,9 @@ class OrdersProvider extends ChangeNotifier {
             commission: 0.10,
           ),
         ],
-        totalAmount: 45000,
+        subtotal: 45000,
         shippingFee: 50,
-        totalCommission: 4500,
+        totalAmount: 45050,
         status: OrderStatus.delivered,
         createdAt: DateTime.now().subtract(Duration(days: 5)),
       ),
@@ -241,9 +282,14 @@ class OrdersProvider extends ChangeNotifier {
   // Update order status
   Future<void> updateOrderStatus(String orderId, OrderStatus newStatus) async {
     try {
-      await _firestore.collection(_collection).doc(orderId).update({
-        'status': newStatus.toString().split('.').last,
-      });
+      final updateData = {'status': newStatus.toString().split('.').last};
+
+      // إذا كانت الحالة "تم التوصيل"، نضيف تاريخ التوصيل
+      if (newStatus == OrderStatus.delivered) {
+        updateData['deliveredAt'] = DateTime.now() as String;
+      }
+
+      await _firestore.collection(_collection).doc(orderId).update(updateData);
 
       final index = _orders.indexWhere((o) => o.id == orderId);
       if (index != -1) {
@@ -254,17 +300,21 @@ class OrdersProvider extends ChangeNotifier {
           customerName: oldOrder.customerName,
           customerPhone: oldOrder.customerPhone,
           customerAddress: oldOrder.customerAddress,
+          city: oldOrder.city,
           items: oldOrder.items,
-          totalAmount: oldOrder.totalAmount,
+          subtotal: oldOrder.subtotal,
           shippingFee: oldOrder.shippingFee,
-          totalCommission: oldOrder.totalCommission,
+          totalAmount: oldOrder.totalAmount,
+          cashbackEarned: oldOrder.cashbackEarned,
+          cashbackUsed: oldOrder.cashbackUsed,
           status: newStatus,
           paymentMethod: oldOrder.paymentMethod,
           isPaid: oldOrder.isPaid,
           createdAt: oldOrder.createdAt,
           deliveredAt: newStatus == OrderStatus.delivered
               ? DateTime.now()
-              : null,
+              : oldOrder.deliveredAt,
+          notes: oldOrder.notes,
         );
         notifyListeners();
       }
@@ -296,6 +346,11 @@ class OrdersProvider extends ChangeNotifier {
     return _orders.where((o) => o.customerId == customerId).toList();
   }
 
+  // Get orders by city
+  List<Order> getOrdersByCity(String city) {
+    return _orders.where((o) => o.city == city).toList();
+  }
+
   // Search orders
   List<Order> searchOrders(String query) {
     if (query.isEmpty) return _orders;
@@ -304,7 +359,36 @@ class OrdersProvider extends ChangeNotifier {
     return _orders.where((order) {
       return order.customerName.toLowerCase().contains(lowerQuery) ||
           order.customerPhone.contains(query) ||
-          order.id.toLowerCase().contains(lowerQuery);
+          order.id.toLowerCase().contains(lowerQuery) ||
+          order.city.toLowerCase().contains(lowerQuery);
+    }).toList();
+  }
+
+  // Get today's orders
+  List<Order> getTodayOrders() {
+    final today = DateTime.now();
+    return _orders.where((order) {
+      return order.createdAt.year == today.year &&
+          order.createdAt.month == today.month &&
+          order.createdAt.day == today.day;
+    }).toList();
+  }
+
+  // Get this week's orders
+  List<Order> getWeekOrders() {
+    final now = DateTime.now();
+    final weekAgo = now.subtract(Duration(days: 7));
+    return _orders.where((order) {
+      return order.createdAt.isAfter(weekAgo);
+    }).toList();
+  }
+
+  // Get this month's orders
+  List<Order> getMonthOrders() {
+    final now = DateTime.now();
+    return _orders.where((order) {
+      return order.createdAt.year == now.year &&
+          order.createdAt.month == now.month;
     }).toList();
   }
 

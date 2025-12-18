@@ -5,7 +5,7 @@ class Order {
   final String customerName;
   final String customerPhone;
   final String customerAddress;
-  final String city;
+  final String city; // المدينة
   final List<OrderItem> items;
   final double subtotal;
   final double shippingFee;
@@ -45,6 +45,10 @@ class Order {
 
   // المجموع النهائي بعد الكاش باك
   double get grandTotal => subtotal + shippingFee - cashbackUsed;
+
+  // إجمالي العمولة من جميع المنتجات
+  double get totalCommission =>
+      items.fold(0.0, (sum, item) => sum + item.commissionAmount);
 
   // تحويل من Firestore
   factory Order.fromMap(Map<String, dynamic> map, String id) {
@@ -109,6 +113,7 @@ class OrderItem {
   final String productImage;
   final double price;
   final int quantity;
+  final double commission; // نسبة العمولة للمنتج (0.10 = 10%)
   final Map<String, String>? selectedOptions;
 
   OrderItem({
@@ -117,10 +122,14 @@ class OrderItem {
     required this.productImage,
     required this.price,
     required this.quantity,
+    this.commission = 0.10, // 10% افتراضي
     this.selectedOptions,
   });
 
   double get subtotal => price * quantity;
+
+  // العمولة لهذا المنتج
+  double get commissionAmount => price * quantity * commission;
 
   factory OrderItem.fromMap(Map<String, dynamic> map) {
     return OrderItem(
@@ -129,6 +138,7 @@ class OrderItem {
       productImage: map['productImage'] ?? '',
       price: (map['price'] ?? 0).toDouble(),
       quantity: map['quantity'] ?? 1,
+      commission: (map['commission'] ?? 0.10).toDouble(),
       selectedOptions: map['selectedOptions'] != null
           ? Map<String, String>.from(map['selectedOptions'])
           : null,
@@ -142,6 +152,7 @@ class OrderItem {
       'productImage': productImage,
       'price': price,
       'quantity': quantity,
+      'commission': commission,
       'selectedOptions': selectedOptions,
     };
   }

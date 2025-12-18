@@ -1,5 +1,6 @@
 import 'package:ecommerce_dashboard/constants/app_theme.dart';
 import 'package:ecommerce_dashboard/providers/banners_provider.dart';
+import 'package:ecommerce_dashboard/providers/cashback_provider.dart';
 import 'package:ecommerce_dashboard/providers/dashboard_provider.dart';
 import 'package:ecommerce_dashboard/providers/orders_provider.dart';
 import 'package:ecommerce_dashboard/providers/products_provider.dart';
@@ -113,9 +114,12 @@ class AuthWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<AuthProvider>(
       builder: (context, authProvider, child) {
+        // في الوقت الحالي نروح مباشرة للـ MainLayout
+        // ممكن بعدين نضيف شرط: لو مش مسجل دخول يروح LoginScreen
         if (authProvider.isAuthenticated) {
           return const MainLayout();
         }
+        // في حالة عدم تسجيل الدخول (حالياً بنتجاهلها)
         return const MainLayout();
       },
     );
