@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ecommerce_dashboard/constants/app_theme.dart';
 import 'package:ecommerce_dashboard/models/banner.dart';
 import 'package:ecommerce_dashboard/providers/banners_provider.dart';
+import 'package:ecommerce_dashboard/screens/banners/add_edit_banner_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -359,7 +360,7 @@ class _BannersScreenState extends State<BannersScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.6),
+                      color: Colors.black.withAlpha(153),
                       shape: BoxShape.circle,
                     ),
                     child: Text(
@@ -488,14 +489,16 @@ class _BannersScreenState extends State<BannersScreen> {
   }
 
   void _showAddBannerDialog(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('قريباً... سيتم إضافة نافذة إضافة البانر')),
+    showDialog(
+      context: context,
+      builder: (context) => const AddEditBannerDialog(),
     );
   }
 
   void _showEditBannerDialog(BuildContext context, BannerModel banner) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('قريباً... سيتم إضافة نافذة تعديل البانر')),
+    showDialog(
+      context: context,
+      builder: (context) => AddEditBannerDialog(banner: banner),
     );
   }
 

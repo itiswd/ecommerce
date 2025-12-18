@@ -54,7 +54,7 @@ class ProductsProvider extends ChangeNotifier {
       }
     } catch (e) {
       _error = e.toString();
-      print('Error loading products: $e');
+      debugPrint('Error loading products: $e');
       _loadLocalSampleData();
     } finally {
       _isLoading = false;
@@ -237,7 +237,7 @@ class ProductsProvider extends ChangeNotifier {
       _products.add(product);
       notifyListeners();
     } catch (e) {
-      print('Error adding product: $e');
+      debugPrint('Error adding product: $e');
       rethrow;
     }
   }
@@ -256,7 +256,7 @@ class ProductsProvider extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      print('Error updating product: $e');
+      debugPrint('Error updating product: $e');
       rethrow;
     }
   }
@@ -268,7 +268,7 @@ class ProductsProvider extends ChangeNotifier {
       _products.removeWhere((p) => p.id == productId);
       notifyListeners();
     } catch (e) {
-      print('Error deleting product: $e');
+      debugPrint('Error deleting product: $e');
       rethrow;
     }
   }
@@ -289,7 +289,7 @@ class ProductsProvider extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      print('Error toggling product status: $e');
+      debugPrint('Error toggling product status: $e');
       rethrow;
     }
   }
@@ -307,7 +307,7 @@ class ProductsProvider extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      print('Error updating stock: $e');
+      debugPrint('Error updating stock: $e');
       rethrow;
     }
   }
@@ -316,9 +316,9 @@ class ProductsProvider extends ChangeNotifier {
   Future<void> exportProducts() async {
     try {
       final csv = _productsToCSV();
-      print('CSV Data: $csv');
+      debugPrint('CSV Data: $csv');
     } catch (e) {
-      print('Error exporting products: $e');
+      debugPrint('Error exporting products: $e');
       rethrow;
     }
   }

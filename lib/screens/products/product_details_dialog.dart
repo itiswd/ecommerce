@@ -76,8 +76,8 @@ class _ProductDetailsDialogState extends State<ProductDetailsDialog> {
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
               color: widget.product.isActive
-                  ? Colors.green.withOpacity(0.1)
-                  : Colors.red.withOpacity(0.1),
+                  ? Colors.green.withAlpha(26)
+                  : Colors.red.withAlpha(26),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Row(
@@ -122,7 +122,7 @@ class _ProductDetailsDialogState extends State<ProductDetailsDialog> {
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
+                    color: Colors.grey.withAlpha(26),
                     spreadRadius: 2,
                     blurRadius: 8,
                   ),
@@ -323,9 +323,9 @@ class _ProductDetailsDialogState extends State<ProductDetailsDialog> {
             Container(
               padding: EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.blue.withOpacity(0.05),
+                color: Colors.blue.withAlpha(13),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.blue.withOpacity(0.2)),
+                border: Border.all(color: Colors.blue.withAlpha(51)),
               ),
               child: Column(
                 children: [
@@ -519,16 +519,16 @@ class _ProductDetailsDialogState extends State<ProductDetailsDialog> {
     return Container(
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.05),
+        color: color.withAlpha(13),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.2)),
+        border: Border.all(color: color.withAlpha(51)),
       ),
       child: Row(
         children: [
           Container(
             padding: EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withAlpha(26),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: color, size: 24),

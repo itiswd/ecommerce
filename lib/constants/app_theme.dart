@@ -191,7 +191,7 @@ class AppTheme {
       }),
       trackColor: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
-          return AppColors.success.withOpacity(0.5);
+          return AppColors.success.withAlpha(127);
         }
         return AppColors.grey300;
       }),
@@ -236,7 +236,7 @@ class AppTheme {
       color: AppColors.darkCard,
       surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      shadowColor: Colors.black.withOpacity(0.3),
+      shadowColor: Colors.black.withAlpha(77),
       margin: EdgeInsets.zero,
     ),
 
@@ -342,7 +342,7 @@ class AppTheme {
       }),
       trackColor: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
-          return AppColors.success.withOpacity(0.5);
+          return AppColors.success.withAlpha(127);
         }
         return AppColors.darkSurface;
       }),
@@ -455,21 +455,21 @@ class AppBorderRadius {
 // Shadows
 class AppShadows {
   static BoxShadow small = BoxShadow(
-    color: Colors.black.withOpacity(0.05),
+    color: Colors.black.withAlpha(13),
     spreadRadius: 1,
     blurRadius: 4,
     offset: Offset(0, 2),
   );
 
   static BoxShadow medium = BoxShadow(
-    color: Colors.black.withOpacity(0.08),
+    color: Colors.black.withAlpha(20),
     spreadRadius: 2,
     blurRadius: 8,
     offset: Offset(0, 2),
   );
 
   static BoxShadow large = BoxShadow(
-    color: Colors.black.withOpacity(0.1),
+    color: Colors.black.withAlpha(26),
     spreadRadius: 3,
     blurRadius: 12,
     offset: Offset(0, 4),

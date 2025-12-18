@@ -1,5 +1,7 @@
+// lib/screens/products/add_edit_product_dialog.dart
 import 'package:ecommerce_dashboard/models/product.dart';
 import 'package:ecommerce_dashboard/providers/products_provider.dart';
+import 'package:ecommerce_dashboard/services/firebase_storage_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -23,11 +25,18 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
   final _stockController = TextEditingController();
   final _commissionController = TextEditingController();
 
+  final FirebaseStorageService _storageService = FirebaseStorageService();
+  final ImagePicker _imagePicker = ImagePicker();
+
   String _selectedCategory = 'إلكترونيات';
   String _selectedSeller = 'بائع 1';
   bool _isActive = true;
   List<String> _imageUrls = [];
+  final List<XFile> _pendingImages = []; // صور جديدة لم يتم رفعها بعد
   bool _isLoading = false;
+  bool _isUploadingImages = false;
+  int _uploadProgress = 0;
+  int _totalImages = 0;
 
   final _categories = ['إلكترونيات', 'ملابس', 'كتب', 'أثاث', 'أخرى'];
   final _sellers = ['بائع 1', 'بائع 2', 'بائع 3'];
@@ -60,42 +69,7 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
         height: MediaQuery.of(context).size.height * 0.9,
         child: Column(
           children: [
-            // Header
-            Container(
-              padding: EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.blue,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(12),
-                  topRight: Radius.circular(12),
-                ),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    widget.product == null ? Icons.add_circle : Icons.edit,
-                    color: Colors.white,
-                    size: 28,
-                  ),
-                  SizedBox(width: 12),
-                  Text(
-                    widget.product == null ? 'إضافة منتج جديد' : 'تعديل المنتج',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Spacer(),
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: Icon(Icons.close, color: Colors.white),
-                  ),
-                ],
-              ),
-            ),
-
-            // Form
+            _buildHeader(),
             Expanded(
               child: SingleChildScrollView(
                 padding: EdgeInsets.all(24),
@@ -104,281 +78,64 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Images Section
                       _buildImagesSection(),
                       SizedBox(height: 24),
-
-                      // Basic Info
-                      Text(
-                        'المعلومات الأساسية',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 16),
-
-                      Row(
-                        children: [
-                          Expanded(
-                            flex: 2,
-                            child: TextFormField(
-                              controller: _nameController,
-                              decoration: InputDecoration(
-                                labelText: 'اسم المنتج *',
-                                hintText: 'أدخل اسم المنتج',
-                                prefixIcon: Icon(Icons.inventory_2),
-                              ),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'الرجاء إدخال اسم المنتج';
-                                }
-                                return null;
-                              },
-                            ),
-                          ),
-                          SizedBox(width: 16),
-                          Expanded(
-                            child: DropdownButtonFormField<String>(
-                              initialValue: _selectedCategory,
-                              decoration: InputDecoration(
-                                labelText: 'الفئة *',
-                                prefixIcon: Icon(Icons.category),
-                              ),
-                              items: _categories.map((cat) {
-                                return DropdownMenuItem(
-                                  value: cat,
-                                  child: Text(cat),
-                                );
-                              }).toList(),
-                              onChanged: (value) {
-                                setState(() => _selectedCategory = value!);
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 16),
-
-                      TextFormField(
-                        controller: _descriptionController,
-                        maxLines: 4,
-                        decoration: InputDecoration(
-                          labelText: 'الوصف',
-                          hintText: 'أدخل وصف المنتج',
-                          alignLabelWithHint: true,
-                        ),
-                      ),
+                      _buildBasicInfoSection(),
                       SizedBox(height: 24),
-
-                      // Pricing & Stock
-                      Text(
-                        'التسعير والمخزون',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 16),
-
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextFormField(
-                              controller: _priceController,
-                              keyboardType: TextInputType.number,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.allow(
-                                  RegExp(r'^\d+\.?\d{0,2}'),
-                                ),
-                              ],
-                              decoration: InputDecoration(
-                                labelText: 'سعر البيع *',
-                                hintText: '0.00',
-                                prefixIcon: Icon(Icons.attach_money),
-                                suffixText: 'جنيه',
-                              ),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'الرجاء إدخال السعر';
-                                }
-                                if (double.tryParse(value) == null) {
-                                  return 'سعر غير صحيح';
-                                }
-                                return null;
-                              },
-                            ),
-                          ),
-                          SizedBox(width: 16),
-                          Expanded(
-                            child: TextFormField(
-                              controller: _costPriceController,
-                              keyboardType: TextInputType.number,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.allow(
-                                  RegExp(r'^\d+\.?\d{0,2}'),
-                                ),
-                              ],
-                              decoration: InputDecoration(
-                                labelText: 'سعر التكلفة',
-                                hintText: '0.00',
-                                prefixIcon: Icon(Icons.money_off),
-                                suffixText: 'جنيه',
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 16),
-                          Expanded(
-                            child: TextFormField(
-                              controller: _stockController,
-                              keyboardType: TextInputType.number,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly,
-                              ],
-                              decoration: InputDecoration(
-                                labelText: 'المخزون *',
-                                hintText: '0',
-                                prefixIcon: Icon(Icons.inventory),
-                              ),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'الرجاء إدخال الكمية';
-                                }
-                                return null;
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
+                      _buildPricingSection(),
                       SizedBox(height: 24),
-
-                      // Seller & Commission
-                      Text(
-                        'البائع والعمولة',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      _buildSellerSection(),
                       SizedBox(height: 16),
-
-                      Row(
-                        children: [
-                          Expanded(
-                            child: DropdownButtonFormField<String>(
-                              initialValue: _selectedSeller,
-                              decoration: InputDecoration(
-                                labelText: 'البائع *',
-                                prefixIcon: Icon(Icons.person),
-                              ),
-                              items: _sellers.map((seller) {
-                                return DropdownMenuItem(
-                                  value: seller,
-                                  child: Text(seller),
-                                );
-                              }).toList(),
-                              onChanged: (value) {
-                                setState(() => _selectedSeller = value!);
-                              },
-                            ),
-                          ),
-                          SizedBox(width: 16),
-                          Expanded(
-                            child: TextFormField(
-                              controller: _commissionController,
-                              keyboardType: TextInputType.number,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.allow(
-                                  RegExp(r'^\d+\.?\d{0,2}'),
-                                ),
-                              ],
-                              decoration: InputDecoration(
-                                labelText: 'نسبة العمولة *',
-                                hintText: '10',
-                                prefixIcon: Icon(Icons.percent),
-                                suffixText: '%',
-                                helperText: 'نسبة عمولتك من سعر البيع',
-                              ),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'الرجاء إدخال النسبة';
-                                }
-                                final num = double.tryParse(value);
-                                if (num == null || num < 0 || num > 100) {
-                                  return 'نسبة غير صحيحة (0-100)';
-                                }
-                                return null;
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 16),
-
-                      // Profit Calculation
                       if (_priceController.text.isNotEmpty &&
                           _costPriceController.text.isNotEmpty &&
                           _commissionController.text.isNotEmpty)
                         _buildProfitCalculation(),
-
                       SizedBox(height: 24),
-
-                      // Status
-                      SwitchListTile(
-                        title: Text('المنتج نشط'),
-                        subtitle: Text('هل تريد عرض المنتج في المتجر؟'),
-                        value: _isActive,
-                        onChanged: (value) {
-                          setState(() => _isActive = value);
-                        },
-                        activeThumbColor: Colors.green,
-                      ),
+                      _buildStatusSection(),
                     ],
                   ),
                 ),
               ),
             ),
-
-            // Footer Buttons
-            Container(
-              padding: EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.grey[50],
-                border: Border(top: BorderSide(color: Colors.grey[200]!)),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: Text('إلغاء'),
-                  ),
-                  SizedBox(width: 12),
-                  ElevatedButton.icon(
-                    onPressed: _isLoading ? null : _saveProduct,
-                    icon: _isLoading
-                        ? SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : Icon(Icons.save),
-                    label: Text(_isLoading ? 'جاري الحفظ...' : 'حفظ'),
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 32,
-                        vertical: 16,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            _buildFooter(),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Container(
+      padding: EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.blue,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(12),
+          topRight: Radius.circular(12),
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            widget.product == null ? Icons.add_circle : Icons.edit,
+            color: Colors.white,
+            size: 28,
+          ),
+          SizedBox(width: 12),
+          Text(
+            widget.product == null ? 'إضافة منتج جديد' : 'تعديل المنتج',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Spacer(),
+          IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: Icon(Icons.close, color: Colors.white),
+          ),
+        ],
       ),
     );
   }
@@ -387,125 +144,444 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'صور المنتج',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        Row(
+          children: [
+            Text(
+              'صور المنتج',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(width: 8),
+            Text(
+              '(حد أقصى 5 صور)',
+              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+            ),
+          ],
         ),
         SizedBox(height: 16),
+
+        // عرض تقدم رفع الصور
+        if (_isUploadingImages)
+          Container(
+            padding: EdgeInsets.all(16),
+            margin: EdgeInsets.only(bottom: 16),
+            decoration: BoxDecoration(
+              color: Colors.blue.withAlpha(26),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                    SizedBox(width: 12),
+                    Text('جاري رفع الصور... $_uploadProgress من $_totalImages'),
+                  ],
+                ),
+                SizedBox(height: 8),
+                LinearProgressIndicator(
+                  value: _totalImages > 0 ? _uploadProgress / _totalImages : 0,
+                ),
+              ],
+            ),
+          ),
+
         SizedBox(
           height: 150,
           child: ListView(
             scrollDirection: Axis.horizontal,
             children: [
-              // Add Image Button
-              InkWell(
-                onTap: _pickImage,
-                child: Container(
-                  width: 150,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey[300]!, width: 2),
-                    borderRadius: BorderRadius.circular(12),
-                    color: Colors.grey[50],
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.add_photo_alternate,
-                        size: 40,
-                        color: Colors.grey[400],
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        'إضافة صورة',
-                        style: TextStyle(color: Colors.grey[600]),
-                      ),
-                    ],
+              // زر إضافة صورة
+              if (_imageUrls.length + _pendingImages.length < 5)
+                InkWell(
+                  onTap: _isUploadingImages ? null : _pickImages,
+                  child: Container(
+                    width: 150,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey[300]!, width: 2),
+                      borderRadius: BorderRadius.circular(12),
+                      color: Colors.grey[50],
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.add_photo_alternate,
+                          size: 40,
+                          color: Colors.grey[400],
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'إضافة صورة',
+                          style: TextStyle(color: Colors.grey[600]),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
 
-              // Existing Images
+              // الصور المرفوعة فعلياً
               ..._imageUrls.asMap().entries.map((entry) {
                 final index = entry.key;
                 final url = entry.value;
-                return Container(
-                  width: 150,
-                  margin: EdgeInsets.only(right: 12),
-                  child: Stack(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.network(
-                          url,
-                          width: 150,
-                          height: 150,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              color: Colors.grey[200],
-                              child: Icon(Icons.broken_image, size: 40),
-                            );
-                          },
-                        ),
-                      ),
-                      Positioned(
-                        top: 8,
-                        left: 8,
-                        child: InkWell(
-                          onTap: () {
-                            setState(() {
-                              _imageUrls.removeAt(index);
-                            });
-                          },
-                          child: Container(
-                            padding: EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              color: Colors.red,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.close,
-                              color: Colors.white,
-                              size: 16,
-                            ),
-                          ),
-                        ),
-                      ),
-                      if (index == 0)
-                        Positioned(
-                          bottom: 8,
-                          right: 8,
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.blue,
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Text(
-                              'رئيسية',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
+                return _buildImageThumbnail(
+                  url: url,
+                  index: index,
+                  isUploaded: true,
                 );
+              }),
+
+              // الصور المعلقة (لم يتم رفعها بعد)
+              ..._pendingImages.asMap().entries.map((entry) {
+                final index = entry.key + _imageUrls.length;
+                final xFile = entry.value;
+                return _buildPendingImageThumbnail(xFile: xFile, index: index);
               }),
             ],
           ),
         ),
         SizedBox(height: 8),
         Text(
-          'يمكنك إضافة حتى 5 صور. الصورة الأولى ستكون الصورة الرئيسية.',
+          'الصورة الأولى ستكون الصورة الرئيسية. يمكنك اختيار عدة صور في نفس الوقت.',
           style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildImageThumbnail({
+    required String url,
+    required int index,
+    required bool isUploaded,
+  }) {
+    return Container(
+      width: 150,
+      margin: EdgeInsets.only(right: 12),
+      child: Stack(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Image.network(
+              url,
+              width: 150,
+              height: 150,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  color: Colors.grey[200],
+                  child: Icon(Icons.broken_image, size: 40),
+                );
+              },
+            ),
+          ),
+          // زر الحذف
+          Positioned(
+            top: 8,
+            left: 8,
+            child: InkWell(
+              onTap: () => _removeImage(index, isUploaded),
+              child: Container(
+                padding: EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.close, color: Colors.white, size: 16),
+              ),
+            ),
+          ),
+          // شارة "رئيسية"
+          if (index == 0)
+            Positioned(
+              bottom: 8,
+              right: 8,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  'رئيسية',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPendingImageThumbnail({
+    required XFile xFile,
+    required int index,
+  }) {
+    return Container(
+      width: 150,
+      margin: EdgeInsets.only(right: 12),
+      child: Stack(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: FutureBuilder<Uint8List>(
+              future: xFile.readAsBytes(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return Image.memory(
+                    snapshot.data!,
+                    width: 150,
+                    height: 150,
+                    fit: BoxFit.cover,
+                  );
+                }
+                return Container(
+                  color: Colors.grey[200],
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              },
+            ),
+          ),
+          // شارة "جديدة"
+          Positioned(
+            top: 8,
+            right: 8,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.orange,
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                'جديدة',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+          // زر الحذف
+          Positioned(
+            top: 8,
+            left: 8,
+            child: InkWell(
+              onTap: () => _removePendingImage(index - _imageUrls.length),
+              child: Container(
+                padding: EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.close, color: Colors.white, size: 16),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBasicInfoSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'المعلومات الأساسية',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              flex: 2,
+              child: TextFormField(
+                controller: _nameController,
+                decoration: InputDecoration(
+                  labelText: 'اسم المنتج *',
+                  hintText: 'أدخل اسم المنتج',
+                  prefixIcon: Icon(Icons.inventory_2),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'الرجاء إدخال اسم المنتج';
+                  }
+                  return null;
+                },
+              ),
+            ),
+            SizedBox(width: 16),
+            Expanded(
+              child: DropdownButtonFormField<String>(
+                initialValue: _selectedCategory,
+                decoration: InputDecoration(
+                  labelText: 'الفئة *',
+                  prefixIcon: Icon(Icons.category),
+                ),
+                items: _categories.map((cat) {
+                  return DropdownMenuItem(value: cat, child: Text(cat));
+                }).toList(),
+                onChanged: (value) {
+                  setState(() => _selectedCategory = value!);
+                },
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 16),
+        TextFormField(
+          controller: _descriptionController,
+          maxLines: 4,
+          decoration: InputDecoration(
+            labelText: 'الوصف',
+            hintText: 'أدخل وصف المنتج',
+            alignLabelWithHint: true,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPricingSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'التسعير والمخزون',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: TextFormField(
+                controller: _priceController,
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+                ],
+                decoration: InputDecoration(
+                  labelText: 'سعر البيع *',
+                  hintText: '0.00',
+                  prefixIcon: Icon(Icons.attach_money),
+                  suffixText: 'جنيه',
+                ),
+                onChanged: (value) => setState(() {}),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'الرجاء إدخال السعر';
+                  }
+                  if (double.tryParse(value) == null) {
+                    return 'سعر غير صحيح';
+                  }
+                  return null;
+                },
+              ),
+            ),
+            SizedBox(width: 16),
+            Expanded(
+              child: TextFormField(
+                controller: _costPriceController,
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+                ],
+                decoration: InputDecoration(
+                  labelText: 'سعر التكلفة',
+                  hintText: '0.00',
+                  prefixIcon: Icon(Icons.money_off),
+                  suffixText: 'جنيه',
+                ),
+                onChanged: (value) => setState(() {}),
+              ),
+            ),
+            SizedBox(width: 16),
+            Expanded(
+              child: TextFormField(
+                controller: _stockController,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                decoration: InputDecoration(
+                  labelText: 'المخزون *',
+                  hintText: '0',
+                  prefixIcon: Icon(Icons.inventory),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'الرجاء إدخال الكمية';
+                  }
+                  return null;
+                },
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSellerSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'البائع والعمولة',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: DropdownButtonFormField<String>(
+                initialValue: _selectedSeller,
+                decoration: InputDecoration(
+                  labelText: 'البائع *',
+                  prefixIcon: Icon(Icons.person),
+                ),
+                items: _sellers.map((seller) {
+                  return DropdownMenuItem(value: seller, child: Text(seller));
+                }).toList(),
+                onChanged: (value) {
+                  setState(() => _selectedSeller = value!);
+                },
+              ),
+            ),
+            SizedBox(width: 16),
+            Expanded(
+              child: TextFormField(
+                controller: _commissionController,
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+                ],
+                decoration: InputDecoration(
+                  labelText: 'نسبة العمولة *',
+                  hintText: '10',
+                  prefixIcon: Icon(Icons.percent),
+                  suffixText: '%',
+                  helperText: 'نسبة عمولتك من سعر البيع',
+                ),
+                onChanged: (value) => setState(() {}),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'الرجاء إدخال النسبة';
+                  }
+                  final num = double.tryParse(value);
+                  if (num == null || num < 0 || num > 100) {
+                    return 'نسبة غير صحيحة (0-100)';
+                  }
+                  return null;
+                },
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -523,9 +599,9 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
     return Container(
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.blue.withOpacity(0.05),
+        color: Colors.blue.withAlpha(13),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.blue.withOpacity(0.2)),
+        border: Border.all(color: Colors.blue.withAlpha(51)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -571,23 +647,122 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
     );
   }
 
-  Future<void> _pickImage() async {
-    if (_imageUrls.length >= 5) {
+  Widget _buildStatusSection() {
+    return SwitchListTile(
+      title: Text('المنتج نشط'),
+      subtitle: Text('هل تريد عرض المنتج في المتجر؟'),
+      value: _isActive,
+      onChanged: (value) {
+        setState(() => _isActive = value);
+      },
+      activeThumbColor: Colors.green,
+    );
+  }
+
+  Widget _buildFooter() {
+    return Container(
+      padding: EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        border: Border(top: BorderSide(color: Colors.grey[200]!)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('إلغاء'),
+          ),
+          SizedBox(width: 12),
+          ElevatedButton.icon(
+            onPressed: _isLoading || _isUploadingImages ? null : _saveProduct,
+            icon: _isLoading
+                ? SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : Icon(Icons.save),
+            label: Text(_isLoading ? 'جاري الحفظ...' : 'حفظ'),
+            style: ElevatedButton.styleFrom(
+              padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ==================== الدوال المساعدة ====================
+
+  Future<void> _pickImages() async {
+    try {
+      final List<XFile> images = await _imagePicker.pickMultiImage();
+
+      if (images.isEmpty) return;
+
+      // التحقق من عدد الصور
+      final totalImages =
+          _imageUrls.length + _pendingImages.length + images.length;
+      if (totalImages > 5) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('يمكنك إضافة 5 صور كحد أقصى')));
+
+        // أخذ الصور المسموح بها فقط
+        final allowedCount = 5 - (_imageUrls.length + _pendingImages.length);
+        if (allowedCount > 0) {
+          setState(() {
+            _pendingImages.addAll(images.take(allowedCount));
+          });
+        }
+        return;
+      }
+
+      setState(() {
+        _pendingImages.addAll(images);
+      });
+    } catch (e) {
+      debugPrint('خطأ في اختيار الصور: $e');
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('يمكنك إضافة 5 صور كحد أقصى')));
-      return;
+      ).showSnackBar(SnackBar(content: Text('حدث خطأ في اختيار الصور')));
     }
+  }
 
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+  void _removeImage(int index, bool isUploaded) async {
+    setState(() {
+      if (isUploaded && index < _imageUrls.length) {
+        final removedUrl = _imageUrls[index];
+        _imageUrls.removeAt(index);
 
-    if (image != null) {
-      // في التطبيق الحقيقي، ارفع الصورة إلى Firebase Storage وخذ الرابط
-      setState(() {
-        _imageUrls.add('https://via.placeholder.com/300'); // مؤقت
-      });
-    }
+        // حذف الصورة من Storage (فقط لو من Firebase)
+        if (removedUrl.contains('firebase') ||
+            removedUrl.contains('googleapis')) {
+          _storageService.deleteImage(removedUrl).then((success) {
+            if (!success) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    'تم حذف الصورة من القائمة ولكن حدث خطأ في حذفها من Storage',
+                  ),
+                  backgroundColor: Colors.orange,
+                ),
+              );
+            }
+          });
+        }
+      }
+    });
+  }
+
+  void _removePendingImage(int index) {
+    setState(() {
+      _pendingImages.removeAt(index);
+    });
   }
 
   Future<void> _saveProduct() async {
@@ -595,7 +770,7 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
       return;
     }
 
-    if (_imageUrls.isEmpty) {
+    if (_imageUrls.isEmpty && _pendingImages.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('الرجاء إضافة صورة واحدة على الأقل')),
       );
@@ -605,10 +780,39 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
     setState(() => _isLoading = true);
 
     try {
+      final productId =
+          widget.product?.id ??
+          DateTime.now().millisecondsSinceEpoch.toString();
+
+      // رفع الصور المعلقة إلى Firebase Storage
+      if (_pendingImages.isNotEmpty) {
+        setState(() {
+          _isUploadingImages = true;
+          _totalImages = _pendingImages.length;
+          _uploadProgress = 0;
+        });
+
+        final uploadedUrls = await _storageService.uploadMultipleImages(
+          imageFiles: _pendingImages,
+          productId: productId,
+          onProgress: (current, total) {
+            setState(() {
+              _uploadProgress = current;
+            });
+          },
+        );
+
+        _imageUrls.addAll(uploadedUrls);
+        _pendingImages.clear();
+
+        setState(() {
+          _isUploadingImages = false;
+        });
+      }
+
+      // إنشاء/تحديث المنتج
       final product = Product(
-        id:
-            widget.product?.id ??
-            DateTime.now().millisecondsSinceEpoch.toString(),
+        id: productId,
         name: _nameController.text,
         description: _descriptionController.text,
         price: double.parse(_priceController.text),
@@ -644,11 +848,15 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
         ),
       );
     } catch (e) {
+      debugPrint('خطأ في حفظ المنتج: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('حدث خطأ: $e'), backgroundColor: Colors.red),
       );
     } finally {
-      setState(() => _isLoading = false);
+      setState(() {
+        _isLoading = false;
+        _isUploadingImages = false;
+      });
     }
   }
 

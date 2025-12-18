@@ -5,6 +5,7 @@ import 'package:ecommerce_dashboard/screens/cashback/cashback_screen.dart';
 import 'package:ecommerce_dashboard/screens/dashboard_screen.dart';
 import 'package:ecommerce_dashboard/screens/orders/orders_list_screen.dart';
 import 'package:ecommerce_dashboard/screens/products/products_list_screen.dart';
+import 'package:ecommerce_dashboard/screens/reports/reports_screen.dart';
 import 'package:ecommerce_dashboard/screens/settings/settings_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_admin_scaffold/admin_scaffold.dart';
@@ -26,6 +27,7 @@ class _MainLayoutState extends State<MainLayout> {
     '/orders': OrdersListScreen(),
     '/banners': BannersScreen(),
     '/cashback': CashbackScreen(),
+    '/reports': ReportsScreen(), // 👈 أضف هذا السطر
     '/settings': SettingsScreen(),
   };
 
@@ -272,6 +274,11 @@ class _MainLayoutState extends State<MainLayout> {
             title: 'الكاش باك',
             route: '/cashback',
             icon: Icons.account_balance_wallet_outlined,
+          ),
+          AdminMenuItem(
+            title: 'التقارير', // 👈 أضف هذا العنصر
+            route: '/reports',
+            icon: Icons.assessment_outlined,
           ),
           AdminMenuItem(
             title: 'الإعدادات',

@@ -55,7 +55,7 @@ class BannersProvider extends ChangeNotifier {
       }
     } catch (e) {
       _error = e.toString();
-      print('Error loading banners: $e');
+      debugPrint('Error loading banners: $e');
       _loadLocalSampleData();
     } finally {
       _isLoading = false;
@@ -141,7 +141,7 @@ class BannersProvider extends ChangeNotifier {
       _sortBanners();
       notifyListeners();
     } catch (e) {
-      print('Error adding banner: $e');
+      debugPrint('Error adding banner: $e');
       rethrow;
     }
   }
@@ -161,7 +161,7 @@ class BannersProvider extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      print('Error updating banner: $e');
+      debugPrint('Error updating banner: $e');
       rethrow;
     }
   }
@@ -173,7 +173,7 @@ class BannersProvider extends ChangeNotifier {
       _banners.removeWhere((b) => b.id == bannerId);
       notifyListeners();
     } catch (e) {
-      print('Error deleting banner: $e');
+      debugPrint('Error deleting banner: $e');
       rethrow;
     }
   }
@@ -194,7 +194,7 @@ class BannersProvider extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      print('Error toggling banner status: $e');
+      debugPrint('Error toggling banner status: $e');
       rethrow;
     }
   }
@@ -213,7 +213,7 @@ class BannersProvider extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      print('Error updating banner order: $e');
+      debugPrint('Error updating banner order: $e');
       rethrow;
     }
   }

@@ -70,7 +70,7 @@ class OrdersProvider extends ChangeNotifier {
       }
     } catch (e) {
       _error = e.toString();
-      print('Error loading orders: $e');
+      debugPrint('Error loading orders: $e');
       _loadLocalSampleData();
     } finally {
       _isLoading = false;
@@ -274,7 +274,7 @@ class OrdersProvider extends ChangeNotifier {
       _orders.insert(0, order);
       notifyListeners();
     } catch (e) {
-      print('Error adding order: $e');
+      debugPrint('Error adding order: $e');
       rethrow;
     }
   }
@@ -319,7 +319,7 @@ class OrdersProvider extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      print('Error updating order status: $e');
+      debugPrint('Error updating order status: $e');
       rethrow;
     }
   }
@@ -331,7 +331,7 @@ class OrdersProvider extends ChangeNotifier {
       _orders.removeWhere((o) => o.id == orderId);
       notifyListeners();
     } catch (e) {
-      print('Error deleting order: $e');
+      debugPrint('Error deleting order: $e');
       rethrow;
     }
   }

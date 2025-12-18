@@ -455,7 +455,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             padding: EdgeInsets.all(AppSpacing.md),
             decoration: BoxDecoration(
               // لون الترويسة من اللون الدلالي + شفافية
-              color: color.withOpacity(0.1),
+              color: color.withAlpha(26),
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(AppBorderRadius.medium.bottomLeft.x),
                 topRight: Radius.circular(AppBorderRadius.medium.bottomLeft.x),
@@ -704,7 +704,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _showHelp() {
-    final colorScheme = Theme.of(context).colorScheme;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(

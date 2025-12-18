@@ -83,7 +83,7 @@ class CashbackProvider extends ChangeNotifier {
       }
     } catch (e) {
       _error = e.toString();
-      print('Error loading cashback transactions: $e');
+      debugPrint('Error loading cashback transactions: $e');
       _loadLocalSampleData();
     } finally {
       _isLoading = false;
@@ -169,7 +169,7 @@ class CashbackProvider extends ChangeNotifier {
       _transactions.insert(0, transaction);
       notifyListeners();
     } catch (e) {
-      print('Error adding transaction: $e');
+      debugPrint('Error adding transaction: $e');
       rethrow;
     }
   }
@@ -181,7 +181,7 @@ class CashbackProvider extends ChangeNotifier {
       _transactions.removeWhere((t) => t.id == transactionId);
       notifyListeners();
     } catch (e) {
-      print('Error deleting transaction: $e');
+      debugPrint('Error deleting transaction: $e');
       rethrow;
     }
   }

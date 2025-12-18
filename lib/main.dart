@@ -23,18 +23,18 @@ void main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    print('✅ Firebase initialized successfully');
+    debugPrint('✅ Firebase initialized successfully');
   } catch (e) {
-    print('❌ Firebase initialization error: $e');
+    debugPrint('❌ Firebase initialization error: $e');
   }
 
   // تهيئة التواريخ
   try {
     await initializeDateFormatting('ar', null);
     Intl.defaultLocale = 'ar';
-    print('✅ Arabic locale initialized successfully');
+    debugPrint('✅ Arabic locale initialized successfully');
   } catch (e) {
-    print('❌ Locale initialization error: $e');
+    debugPrint('❌ Locale initialization error: $e');
   }
 
   runApp(const MyApp());
@@ -166,7 +166,7 @@ class AuthProvider extends ChangeNotifier {
     } catch (e) {
       _isLoading = false;
       notifyListeners();
-      print('Login error: $e');
+      debugPrint('Login error: $e');
       return false;
     }
   }
