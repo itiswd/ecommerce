@@ -7,16 +7,17 @@ class Order {
   final String customerAddress;
   final String city;
   final List<OrderItem> items;
-  final double subtotal; // المجموع قبل الشحن
+  final double subtotal;
   final double shippingFee;
-  final double totalAmount; // المجموع النهائي
-  final double cashbackEarned; // الكاش باك المكتسب من هذا الطلب
+  final double totalAmount;
+  final double cashbackEarned; // الكاش باك المكتسب
+  final double cashbackUsed; // الكاش باك المستخدم
   final OrderStatus status;
   final PaymentMethod paymentMethod;
   final bool isPaid;
   final DateTime createdAt;
   final DateTime? deliveredAt;
-  final String? notes; // ملاحظات العميل
+  final String? notes;
 
   Order({
     required this.id,
@@ -30,6 +31,7 @@ class Order {
     this.shippingFee = 0,
     required this.totalAmount,
     this.cashbackEarned = 0,
+    this.cashbackUsed = 0,
     this.status = OrderStatus.pending,
     this.paymentMethod = PaymentMethod.cashOnDelivery,
     this.isPaid = false,
@@ -38,11 +40,11 @@ class Order {
     this.notes,
   });
 
-  // عدد المنتجات في الطلب
+  // عدد المنتجات
   int get itemsCount => items.fold(0, (sum, item) => sum + item.quantity);
 
-  // المجموع الكلي (subtotal + shipping)
-  double get grandTotal => subtotal + shippingFee;
+  // المجموع النهائي بعد الكاش باك
+  double get grandTotal => subtotal + shippingFee - cashbackUsed;
 
   // تحويل من Firestore
   factory Order.fromMap(Map<String, dynamic> map, String id) {
@@ -60,6 +62,7 @@ class Order {
       shippingFee: (map['shippingFee'] ?? 0).toDouble(),
       totalAmount: (map['totalAmount'] ?? 0).toDouble(),
       cashbackEarned: (map['cashbackEarned'] ?? 0).toDouble(),
+      cashbackUsed: (map['cashbackUsed'] ?? 0).toDouble(),
       status: OrderStatus.values.firstWhere(
         (e) => e.toString() == 'OrderStatus.${map['status']}',
         orElse: () => OrderStatus.pending,
@@ -88,6 +91,7 @@ class Order {
       'shippingFee': shippingFee,
       'totalAmount': totalAmount,
       'cashbackEarned': cashbackEarned,
+      'cashbackUsed': cashbackUsed,
       'status': status.toString().split('.').last,
       'paymentMethod': paymentMethod.toString().split('.').last,
       'isPaid': isPaid,
@@ -105,7 +109,7 @@ class OrderItem {
   final String productImage;
   final double price;
   final int quantity;
-  final Map<String, String>? selectedOptions; // اختيارات (مثل: اللون، المقاس)
+  final Map<String, String>? selectedOptions;
 
   OrderItem({
     required this.productId,
@@ -145,22 +149,17 @@ class OrderItem {
 
 // حالات الطلب
 enum OrderStatus {
-  pending, // قيد الانتظار
-  confirmed, // مؤكد
-  processing, // قيد التجهيز
-  shipped, // قيد الشحن
-  delivered, // تم التوصيل
-  cancelled, // ملغي
-  returned, // مرتجع
+  pending,
+  confirmed,
+  processing,
+  shipped,
+  delivered,
+  cancelled,
+  returned,
 }
 
 // طرق الدفع
-enum PaymentMethod {
-  cashOnDelivery, // الدفع عند الاستلام
-  creditCard, // بطاقة ائتمان
-  mobileWallet, // محفظة إلكترونية
-  bankTransfer, // تحويل بنكي
-}
+enum PaymentMethod { cashOnDelivery, creditCard, mobileWallet, bankTransfer }
 
 // ترجمة حالات الطلب
 extension OrderStatusExtension on OrderStatus {

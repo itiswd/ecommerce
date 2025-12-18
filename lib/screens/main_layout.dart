@@ -1,11 +1,9 @@
 import 'package:ecommerce_dashboard/constants/app_theme.dart';
 import 'package:ecommerce_dashboard/providers/theme_provider.dart';
-import 'package:ecommerce_dashboard/screens/banners/banners_screen.dart';
-import 'package:ecommerce_dashboard/screens/customers/customers_screen.dart';
+import 'package:ecommerce_dashboard/screens/cashback/cashback_screen.dart';
 import 'package:ecommerce_dashboard/screens/dashboard_screen.dart';
 import 'package:ecommerce_dashboard/screens/orders/orders_list_screen.dart';
 import 'package:ecommerce_dashboard/screens/products/products_list_screen.dart';
-import 'package:ecommerce_dashboard/screens/reports/reports_screen.dart';
 import 'package:ecommerce_dashboard/screens/settings/settings_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_admin_scaffold/admin_scaffold.dart';
@@ -25,9 +23,8 @@ class _MainLayoutState extends State<MainLayout> {
     '/': DashboardScreen(),
     '/products': ProductsListScreen(),
     '/orders': OrdersListScreen(),
-    '/customers': CustomersScreen(),
-    '/banners': BannersScreen(),
-    '/reports': ReportsScreen(),
+    // '/banners': BannersScreen(),
+    '/cashback': CashbackScreen(),
     '/settings': SettingsScreen(),
   };
 
@@ -126,7 +123,7 @@ class _MainLayoutState extends State<MainLayout> {
                   ),
                   constraints: BoxConstraints(minWidth: 16, minHeight: 16),
                   child: Text(
-                    '5',
+                    '3',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 10,
@@ -266,19 +263,14 @@ class _MainLayoutState extends State<MainLayout> {
             icon: Icons.shopping_cart_outlined,
           ),
           AdminMenuItem(
-            title: 'العملاء',
-            route: '/customers',
-            icon: Icons.people_outline,
-          ),
-          AdminMenuItem(
             title: 'البانرات',
             route: '/banners',
             icon: Icons.image_outlined,
           ),
           AdminMenuItem(
-            title: 'التقارير',
-            route: '/reports',
-            icon: Icons.analytics_outlined,
+            title: 'الكاش باك',
+            route: '/cashback',
+            icon: Icons.account_balance_wallet_outlined,
           ),
           AdminMenuItem(
             title: 'الإعدادات',
@@ -361,7 +353,7 @@ class _MainLayoutState extends State<MainLayout> {
         title: Text('البحث'),
         content: TextField(
           decoration: InputDecoration(
-            hintText: 'ابحث عن منتج، طلب، أو عميل...',
+            hintText: 'ابحث عن منتج أو طلب...',
             prefixIcon: Icon(Icons.search),
           ),
           autofocus: true,
@@ -419,9 +411,9 @@ class _MainLayoutState extends State<MainLayout> {
                 textTheme,
               ),
               _notificationItem(
-                'عميل جديد',
-                'انضم أحمد محمد إلى المتجر',
-                Icons.person_add,
+                'بانر جديد',
+                'تم إضافة بانر جديد للعروض',
+                Icons.image,
                 AppColors.primary,
                 textTheme,
               ),
