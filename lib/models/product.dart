@@ -12,7 +12,7 @@ class Product {
   final DateTime createdAt;
   final bool isActive;
   final bool isFeatured; // منتج مميز (يظهر في الأكثر مبيعاً)
-  final Map<String, String> specifications; // المواصفات
+  final Map<String, String> specifications; // المواصفات التفصيلية
 
   Product({
     required this.id,
@@ -41,6 +41,9 @@ class Product {
 
   // هل المنتج في حالة خصم؟
   bool get hasDiscount => originalPrice != null && originalPrice! > price;
+
+  // إجمالي الإيرادات من هذا المنتج
+  double get totalRevenue => price * soldCount;
 
   // تحويل من Firestore
   factory Product.fromMap(Map<String, dynamic> map, String id) {

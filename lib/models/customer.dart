@@ -4,6 +4,9 @@ class Customer {
   final String name;
   final String email;
   final String phone;
+  final String address;
+  final String city;
+  final String country;
   final String? profileImage;
   final DateTime joinDate;
   final int totalOrders;
@@ -17,6 +20,9 @@ class Customer {
     required this.name,
     required this.email,
     required this.phone,
+    required this.address,
+    required this.city,
+    this.country = 'مصر',
     this.profileImage,
     required this.joinDate,
     this.totalOrders = 0,
@@ -30,6 +36,14 @@ class Customer {
   double get averageOrderValue =>
       totalOrders > 0 ? totalSpent / totalOrders : 0;
 
+  // تصنيف العميل بناءً على الإنفاق
+  String get customerTier {
+    if (totalSpent >= 50000) return 'VIP';
+    if (totalSpent >= 20000) return 'Gold';
+    if (totalSpent >= 10000) return 'Silver';
+    return 'Bronze';
+  }
+
   // تحويل من Firestore
   factory Customer.fromMap(Map<String, dynamic> map, String id) {
     return Customer(
@@ -37,6 +51,9 @@ class Customer {
       name: map['name'] ?? '',
       email: map['email'] ?? '',
       phone: map['phone'] ?? '',
+      address: map['address'] ?? '',
+      city: map['city'] ?? '',
+      country: map['country'] ?? 'مصر',
       profileImage: map['profileImage'],
       joinDate: map['joinDate']?.toDate() ?? DateTime.now(),
       totalOrders: map['totalOrders'] ?? 0,
@@ -57,6 +74,9 @@ class Customer {
       'name': name,
       'email': email,
       'phone': phone,
+      'address': address,
+      'city': city,
+      'country': country,
       'profileImage': profileImage,
       'joinDate': joinDate,
       'totalOrders': totalOrders,
@@ -72,6 +92,9 @@ class Customer {
     String? name,
     String? email,
     String? phone,
+    String? address,
+    String? city,
+    String? country,
     String? profileImage,
     int? totalOrders,
     double? totalSpent,
@@ -84,6 +107,9 @@ class Customer {
       name: name ?? this.name,
       email: email ?? this.email,
       phone: phone ?? this.phone,
+      address: address ?? this.address,
+      city: city ?? this.city,
+      country: country ?? this.country,
       profileImage: profileImage ?? this.profileImage,
       joinDate: joinDate,
       totalOrders: totalOrders ?? this.totalOrders,

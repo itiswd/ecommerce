@@ -1,11 +1,11 @@
 import 'package:ecommerce_dashboard/constants/app_theme.dart';
 import 'package:ecommerce_dashboard/providers/theme_provider.dart';
+import 'package:ecommerce_dashboard/screens/banners/banners_screen.dart';
 import 'package:ecommerce_dashboard/screens/customers/customers_screen.dart';
 import 'package:ecommerce_dashboard/screens/dashboard_screen.dart';
 import 'package:ecommerce_dashboard/screens/orders/orders_list_screen.dart';
 import 'package:ecommerce_dashboard/screens/products/products_list_screen.dart';
 import 'package:ecommerce_dashboard/screens/reports/reports_screen.dart';
-import 'package:ecommerce_dashboard/screens/sellers/sellers_screen.dart';
 import 'package:ecommerce_dashboard/screens/settings/settings_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_admin_scaffold/admin_scaffold.dart';
@@ -26,7 +26,7 @@ class _MainLayoutState extends State<MainLayout> {
     '/products': ProductsListScreen(),
     '/orders': OrdersListScreen(),
     '/customers': CustomersScreen(),
-    '/sellers': SellersScreen(),
+    '/banners': BannersScreen(),
     '/reports': ReportsScreen(),
     '/settings': SettingsScreen(),
   };
@@ -271,9 +271,9 @@ class _MainLayoutState extends State<MainLayout> {
             icon: Icons.people_outline,
           ),
           AdminMenuItem(
-            title: 'البائعون',
-            route: '/sellers',
-            icon: Icons.store_outlined,
+            title: 'البانرات',
+            route: '/banners',
+            icon: Icons.image_outlined,
           ),
           AdminMenuItem(
             title: 'التقارير',
@@ -455,18 +455,16 @@ class _MainLayoutState extends State<MainLayout> {
       margin: EdgeInsets.only(bottom: AppSpacing.md),
       padding: EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: color.withAlpha(0x0C), // 0.05 * 255 ≈ 12 (0x0C)
+        color: color.withAlpha(0x0C),
         borderRadius: AppBorderRadius.small,
-        border: Border.all(
-          color: color.withAlpha(0x33),
-        ), // 0.2 * 255 ≈ 51 (0x33)
+        border: Border.all(color: color.withAlpha(0x33)),
       ),
       child: Row(
         children: [
           Container(
             padding: EdgeInsets.all(AppSpacing.sm),
             decoration: BoxDecoration(
-              color: color.withAlpha(0x19), // 0.1 * 255 ≈ 25 (0x19)
+              color: color.withAlpha(0x19),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: color, size: 20),
@@ -526,9 +524,7 @@ class _MainLayoutState extends State<MainLayout> {
             SizedBox(height: AppSpacing.sm),
             Chip(
               label: Text('مدير'),
-              backgroundColor: colorScheme.primary.withAlpha(
-                0x19,
-              ), // 0.1 * 255 ≈ 25 (0x19)
+              backgroundColor: colorScheme.primary.withAlpha(0x19),
               labelStyle: TextStyle(color: colorScheme.primary),
             ),
           ],

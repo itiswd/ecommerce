@@ -27,9 +27,6 @@ class ProductsProvider extends ChangeNotifier {
     (sum, product) => sum + (product.price * product.stock),
   );
 
-  double get totalCommissionEarned =>
-      _products.fold(0.0, (sum, product) => sum + product.totalCommission);
-
   // Initialize with sample data
   ProductsProvider() {
     loadProducts();
@@ -42,13 +39,10 @@ class ProductsProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // جلب المنتجات من Firebase
       final snapshot = await _firestore.collection(_collection).get();
 
       if (snapshot.docs.isEmpty) {
-        // لو مفيش بيانات، نضيف بيانات تجريبية
         await _addSampleData();
-        // نجيب البيانات تاني
         final newSnapshot = await _firestore.collection(_collection).get();
         _products = newSnapshot.docs
             .map((doc) => Product.fromMap(doc.data(), doc.id))
@@ -61,7 +55,6 @@ class ProductsProvider extends ChangeNotifier {
     } catch (e) {
       _error = e.toString();
       print('Error loading products: $e');
-      // في حالة الخطأ، نستخدم بيانات تجريبية محلية
       _loadLocalSampleData();
     } finally {
       _isLoading = false;
@@ -77,7 +70,7 @@ class ProductsProvider extends ChangeNotifier {
         name: 'لابتوب Dell XPS 15',
         description: 'لابتوب عالي الأداء مثالي للمصممين والمبرمجين',
         price: 45000,
-        costPrice: 38000,
+        originalPrice: 50000,
         category: 'إلكترونيات',
         images: [
           'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=400',
@@ -85,87 +78,102 @@ class ProductsProvider extends ChangeNotifier {
         ],
         stock: 15,
         soldCount: 23,
-        sellerId: 'seller_1',
-        sellerName: 'محمد أحمد',
         createdAt: DateTime.now().subtract(Duration(days: 30)),
         isActive: true,
-        commission: 0.10,
+        isFeatured: true,
+        specifications: {
+          'المعالج': 'Intel Core i7-12700H',
+          'الرام': '16GB DDR5',
+          'التخزين': '512GB SSD',
+          'الشاشة': '15.6 بوصة FHD',
+          'كرت الشاشة': 'NVIDIA RTX 3050',
+        },
       ),
       Product(
         id: '2',
         name: 'iPhone 15 Pro Max',
         description: 'أحدث هواتف آبل بكاميرا احترافية',
         price: 55000,
-        costPrice: 48000,
         category: 'إلكترونيات',
         images: [
           'https://images.unsplash.com/photo-1592286927505-93fd55ce0c0f?w=400',
         ],
         stock: 8,
         soldCount: 45,
-        sellerId: 'seller_2',
-        sellerName: 'سارة علي',
         createdAt: DateTime.now().subtract(Duration(days: 20)),
         isActive: true,
-        commission: 0.12,
+        isFeatured: true,
+        specifications: {
+          'المعالج': 'Apple A17 Pro',
+          'الرام': '8GB',
+          'التخزين': '256GB',
+          'الشاشة': '6.7 بوصة Super Retina XDR',
+          'الكاميرا': '48MP رئيسية + 12MP فائقة الاتساع',
+        },
       ),
       Product(
         id: '3',
         name: 'سماعات Sony WH-1000XM5',
         description: 'سماعات بأفضل عزل للضوضاء',
         price: 8500,
-        costPrice: 6800,
+        originalPrice: 9500,
         category: 'إلكترونيات',
         images: [
           'https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=400',
         ],
         stock: 25,
         soldCount: 67,
-        sellerId: 'seller_1',
-        sellerName: 'محمد أحمد',
         createdAt: DateTime.now().subtract(Duration(days: 15)),
         isActive: true,
-        commission: 0.15,
+        specifications: {
+          'النوع': 'سماعات فوق الأذن لاسلكية',
+          'عزل الضوضاء': 'نشط (ANC)',
+          'البطارية': 'حتى 30 ساعة',
+          'البلوتوث': '5.3',
+        },
       ),
       Product(
         id: '4',
         name: 'كتاب البرمجة بلغة Dart',
         description: 'دليلك الشامل لتعلم Dart و Flutter',
         price: 250,
-        costPrice: 180,
         category: 'كتب',
         images: [
           'https://images.unsplash.com/photo-1532012197267-da84d127e765?w=400',
         ],
         stock: 0,
         soldCount: 120,
-        sellerId: 'seller_3',
-        sellerName: 'أحمد حسن',
         createdAt: DateTime.now().subtract(Duration(days: 60)),
         isActive: true,
-        commission: 0.20,
+        specifications: {
+          'المؤلف': 'أحمد محمد',
+          'عدد الصفحات': '420',
+          'الناشر': 'دار النشر العربية',
+          'اللغة': 'العربية',
+        },
       ),
       Product(
         id: '5',
         name: 'كرسي مكتب ergonomic',
         description: 'كرسي مريح للعمل الطويل',
         price: 3500,
-        costPrice: 2800,
         category: 'أثاث',
         images: [
           'https://images.unsplash.com/photo-1580480055273-228ff5388ef8?w=400',
         ],
         stock: 12,
         soldCount: 34,
-        sellerId: 'seller_2',
-        sellerName: 'سارة علي',
         createdAt: DateTime.now().subtract(Duration(days: 45)),
         isActive: true,
-        commission: 0.10,
+        specifications: {
+          'المادة': 'قماش شبكي مع قاعدة معدنية',
+          'الارتفاع قابل للتعديل': 'نعم',
+          'مسند الظهر': 'قابل للإمالة',
+          'الوزن الأقصى': '120 كجم',
+        },
       ),
     ];
 
-    // إضافة كل منتج لـ Firebase
     for (var product in sampleProducts) {
       await _firestore
           .collection(_collection)
@@ -182,36 +190,15 @@ class ProductsProvider extends ChangeNotifier {
         name: 'لابتوب Dell XPS 15',
         description: 'لابتوب عالي الأداء مثالي للمصممين والمبرمجين',
         price: 45000,
-        costPrice: 38000,
         category: 'إلكترونيات',
         images: [
           'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=400',
         ],
         stock: 15,
         soldCount: 23,
-        sellerId: 'seller_1',
-        sellerName: 'محمد أحمد',
         createdAt: DateTime.now().subtract(Duration(days: 30)),
         isActive: true,
-        commission: 0.10,
-      ),
-      Product(
-        id: '2',
-        name: 'iPhone 15 Pro Max',
-        description: 'أحدث هواتف آبل بكاميرا احترافية',
-        price: 55000,
-        costPrice: 48000,
-        category: 'إلكترونيات',
-        images: [
-          'https://images.unsplash.com/photo-1592286927505-93fd55ce0c0f?w=400',
-        ],
-        stock: 8,
-        soldCount: 45,
-        sellerId: 'seller_2',
-        sellerName: 'سارة علي',
-        createdAt: DateTime.now().subtract(Duration(days: 20)),
-        isActive: true,
-        commission: 0.12,
+        specifications: {'المعالج': 'Intel Core i7', 'الرام': '16GB'},
       ),
     ];
   }
@@ -306,7 +293,6 @@ class ProductsProvider extends ChangeNotifier {
     try {
       final csv = _productsToCSV();
       print('CSV Data: $csv');
-      // يمكن حفظ الملف أو مشاركته
     } catch (e) {
       print('Error exporting products: $e');
       rethrow;
@@ -319,11 +305,8 @@ class ProductsProvider extends ChangeNotifier {
       'الاسم',
       'الفئة',
       'السعر',
-      'التكلفة',
       'المخزون',
       'المبيعات',
-      'العمولة',
-      'البائع',
       'الحالة',
     ];
 
@@ -333,11 +316,8 @@ class ProductsProvider extends ChangeNotifier {
         p.name,
         p.category,
         p.price,
-        p.costPrice,
         p.stock,
         p.soldCount,
-        '${(p.commission * 100).toInt()}%',
-        p.sellerName,
         p.isActive ? 'نشط' : 'غير نشط',
       ].join(',');
     }).toList();

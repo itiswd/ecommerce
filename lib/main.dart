@@ -1,9 +1,9 @@
 import 'package:ecommerce_dashboard/constants/app_theme.dart';
+import 'package:ecommerce_dashboard/providers/banners_provider.dart';
 import 'package:ecommerce_dashboard/providers/customers_provider.dart';
 import 'package:ecommerce_dashboard/providers/dashboard_provider.dart';
 import 'package:ecommerce_dashboard/providers/orders_provider.dart';
 import 'package:ecommerce_dashboard/providers/products_provider.dart';
-import 'package:ecommerce_dashboard/providers/sellers_provider.dart';
 import 'package:ecommerce_dashboard/providers/theme_provider.dart';
 import 'package:ecommerce_dashboard/screens/main_layout.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -52,7 +52,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ProductsProvider()),
         ChangeNotifierProvider(create: (_) => OrdersProvider()),
         ChangeNotifierProvider(create: (_) => CustomersProvider()),
-        ChangeNotifierProvider(create: (_) => SellersProvider()),
+        ChangeNotifierProvider(create: (_) => BannersProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
       ],
       child: Consumer<ThemeProvider>(
@@ -196,8 +196,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-
-  // تم إعادة تعريف _isLoading محليًا للتحكم في حالة الزرار
   bool _isLoading = false;
   bool _obscurePassword = true;
 
@@ -213,7 +211,6 @@ class _LoginScreenState extends State<LoginScreen> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
-
     final isMobile = AppResponsive.isMobile(context);
 
     return Scaffold(
@@ -236,11 +233,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Logo
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      // 0.1 * 255 = 25 (0x19)
                       color: colorScheme.primary.withAlpha(0x19),
                       shape: BoxShape.circle,
                     ),
@@ -251,8 +246,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   SizedBox(height: AppSpacing.lg),
-
-                  // Title
                   Text(
                     'مرحباً بك',
                     style: AppTextStyles.h2.copyWith(
@@ -269,8 +262,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(height: AppSpacing.xl),
-
-                  // Email Field
                   TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
@@ -291,8 +282,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                   ),
                   SizedBox(height: AppSpacing.md),
-
-                  // Password Field
                   TextFormField(
                     controller: _passwordController,
                     obscureText: _obscurePassword,
@@ -323,8 +312,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       return null;
                     },
                   ),
-
-                  // Forgot Password
                   Align(
                     alignment: Alignment.centerLeft,
                     child: TextButton(
@@ -336,20 +323,15 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: const Text('نسيت كلمة المرور؟'),
                     ),
                   ),
-
                   SizedBox(height: AppSpacing.md),
-
-                  // Login Button
                   SizedBox(
                     height: 54,
                     child: ElevatedButton(
-                      // استخدام _isLoading المحلي
                       onPressed: _isLoading ? null : _handleLogin,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: colorScheme.primary,
                         foregroundColor: colorScheme.onPrimary,
                       ),
-                      // استخدام _isLoading المحلي
                       child: _isLoading
                           ? SizedBox(
                               width: 20,
@@ -375,10 +357,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                     ),
                   ),
-
                   SizedBox(height: AppSpacing.lg),
-
-                  // Divider
                   Row(
                     children: [
                       const Expanded(child: Divider()),
@@ -392,20 +371,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       const Expanded(child: Divider()),
                     ],
                   ),
-
                   SizedBox(height: AppSpacing.lg),
-
-                  // Demo Info
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      // 0.1 * 255 = 25 (0x19)
                       color: AppColors.info.withAlpha(0x19),
                       borderRadius: AppBorderRadius.medium,
-                      border: Border.all(
-                        // 0.3 * 255 = 76.5 (0x4D)
-                        color: AppColors.info.withAlpha(0x4D),
-                      ),
+                      border: Border.all(color: AppColors.info.withAlpha(0x4D)),
                     ),
                     child: const Column(
                       children: [
@@ -452,7 +424,6 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    // يتم تعيين _isLoading محليًا
     setState(() => _isLoading = true);
 
     final colorScheme = Theme.of(context).colorScheme;
@@ -464,7 +435,6 @@ class _LoginScreenState extends State<LoginScreen> {
         _passwordController.text,
       );
 
-      // يتم إيقاف التحميل محليًا
       setState(() => _isLoading = false);
 
       if (success && mounted) {
@@ -484,7 +454,6 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     } catch (e) {
-      // إيقاف التحميل في حالة الخطأ
       setState(() => _isLoading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

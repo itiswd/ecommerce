@@ -41,6 +41,9 @@ class Order {
   // عدد المنتجات في الطلب
   int get itemsCount => items.fold(0, (sum, item) => sum + item.quantity);
 
+  // المجموع الكلي (subtotal + shipping)
+  double get grandTotal => subtotal + shippingFee;
+
   // تحويل من Firestore
   factory Order.fromMap(Map<String, dynamic> map, String id) {
     return Order(
@@ -151,9 +154,12 @@ enum OrderStatus {
   returned, // مرتجع
 }
 
-// طرق الدفع (الدفع عند الاستلام فقط حالياً)
+// طرق الدفع
 enum PaymentMethod {
   cashOnDelivery, // الدفع عند الاستلام
+  creditCard, // بطاقة ائتمان
+  mobileWallet, // محفظة إلكترونية
+  bankTransfer, // تحويل بنكي
 }
 
 // ترجمة حالات الطلب
@@ -184,6 +190,12 @@ extension PaymentMethodExtension on PaymentMethod {
     switch (this) {
       case PaymentMethod.cashOnDelivery:
         return 'الدفع عند الاستلام';
+      case PaymentMethod.creditCard:
+        return 'بطاقة ائتمان';
+      case PaymentMethod.mobileWallet:
+        return 'محفظة إلكترونية';
+      case PaymentMethod.bankTransfer:
+        return 'تحويل بنكي';
     }
   }
 }
