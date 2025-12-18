@@ -234,26 +234,30 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
               // 2. حقل حالة الطلب
               Expanded(
                 flex: 1,
-                child: DropdownButtonFormField<OrderStatus?>(
-                  initialValue: _selectedStatus,
-                  decoration: const InputDecoration(
-                    labelText: 'حالة الطلب',
-                    isDense: true,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 8),
+                  child: DropdownButtonFormField<OrderStatus?>(
+                    initialValue: _selectedStatus,
+                    decoration: const InputDecoration(
+                      labelText: 'حالة الطلب',
+                      isDense: true,
+                    ),
+                    items: [
+                      const DropdownMenuItem(value: null, child: Text('الكل')),
+                      ...OrderStatus.values.map((status) {
+                        return DropdownMenuItem(
+                          value: status,
+                          child: Text(
+                            status.arabicName,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        );
+                      }),
+                    ],
+                    isExpanded: true,
+                    onChanged: (value) =>
+                        setState(() => _selectedStatus = value),
                   ),
-                  items: [
-                    const DropdownMenuItem(value: null, child: Text('الكل')),
-                    ...OrderStatus.values.map((status) {
-                      return DropdownMenuItem(
-                        value: status,
-                        child: Text(
-                          status.arabicName,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      );
-                    }),
-                  ],
-                  isExpanded: true,
-                  onChanged: (value) => setState(() => _selectedStatus = value),
                 ),
               ),
 

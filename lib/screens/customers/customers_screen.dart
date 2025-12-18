@@ -36,16 +36,16 @@ class _CustomersScreenState extends State<CustomersScreen> {
     return Consumer<CustomersProvider>(
       builder: (context, customersProvider, child) {
         return SingleChildScrollView(
-          padding: EdgeInsets.all(24),
+          padding: const EdgeInsets.all(24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildHeader(customersProvider, isDark),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               _buildStatsCards(customersProvider, isDark),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               _buildFiltersSection(isDark),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               _buildCustomersTable(customersProvider, isDark),
             ],
           ),
@@ -69,7 +69,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
                 color: isDark ? AppColors.darkTextPrimary : Colors.grey[800],
               ),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
               'إدارة عملاء المتجر',
               style: TextStyle(
@@ -83,14 +83,14 @@ class _CustomersScreenState extends State<CustomersScreen> {
           children: [
             OutlinedButton.icon(
               onPressed: () {},
-              icon: Icon(Icons.file_download),
-              label: Text('تصدير'),
+              icon: const Icon(Icons.file_download),
+              label: const Text('تصدير'),
             ),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             ElevatedButton.icon(
               onPressed: () => provider.refresh(),
-              icon: Icon(Icons.refresh),
-              label: Text('تحديث'),
+              icon: const Icon(Icons.refresh),
+              label: const Text('تحديث'),
             ),
           ],
         ),
@@ -99,6 +99,9 @@ class _CustomersScreenState extends State<CustomersScreen> {
   }
 
   Widget _buildStatsCards(CustomersProvider provider, bool isDark) {
+    // 0.1 * 255 = 25 (0x19)
+    const int alpha10 = 0x19;
+
     final stats = [
       {
         'title': 'إجمالي العملاء',
@@ -131,14 +134,17 @@ class _CustomersScreenState extends State<CustomersScreen> {
       children: stats.map((stat) {
         return Expanded(
           child: Container(
-            margin: EdgeInsets.only(left: 16),
-            padding: EdgeInsets.all(20),
+            margin: const EdgeInsets.only(left: 16),
+            padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: isDark ? AppColors.darkCard : Colors.white,
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: (isDark ? Colors.black : Colors.grey).withOpacity(0.1),
+                  // استخدام withAlpha
+                  color: (isDark ? Colors.black : Colors.grey).withAlpha(
+                    alpha10,
+                  ),
                   spreadRadius: 2,
                   blurRadius: 8,
                 ),
@@ -148,9 +154,10 @@ class _CustomersScreenState extends State<CustomersScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: (stat['color'] as Color).withOpacity(0.1),
+                    // استخدام withAlpha
+                    color: (stat['color'] as Color).withAlpha(alpha10),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(
@@ -159,7 +166,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
                     size: 24,
                   ),
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 Text(
                   stat['title'] as String,
                   style: TextStyle(
@@ -169,7 +176,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
                     fontSize: 13,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   stat['value'] as String,
                   style: TextStyle(
@@ -189,66 +196,109 @@ class _CustomersScreenState extends State<CustomersScreen> {
   }
 
   Widget _buildFiltersSection(bool isDark) {
+    const int alpha10 = 0x19;
+
     return Container(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: (isDark ? Colors.black : Colors.grey).withOpacity(0.1),
+            // استخدام withAlpha
+            color: (isDark ? Colors.black : Colors.grey).withAlpha(alpha10),
             spreadRadius: 2,
             blurRadius: 8,
+            offset: Offset(0, 2),
           ),
         ],
       ),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 2,
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'ابحث عن عميل...',
-                prefixIcon: Icon(Icons.search),
+      // حل الـ overflow باستخدام LayoutBuilder
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return Row(
+            children: [
+              // 1. حقل البحث
+              Expanded(
+                flex: 2,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: const InputDecoration(
+                      hintText: 'ابحث عن عميل...',
+                      prefixIcon: Icon(Icons.search),
+                      isDense: true,
+                    ),
+                    onChanged: (value) => setState(() {}),
+                  ),
+                ),
               ),
-              onChanged: (value) => setState(() {}),
-            ),
-          ),
-          SizedBox(width: 16),
-          Expanded(
-            child: DropdownButtonFormField<String>(
-              initialValue: _selectedTier,
-              decoration: InputDecoration(labelText: 'تصنيف العميل'),
-              items: ['الكل', 'VIP', 'Gold', 'Silver', 'Bronze']
-                  .map(
-                    (tier) => DropdownMenuItem(value: tier, child: Text(tier)),
-                  )
-                  .toList(),
-              onChanged: (value) => setState(() => _selectedTier = value!),
-            ),
-          ),
-          SizedBox(width: 16),
-          Expanded(
-            child: DropdownButtonFormField<String>(
-              initialValue: _sortBy,
-              decoration: InputDecoration(labelText: 'ترتيب حسب'),
-              items: ['الأحدث', 'الأقدم', 'الأعلى إنفاقاً', 'الأكثر طلبات']
-                  .map(
-                    (sort) => DropdownMenuItem(value: sort, child: Text(sort)),
-                  )
-                  .toList(),
-              onChanged: (value) => setState(() => _sortBy = value!),
-            ),
-          ),
-        ],
+              // 2. حقل تصنيف العميل
+              Expanded(
+                flex: 1,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: DropdownButtonFormField<String>(
+                    initialValue: _selectedTier,
+                    decoration: const InputDecoration(
+                      labelText: 'تصنيف العميل',
+                      isDense: true,
+                    ),
+                    items: ['الكل', 'VIP', 'Gold', 'Silver', 'Bronze']
+                        .map(
+                          (tier) => DropdownMenuItem(
+                            value: tier,
+                            child: Text(tier, overflow: TextOverflow.ellipsis),
+                          ),
+                        )
+                        .toList(),
+                    isExpanded: true,
+                    onChanged: (value) =>
+                        setState(() => _selectedTier = value!),
+                  ),
+                ),
+              ),
+              // 3. حقل الترتيب
+              Expanded(
+                flex: 1,
+                child: DropdownButtonFormField<String>(
+                  initialValue: _sortBy,
+                  decoration: const InputDecoration(
+                    labelText: 'ترتيب حسب',
+                    isDense: true,
+                  ),
+                  items:
+                      const [
+                            'الأحدث',
+                            'الأقدم',
+                            'الأعلى إنفاقاً',
+                            'الأكثر طلبات',
+                          ]
+                          .map(
+                            (sort) => DropdownMenuItem(
+                              value: sort,
+                              child: Text(
+                                sort,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          )
+                          .toList(),
+                  isExpanded: true,
+                  onChanged: (value) => setState(() => _sortBy = value!),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 
   Widget _buildCustomersTable(CustomersProvider provider, bool isDark) {
     if (provider.isLoading) {
-      return Center(
+      return const Center(
         child: Padding(
           padding: EdgeInsets.all(40),
           child: CircularProgressIndicator(),
@@ -280,13 +330,15 @@ class _CustomersScreenState extends State<CustomersScreen> {
         filteredCustomers.sort((a, b) => b.joinDate.compareTo(a.joinDate));
     }
 
+    const int alpha10 = 0x19;
+
     return Container(
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: (isDark ? Colors.black : Colors.grey).withOpacity(0.1),
+            color: (isDark ? Colors.black : Colors.grey).withAlpha(alpha10),
             spreadRadius: 2,
             blurRadius: 8,
           ),
@@ -295,7 +347,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
       child: Column(
         children: [
           Padding(
-            padding: EdgeInsets.all(20),
+            padding: const EdgeInsets.all(20),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -326,8 +378,9 @@ class _CustomersScreenState extends State<CustomersScreen> {
               dataRowColor: WidgetStateProperty.all(
                 isDark ? AppColors.darkCard : Colors.white,
               ),
-              columns: [
+              columns: const [
                 DataColumn2(
+                  headingRowAlignment: MainAxisAlignment.center,
                   label: Text(
                     'العميل',
                     style: TextStyle(fontWeight: FontWeight.bold),
@@ -335,48 +388,56 @@ class _CustomersScreenState extends State<CustomersScreen> {
                   size: ColumnSize.L,
                 ),
                 DataColumn2(
+                  headingRowAlignment: MainAxisAlignment.center,
                   label: Text(
                     'البريد',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
                 DataColumn2(
+                  headingRowAlignment: MainAxisAlignment.center,
                   label: Text(
                     'الهاتف',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
                 DataColumn2(
+                  headingRowAlignment: MainAxisAlignment.center,
                   label: Text(
                     'المدينة',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
                 DataColumn2(
+                  headingRowAlignment: MainAxisAlignment.center,
                   label: Text(
                     'الطلبات',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
                 DataColumn2(
+                  headingRowAlignment: MainAxisAlignment.center,
                   label: Text(
                     'الإنفاق',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
                 DataColumn2(
+                  headingRowAlignment: MainAxisAlignment.center,
                   label: Text(
                     'التصنيف',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
                 DataColumn2(
+                  headingRowAlignment: MainAxisAlignment.center,
                   label: Text(
                     'الحالة',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
                 DataColumn2(
+                  headingRowAlignment: MainAxisAlignment.center,
                   label: Text(
                     'الإجراءات',
                     style: TextStyle(fontWeight: FontWeight.bold),
@@ -385,24 +446,25 @@ class _CustomersScreenState extends State<CustomersScreen> {
                 ),
               ],
               rows: filteredCustomers.map((customer) {
+                final tierColor = _getTierColor(customer.customerTier);
                 return DataRow(
                   cells: [
+                    // Customer Cell
                     DataCell(
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           CircleAvatar(
-                            backgroundColor: _getTierColor(
-                              customer.customerTier,
-                            ),
+                            backgroundColor: tierColor,
                             child: Text(
                               customer.name[0],
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
-                          SizedBox(width: 12),
+                          const SizedBox(width: 4),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -410,7 +472,9 @@ class _CustomersScreenState extends State<CustomersScreen> {
                               children: [
                                 Text(
                                   customer.name,
-                                  style: TextStyle(fontWeight: FontWeight.w600),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                                 Text(
                                   'منذ ${_getTimeSinceJoin(customer.joinDate)}',
@@ -427,79 +491,100 @@ class _CustomersScreenState extends State<CustomersScreen> {
                         ],
                       ),
                     ),
+                    // Email Cell
                     DataCell(
-                      Text(customer.email, style: TextStyle(fontSize: 13)),
-                    ),
-                    DataCell(Text(customer.phone)),
-                    DataCell(Text(customer.city)),
-                    DataCell(
-                      Text(
-                        '${customer.totalOrders}',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    DataCell(
-                      Text(
-                        '${NumberFormat('#,##0').format(customer.totalSpent)} ج',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.green,
+                      Center(
+                        child: Text(
+                          textAlign: TextAlign.center,
+                          customer.email,
+                          style: const TextStyle(fontSize: 12),
                         ),
                       ),
                     ),
+                    // Phone Cell
+                    DataCell(Center(child: Text(customer.phone))),
+                    // City Cell
+                    DataCell(Center(child: Text(customer.city))),
+                    // Total Orders Cell
                     DataCell(
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
+                      Center(
+                        child: Text(
+                          '${customer.totalOrders}',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        decoration: BoxDecoration(
-                          color: _getTierColor(
-                            customer.customerTier,
-                          ).withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    // Total Spent Cell
+                    DataCell(
+                      Center(
+                        child: Text(
+                          '${NumberFormat('#,##0').format(customer.totalSpent)} ج',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green,
+                          ),
                         ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              _getTierIcon(customer.customerTier),
-                              size: 14,
-                              color: _getTierColor(customer.customerTier),
-                            ),
-                            SizedBox(width: 4),
-                            Text(
-                              customer.customerTier,
-                              style: TextStyle(
-                                color: _getTierColor(customer.customerTier),
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    // Customer Tier Cell
+                    DataCell(
+                      Center(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            // 0.1 * 255 = 25 (0x19)
+                            color: tierColor.withAlpha(alpha10),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                _getTierIcon(customer.customerTier),
+                                size: 14,
+                                color: tierColor,
                               ),
-                            ),
-                          ],
+                              const SizedBox(width: 4),
+                              Text(
+                                customer.customerTier,
+                                style: TextStyle(
+                                  color: tierColor,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
+                    // Active Status Cell
                     DataCell(
-                      Switch(
-                        value: customer.isActive,
-                        onChanged: (value) =>
-                            provider.toggleCustomerStatus(customer.id),
+                      Center(
+                        child: Switch(
+                          value: customer.isActive,
+                          onChanged: (value) =>
+                              provider.toggleCustomerStatus(customer.id),
+                        ),
                       ),
                     ),
+                    // Actions Cell
                     DataCell(
                       Row(
-                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                           IconButton(
-                            icon: Icon(Icons.visibility, size: 18),
+                            icon: const Icon(Icons.visibility, size: 18),
                             onPressed: () =>
                                 _showCustomerDetails(context, customer, isDark),
                             tooltip: 'عرض',
                             color: Colors.blue,
                           ),
                           IconButton(
-                            icon: Icon(Icons.delete, size: 18),
+                            icon: const Icon(Icons.delete, size: 18),
                             onPressed: () =>
                                 _confirmDelete(context, customer, provider),
                             tooltip: 'حذف',
@@ -568,7 +653,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: isDark ? AppColors.darkCard : Colors.white,
-        title: Text('تفاصيل العميل'),
+        title: const Text('تفاصيل العميل'),
         content: SizedBox(
           width: 400,
           child: Column(
@@ -598,7 +683,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('إغلاق'),
+            child: const Text('إغلاق'),
           ),
         ],
       ),
@@ -607,7 +692,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
 
   Widget _detailRow(String label, String value, bool isDark) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -615,7 +700,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
             width: 120,
             child: Text(
               '$label:',
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
           Expanded(child: Text(value)),
@@ -632,23 +717,28 @@ class _CustomersScreenState extends State<CustomersScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('تأكيد الحذف'),
+        title: const Text('تأكيد الحذف'),
         content: Text('هل أنت متأكد من حذف العميل "${customer.name}"؟'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('إلغاء'),
+            child: const Text('إلغاء'),
           ),
           ElevatedButton(
             onPressed: () {
+              // فصل الـ Provider عن السياق قبل إغلاق الـ Dialog/العودة منه
               provider.deleteCustomer(customer.id);
               Navigator.pop(context);
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text('تم حذف العميل بنجاح')));
+
+              // التحقق من mounted قبل ScaffoldMessenger
+              if (!mounted) return;
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('تم حذف العميل بنجاح')),
+              );
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: Text('حذف'),
+            child: const Text('حذف'),
           ),
         ],
       ),
