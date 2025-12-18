@@ -3,7 +3,7 @@ import 'dart:typed_data';
 
 import 'package:ecommerce_dashboard/models/banner.dart';
 import 'package:ecommerce_dashboard/providers/banners_provider.dart';
-import 'package:ecommerce_dashboard/services/firebase_storage_service.dart';
+import 'package:ecommerce_dashboard/services/cloudinary_service.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -24,7 +24,7 @@ class _AddEditBannerDialogState extends State<AddEditBannerDialog> {
   final _targetIdController = TextEditingController();
   final _orderController = TextEditingController();
 
-  final FirebaseStorageService _storageService = FirebaseStorageService();
+  final CloudinaryService _cloudinaryService = CloudinaryService();
   final ImagePicker _imagePicker = ImagePicker();
 
   BannerType _selectedType = BannerType.general;
@@ -671,22 +671,24 @@ class _AddEditBannerDialogState extends State<AddEditBannerDialog> {
   }
 
   Future<void> _saveBanner() async {
+    // 1. التحقق من صحة الحقول في النموذج (Form Validation)
     if (!_formKey.currentState!.validate()) {
       return;
     }
 
+    // 2. التحقق من وجود صورة (سواء قديمة أو جديدة مختارة)
     if (_imageUrl == null && _imagePreview == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('الرجاء اختيار صورة للبانر')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('الرجاء اختيار صورة للبانر')),
+      );
       return;
     }
 
-    // التحقق من التواريخ
+    // 3. التحقق من منطقية التواريخ (تاريخ النهاية بعد البداية)
     if (_startDate != null && _endDate != null) {
       if (_endDate!.isBefore(_startDate!)) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('تاريخ النهاية يجب أن يكون بعد تاريخ البداية'),
           ),
         );
@@ -697,38 +699,39 @@ class _AddEditBannerDialogState extends State<AddEditBannerDialog> {
     setState(() => _isLoading = true);
 
     try {
+      // تحديد معرف البانر (معرف قديم للتعديل أو جديد للإضافة)
       final bannerId =
           widget.banner?.id ?? DateTime.now().millisecondsSinceEpoch.toString();
-
       String finalImageUrl = _imageUrl ?? '';
 
-      // رفع الصورة إذا كانت جديدة
+      // 4. رفع الصورة الجديدة إلى Cloudinary إذا تم اختيار واحدة
       if (_pendingImage != null) {
         setState(() => _isUploadingImage = true);
 
-        final uploadedUrl = await _storageService.uploadBannerImage(
+        // استخدام خدمة Cloudinary للرفع وتحديد المجلد الخاص بالبانرات
+        final uploadedUrl = await _cloudinaryService.uploadImage(
           imageFile: _pendingImage!,
-          bannerId: bannerId,
+          folder: 'banners/$bannerId',
         );
 
         if (uploadedUrl != null) {
           finalImageUrl = uploadedUrl;
 
-          // حذف الصورة القديمة إذا كانت موجودة
+          // حذف الصورة القديمة من Storage (Firebase) إذا كانت موجودة عند التحديث
           if (widget.banner != null && widget.banner!.imageUrl.isNotEmpty) {
             if (widget.banner!.imageUrl.contains('firebase') ||
                 widget.banner!.imageUrl.contains('googleapis')) {
-              await _storageService.deleteImage(widget.banner!.imageUrl);
+              await _cloudinaryService.deleteImage(widget.banner!.imageUrl);
             }
           }
         } else {
-          throw Exception('فشل رفع الصورة');
+          throw Exception('فشل رفع الصورة إلى Cloudinary');
         }
 
         setState(() => _isUploadingImage = false);
       }
 
-      // إنشاء/تحديث البانر
+      // 5. إنشاء كائن البانر ببياناته المحدثة
       final banner = BannerModel(
         id: bannerId,
         title: _titleController.text,
@@ -749,33 +752,43 @@ class _AddEditBannerDialogState extends State<AddEditBannerDialog> {
 
       final provider = Provider.of<BannersProvider>(context, listen: false);
 
+      // 6. تنفيذ عملية الحفظ (إضافة أو تحديث) عبر الـ Provider
       if (widget.banner == null) {
         await provider.addBanner(banner);
       } else {
         await provider.updateBanner(banner);
       }
 
-      Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            widget.banner == null
-                ? 'تم إضافة البانر بنجاح'
-                : 'تم تحديث البانر بنجاح',
+      // إغلاق الحوار وإظهار رسالة نجاح
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              widget.banner == null
+                  ? 'تم إضافة البانر بنجاح'
+                  : 'تم تحديث البانر بنجاح',
+            ),
+            backgroundColor: Colors.green,
           ),
-          backgroundColor: Colors.green,
-        ),
-      );
+        );
+      }
     } catch (e) {
-      debugPrint('خطأ في حفظ البانر: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('حدث خطأ: $e'), backgroundColor: Colors.red),
-      );
+      // معالجة الأخطاء وإظهارها للمستخدم
+      debugPrint('❌ خطأ في حفظ البانر: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('حدث خطأ: $e'), backgroundColor: Colors.red),
+        );
+      }
     } finally {
-      setState(() {
-        _isLoading = false;
-        _isUploadingImage = false;
-      });
+      // إعادة حالة التحميل إلى وضعها الطبيعي
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _isUploadingImage = false;
+        });
+      }
     }
   }
 

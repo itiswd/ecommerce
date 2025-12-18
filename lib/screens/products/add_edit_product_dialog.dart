@@ -1,7 +1,7 @@
 // lib/screens/products/add_edit_product_dialog.dart
 import 'package:ecommerce_dashboard/models/product.dart';
 import 'package:ecommerce_dashboard/providers/products_provider.dart';
-import 'package:ecommerce_dashboard/services/firebase_storage_service.dart';
+import 'package:ecommerce_dashboard/services/cloudinary_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -25,7 +25,7 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
   final _stockController = TextEditingController();
   final _commissionController = TextEditingController();
 
-  final FirebaseStorageService _storageService = FirebaseStorageService();
+  final CloudinaryService _cloudinaryService = CloudinaryService();
   final ImagePicker _imagePicker = ImagePicker();
 
   String _selectedCategory = 'إلكترونيات';
@@ -742,7 +742,7 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
         // حذف الصورة من Storage (فقط لو من Firebase)
         if (removedUrl.contains('firebase') ||
             removedUrl.contains('googleapis')) {
-          _storageService.deleteImage(removedUrl).then((success) {
+          _cloudinaryService.deleteImage(removedUrl).then((success) {
             if (!success) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -766,13 +766,15 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
   }
 
   Future<void> _saveProduct() async {
+    // 1. التحقق من صحة الحقول الأساسية في النموذج
     if (!_formKey.currentState!.validate()) {
       return;
     }
 
+    // 2. التحقق من وجود صورة واحدة على الأقل للمنتج
     if (_imageUrls.isEmpty && _pendingImages.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('الرجاء إضافة صورة واحدة على الأقل')),
+        const SnackBar(content: Text('الرجاء إضافة صورة واحدة على الأقل')),
       );
       return;
     }
@@ -780,11 +782,12 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
     setState(() => _isLoading = true);
 
     try {
+      // إنشاء معرف فريد للمنتج إذا كان جديداً
       final productId =
           widget.product?.id ??
           DateTime.now().millisecondsSinceEpoch.toString();
 
-      // رفع الصور المعلقة إلى Firebase Storage
+      // 3. رفع الصور الجديدة (المعلقة) إلى Cloudinary
       if (_pendingImages.isNotEmpty) {
         setState(() {
           _isUploadingImages = true;
@@ -792,9 +795,10 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
           _uploadProgress = 0;
         });
 
-        final uploadedUrls = await _storageService.uploadMultipleImages(
+        // استخدام خدمة Cloudinary للرفع بدلاً من Firebase Storage
+        final uploadedUrls = await _cloudinaryService.uploadMultipleImages(
           imageFiles: _pendingImages,
-          productId: productId,
+          folder: 'products/$productId',
           onProgress: (current, total) {
             setState(() {
               _uploadProgress = current;
@@ -802,6 +806,7 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
           },
         );
 
+        // إضافة الروابط الجديدة للقائمة ومسح الصور المعلقة بعد الرفع
         _imageUrls.addAll(uploadedUrls);
         _pendingImages.clear();
 
@@ -810,7 +815,7 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
         });
       }
 
-      // إنشاء/تحديث المنتج
+      // 4. تجهيز بيانات المنتج النهائية للحفظ
       final product = Product(
         id: productId,
         name: _nameController.text,
@@ -830,33 +835,43 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
 
       final provider = Provider.of<ProductsProvider>(context, listen: false);
 
+      // 5. حفظ المنتج في Firestore (إضافة أو تحديث)
       if (widget.product == null) {
         await provider.addProduct(product);
       } else {
         await provider.updateProduct(product);
       }
 
-      Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            widget.product == null
-                ? 'تم إضافة المنتج بنجاح'
-                : 'تم تحديث المنتج بنجاح',
+      // 6. إغلاق الحوار وإظهار رسالة نجاح
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              widget.product == null
+                  ? 'تم إضافة المنتج بنجاح'
+                  : 'تم تحديث المنتج بنجاح',
+            ),
+            backgroundColor: Colors.green,
           ),
-          backgroundColor: Colors.green,
-        ),
-      );
+        );
+      }
     } catch (e) {
-      debugPrint('خطأ في حفظ المنتج: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('حدث خطأ: $e'), backgroundColor: Colors.red),
-      );
+      // معالجة الأخطاء وإظهارها للمستخدم
+      debugPrint('❌ خطأ في حفظ المنتج: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('حدث خطأ: $e'), backgroundColor: Colors.red),
+        );
+      }
     } finally {
-      setState(() {
-        _isLoading = false;
-        _isUploadingImages = false;
-      });
+      // إعادة حالة التحميل لوضعها الطبيعي
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _isUploadingImages = false;
+        });
+      }
     }
   }
 
