@@ -507,35 +507,69 @@ class _BannersScreenState extends State<BannersScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(banner.title),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: CachedNetworkImage(
-                imageUrl: banner.imageUrl,
-                width: double.infinity,
-                height: 200,
-                fit: BoxFit.cover,
-              ),
+        content: SizedBox(
+          width: 500, // 👈 تحديد عرض ثابت للـ content
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: CachedNetworkImage(
+                    imageUrl: banner.imageUrl,
+                    width: double.infinity, // 👈 استخدام العرض الكامل المتاح
+                    height: 200,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Container(
+                      height: 200,
+                      color: Colors.grey[300],
+                      child: const Center(child: CircularProgressIndicator()),
+                    ),
+                    errorWidget: (context, url, error) => Container(
+                      height: 200,
+                      color: Colors.grey[300],
+                      child: const Icon(Icons.broken_image, size: 50),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                if (banner.description != null) ...[
+                  const Text(
+                    'الوصف:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(banner.description!),
+                  const SizedBox(height: 16),
+                ],
+                _buildDetailRow('النوع', banner.type.arabicName),
+                const SizedBox(height: 8),
+                _buildDetailRow('الترتيب', '#${banner.order}'),
+                const SizedBox(height: 8),
+                _buildDetailRow('الحالة', banner.isActive ? "نشط" : "غير نشط"),
+                const SizedBox(height: 8),
+                _buildDetailRow(
+                  'تاريخ الإنشاء',
+                  DateFormat('dd/MM/yyyy').format(banner.createdAt),
+                ),
+                if (banner.startDate != null) ...[
+                  const SizedBox(height: 8),
+                  _buildDetailRow(
+                    'تاريخ البداية',
+                    DateFormat('dd/MM/yyyy').format(banner.startDate!),
+                  ),
+                ],
+                if (banner.endDate != null) ...[
+                  const SizedBox(height: 8),
+                  _buildDetailRow(
+                    'تاريخ النهاية',
+                    DateFormat('dd/MM/yyyy').format(banner.endDate!),
+                  ),
+                ],
+              ],
             ),
-            const SizedBox(height: 16),
-            if (banner.description != null) ...[
-              Text(
-                'الوصف:',
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              Text(banner.description!),
-              const SizedBox(height: 8),
-            ],
-            Text('النوع: ${banner.type.arabicName}'),
-            Text('الترتيب: #${banner.order}'),
-            Text('الحالة: ${banner.isActive ? "نشط" : "غير نشط"}'),
-            Text(
-              'تاريخ الإنشاء: ${DateFormat('dd/MM/yyyy').format(banner.createdAt)}',
-            ),
-          ],
+          ),
         ),
         actions: [
           TextButton(
@@ -544,6 +578,20 @@ class _BannersScreenState extends State<BannersScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  // دالة مساعدة لعرض صف التفاصيل
+  Widget _buildDetailRow(String label, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '$label: ',
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+        ),
+        Expanded(child: Text(value, style: const TextStyle(fontSize: 14))),
+      ],
     );
   }
 
