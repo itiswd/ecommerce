@@ -6,6 +6,7 @@ import 'package:ecommerce_dashboard/providers/orders_provider.dart';
 import 'package:ecommerce_dashboard/providers/products_provider.dart';
 import 'package:ecommerce_dashboard/providers/theme_provider.dart';
 import 'package:ecommerce_dashboard/screens/main_layout.dart';
+import 'package:ecommerce_dashboard/screens/splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -58,7 +59,7 @@ class MyApp extends StatelessWidget {
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {
           return MaterialApp(
-            title: 'متجري الإلكتروني - لوحة التحكم',
+            title: 'Makanty - مكنتي',
             debugShowCheckedModeBanner: false,
 
             // ===== RTL Support =====
@@ -94,10 +95,11 @@ class MyApp extends StatelessWidget {
             },
 
             // ===== Navigation =====
-            home: const AuthWrapper(),
+            home: const SplashScreen(),
             routes: {
               '/login': (context) => const LoginScreen(),
               '/dashboard': (context) => const MainLayout(),
+              '/wrapper': (context) => const AuthWrapper(),
             },
           );
         },
