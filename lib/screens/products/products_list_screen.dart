@@ -285,7 +285,13 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
                     ),
                     isExpanded: true,
                     items:
-                        ['الكل', 'إلكترونيات', 'ملابس', 'كتب', 'أثاث', 'أخرى']
+                        [
+                              'الكل',
+                              'ماكينات صناعي',
+                              'ماكينات منزلي',
+                              'قطع غيار',
+                              'ماكينات تطريز',
+                            ]
                             .map(
                               (category) => DropdownMenuItem(
                                 value: category,

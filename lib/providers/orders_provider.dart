@@ -30,12 +30,11 @@ class OrdersProvider extends ChangeNotifier {
 
   double get totalRevenue => _orders
       .where((o) => o.status == OrderStatus.delivered)
-      .fold(0.0, (sum, order) => sum + order.grandTotal);
+      .fold(0.0, (summ, order) => summ + order.grandTotal);
 
   double get totalCommission => _orders
       .where((o) => o.status == OrderStatus.delivered)
-      .fold(0.0, (sum, order) => sum + order.totalCommission);
-
+      .fold(0.0, (summ, order) => summ + order.totalCommission);
   // Initialize
   OrdersProvider() {
     loadOrders();

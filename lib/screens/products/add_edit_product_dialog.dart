@@ -27,8 +27,7 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
 
   final CloudinaryService _cloudinaryService = CloudinaryService();
   final ImagePicker _imagePicker = ImagePicker();
-
-  String _selectedCategory = 'إلكترونيات';
+  String _selectedCategory = 'ماكينات صناعي';
   String _selectedSeller = 'بائع 1';
   bool _isActive = true;
   List<String> _imageUrls = [];
@@ -38,7 +37,12 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
   int _uploadProgress = 0;
   int _totalImages = 0;
 
-  final _categories = ['إلكترونيات', 'ملابس', 'كتب', 'أثاث', 'أخرى'];
+  final _categories = [
+    'ماكينات صناعي',
+    'ماكينات منزلي',
+    'قطع غيار',
+    'ماكينات تطريز',
+  ];
   final _sellers = ['بائع 1', 'بائع 2', 'بائع 3'];
 
   @override

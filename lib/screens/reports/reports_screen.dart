@@ -188,12 +188,21 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   items: const [
                     DropdownMenuItem(value: 'الكل', child: Text('الكل')),
                     DropdownMenuItem(
-                      value: 'إلكترونيات',
-                      child: Text('إلكترونيات'),
+                      value: 'ماكينات صناعي',
+                      child: Text('ماكينات صناعي'),
                     ),
-                    DropdownMenuItem(value: 'ملابس', child: Text('ملابس')),
-                    DropdownMenuItem(value: 'كتب', child: Text('كتب')),
-                    DropdownMenuItem(value: 'أثاث', child: Text('أثاث')),
+                    DropdownMenuItem(
+                      value: 'ماكينات منزلي',
+                      child: Text('ماكينات منزلي'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'قطع غيار',
+                      child: Text('قطع غيار'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'ماكينات تطريز',
+                      child: Text('ماكينات تطريز'),
+                    ),
                   ],
                   onChanged: (value) {
                     setState(() => _selectedCategory = value!);

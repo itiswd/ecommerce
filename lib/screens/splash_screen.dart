@@ -9,25 +9,94 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<double> _scaleAnimation;
+
   @override
   void initState() {
     super.initState();
+
+    // إعداد الـ Animation
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
+    );
+
+    _scaleAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOutBack),
+    );
+
+    // بدء الـ Animation
+    _animationController.forward();
+
     // مؤقت لمدة 3 ثوانٍ كما هو مطلوب في الوصف
     Timer(const Duration(seconds: 3), () {
-      // حالياً سنوجه المستخدم لـ AuthWrapper أو الصفحة الرئيسية مباشرة
-      Navigator.pushReplacementNamed(context, '/wrapper');
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/wrapper');
+      }
     });
   }
 
   @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
+      backgroundColor: isDark ? const Color(0xFF0F172A) : Colors.white,
       body: Center(
-        child: Image.asset(
-          'assets/icons/logo.png', // تأكد من أن المسار صحيح
-          width: 264,
-          height: 264,
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: ScaleTransition(
+            scale: _scaleAnimation,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // اللوجو مع تأثير Shadow
+                Image.asset('assets/icons/logo.png', width: 360, height: 360),
+
+                // Loading Indicator
+                SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 3,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      isDark
+                          ? const Color(0xFF3B82F6)
+                          : const Color(0xFF2563EB),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                Text(
+                  'جاري التحميل...',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: isDark
+                        ? const Color(0xFF64748B)
+                        : const Color(0xFF9CA3AF),
+                    fontFamily: 'Cairo',
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
