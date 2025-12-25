@@ -89,6 +89,51 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  /// إنشاء حساب أدمن جديد
+  Future<bool> register({
+    required String email,
+    required String password,
+    required String name,
+    required String phone,
+  }) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final user = await _authService.createAdminAccount(
+        email: email,
+        password: password,
+        name: name,
+        phone: phone,
+      );
+
+      if (user != null) {
+        _currentUser = user;
+        _isLoading = false;
+        notifyListeners();
+        debugPrint('✅ تم إنشاء حساب الأدمن: ${user.name}');
+        return true;
+      }
+
+      _errorMessage = 'فشل إنشاء الحساب';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    } on auth.FirebaseAuthException catch (e) {
+      _errorMessage = _getFirebaseErrorMessage(e.code);
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    } catch (e) {
+      _errorMessage = 'حدث خطأ: ${e.toString()}';
+      _isLoading = false;
+      notifyListeners();
+      debugPrint('❌ Register error: $e');
+      return false;
+    }
+  }
+
   /// تسجيل الخروج
   Future<void> logout() async {
     _isLoading = true;

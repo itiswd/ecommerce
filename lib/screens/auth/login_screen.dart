@@ -217,25 +217,49 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildInfoBox() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.info.withAlpha(0x19),
-        borderRadius: AppBorderRadius.medium,
-        border: Border.all(color: AppColors.info.withAlpha(0x4D)),
-      ),
-      child: const Row(
-        children: [
-          Icon(Icons.info_outline, color: AppColors.info, size: 20),
-          SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              'حسابات الأدمن تُنشأ من Firebase Console فقط',
-              style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+    return Column(
+      children: [
+        // رابط إنشاء حساب جديد
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'ليس لديك حساب؟',
+              style: TextStyle(color: AppColors.textSecondary),
             ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pushNamed('/admin-register');
+              },
+              child: const Text('إنشاء حساب جديد'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.info.withAlpha(0x19),
+            borderRadius: AppBorderRadius.medium,
+            border: Border.all(color: AppColors.info.withAlpha(0x4D)),
           ),
-        ],
-      ),
+          child: const Row(
+            children: [
+              Icon(Icons.info_outline, color: AppColors.info, size: 20),
+              SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'يمكنك إنشاء حساب أدمن جديد أو التواصل مع مدير النظام',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 

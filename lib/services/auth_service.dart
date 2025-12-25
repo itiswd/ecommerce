@@ -129,6 +129,55 @@ class AuthService {
     }
   }
 
+  // ==================== إنشاء حساب أدمن ====================
+
+  /// إنشاء حساب أدمن جديد
+  Future<models.User?> createAdminAccount({
+    required String email,
+    required String password,
+    required String name,
+    required String phone,
+  }) async {
+    try {
+      // إنشاء حساب Firebase Auth
+      final userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
+        email: email.trim(),
+        password: password,
+      );
+
+      final firebaseUser = userCredential.user;
+      if (firebaseUser == null) {
+        debugPrint('❌ فشل إنشاء حساب Firebase');
+        return null;
+      }
+
+      // إنشاء بيانات الأدمن في Firestore
+      final admin = models.User(
+        id: firebaseUser.uid,
+        name: name,
+        phone: phone,
+        email: email,
+        role: models.UserRole.admin,
+        createdAt: DateTime.now(),
+        lastLoginAt: DateTime.now(),
+      );
+
+      await _firestore
+          .collection('users')
+          .doc(firebaseUser.uid)
+          .set(admin.toMap());
+
+      debugPrint('✅ تم إنشاء حساب الأدمن بنجاح: $name');
+      return admin;
+    } on auth.FirebaseAuthException catch (e) {
+      debugPrint('❌ خطأ Firebase Auth: ${e.code} - ${e.message}');
+      rethrow;
+    } catch (e) {
+      debugPrint('❌ خطأ في إنشاء حساب الأدمن: $e');
+      rethrow;
+    }
+  }
+
   // ==================== تسجيل الخروج ====================
 
   /// تسجيل الخروج
