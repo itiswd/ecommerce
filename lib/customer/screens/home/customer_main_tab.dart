@@ -25,9 +25,11 @@ class _CustomerMainTabState extends State<CustomerMainTab> {
   @override
   void initState() {
     super.initState();
-    // تحميل البيانات بعد بناء الـ widget
+    // ✅ استخدم addPostFrameCallback بدل ما تحط الكود مباشرة
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadData();
+      if (mounted) {
+        _loadData();
+      }
     });
   }
 
@@ -40,13 +42,29 @@ class _CustomerMainTabState extends State<CustomerMainTab> {
   Future<void> _loadData() async {
     if (!mounted) return;
 
-    final bannersProvider = context.read<BannersProvider>();
-    final productsProvider = context.read<ProductsProvider>();
+    // ✅ استخدم try-catch عشان تتأكد إن الـ Providers موجودين
+    try {
+      final bannersProvider = Provider.of<BannersProvider>(
+        context,
+        listen: false,
+      );
+      final productsProvider = Provider.of<ProductsProvider>(
+        context,
+        listen: false,
+      );
 
-    await Future.wait([
-      bannersProvider.loadBanners(),
-      productsProvider.loadProducts(),
-    ]);
+      await Future.wait([
+        bannersProvider.loadBanners(),
+        productsProvider.loadProducts(),
+      ]);
+    } catch (e) {
+      debugPrint('❌ Error loading data: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('حدث خطأ في تحميل البيانات: $e')),
+        );
+      }
+    }
   }
 
   @override
@@ -62,7 +80,6 @@ class _CustomerMainTabState extends State<CustomerMainTab> {
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
-              // TODO: Navigate to search
               ScaffoldMessenger.of(
                 context,
               ).showSnackBar(const SnackBar(content: Text('البحث - قريباً')));
@@ -71,7 +88,6 @@ class _CustomerMainTabState extends State<CustomerMainTab> {
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
             onPressed: () {
-              // TODO: Navigate to notifications
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('الإشعارات - قريباً')),
               );
@@ -105,6 +121,7 @@ class _CustomerMainTabState extends State<CustomerMainTab> {
   }
 
   Widget _buildBannersSection() {
+    // ✅ أضف try-catch wrapper
     return Consumer<BannersProvider>(
       builder: (context, provider, _) {
         if (provider.isLoading) {
@@ -232,7 +249,6 @@ class _CustomerMainTabState extends State<CustomerMainTab> {
 
               return InkWell(
                 onTap: () {
-                  // TODO: Navigate to category products
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('عرض منتجات: $category')),
                   );
@@ -286,7 +302,6 @@ class _CustomerMainTabState extends State<CustomerMainTab> {
           return const SizedBox.shrink();
         }
 
-        // Get top 5 products (in real app, filter by sales)
         final bestSellers = provider.products.take(5).toList();
 
         return Column(
@@ -390,223 +405,227 @@ class _CustomerMainTabState extends State<CustomerMainTab> {
 
   Widget _buildProductCard(Product product) {
     final colorScheme = Theme.of(context).colorScheme;
-    final cartProvider = context.watch<CartProvider>();
-    final comparisonProvider = context.watch<ComparisonProvider>();
-    final isInComparison = comparisonProvider.contains(product.id);
 
-    return InkWell(
-      onTap: () {
-        Navigator.of(context).pushNamed('/product-details', arguments: product);
-      },
-      child: Container(
-        width: 180,
-        margin: const EdgeInsets.only(left: 12),
-        decoration: BoxDecoration(
-          color: colorScheme.surface,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 5,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Product Image with Action Buttons
-            Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(12),
-                  ),
-                  child: CachedNetworkImage(
-                    imageUrl: product.images.isNotEmpty
-                        ? product.images[0]
-                        : '',
-                    height: 130,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) => Container(
-                      color: Colors.grey[300],
-                      child: const Center(child: CircularProgressIndicator()),
-                    ),
-                    errorWidget: (context, url, error) => Container(
-                      color: Colors.grey[300],
-                      child: const Icon(Icons.image_not_supported),
-                    ),
-                  ),
+    return Consumer2<CartProvider, ComparisonProvider>(
+      builder: (context, cartProvider, comparisonProvider, _) {
+        final isInComparison = comparisonProvider.contains(product.id);
+
+        return InkWell(
+          onTap: () {
+            Navigator.of(
+              context,
+            ).pushNamed('/product-details', arguments: product);
+          },
+          child: Container(
+            width: 180,
+            margin: const EdgeInsets.only(left: 12),
+            decoration: BoxDecoration(
+              color: colorScheme.surface,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 5,
+                  offset: const Offset(0, 2),
                 ),
-                // Add to Cart Button
-                Positioned(
-                  bottom: 8,
-                  left: 8,
-                  child: GestureDetector(
-                    onTap: () {
-                      cartProvider.addToCart(product);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: const Text('تمت الإضافة إلى السلة'),
-                          duration: const Duration(seconds: 1),
-                          backgroundColor: colorScheme.secondary,
-                        ),
-                      );
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: colorScheme.primary,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Icon(
-                        Icons.add_shopping_cart,
-                        color: colorScheme.onPrimary,
-                        size: 18,
-                      ),
-                    ),
-                  ),
-                ),
-                // Add to Comparison Button
-                Positioned(
-                  bottom: 8,
-                  right: 8,
-                  child: GestureDetector(
-                    onTap: () {
-                      if (isInComparison) {
-                        comparisonProvider.removeProduct(product.id);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('تم الحذف من المقارنة'),
-                            duration: Duration(seconds: 1),
-                          ),
-                        );
-                      } else {
-                        final added = comparisonProvider.addProduct(product);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              added
-                                  ? 'تمت الإضافة للمقارنة'
-                                  : 'الحد الأقصى 3 منتجات للمقارنة',
-                            ),
-                            duration: const Duration(seconds: 1),
-                          ),
-                        );
-                      }
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: isInComparison
-                            ? Colors.orange
-                            : colorScheme.surface,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Icon(
-                        Icons.compare_arrows,
-                        color: isInComparison
-                            ? Colors.white
-                            : colorScheme.primary,
-                        size: 18,
-                      ),
-                    ),
-                  ),
-                ),
-                // Discount Badge
-                if (product.hasDiscount)
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        '-${product.discountPercentage!.toStringAsFixed(0)}%',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
               ],
             ),
-            // Product Info
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    product.name,
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    product.category,
-                    style: AppTextStyles.caption.copyWith(
-                      color: Colors.grey[600],
-                      fontSize: 11,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      Text(
-                        '${product.price.toStringAsFixed(0)} جنيه',
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: colorScheme.primary,
-                          fontSize: 14,
-                        ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(12),
                       ),
-                      if (product.hasDiscount) ...[
-                        const SizedBox(width: 4),
-                        Text(
-                          product.originalPrice!.toStringAsFixed(0),
-                          style: AppTextStyles.caption.copyWith(
-                            decoration: TextDecoration.lineThrough,
-                            color: Colors.grey[500],
-                            fontSize: 11,
+                      child: CachedNetworkImage(
+                        imageUrl: product.images.isNotEmpty
+                            ? product.images[0]
+                            : '',
+                        height: 130,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => Container(
+                          color: Colors.grey[300],
+                          child: const Center(
+                            child: CircularProgressIndicator(),
                           ),
                         ),
-                      ],
+                        errorWidget: (context, url, error) => Container(
+                          color: Colors.grey[300],
+                          child: const Icon(Icons.image_not_supported),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 8,
+                      left: 8,
+                      child: GestureDetector(
+                        onTap: () {
+                          cartProvider.addToCart(product);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Text('تمت الإضافة إلى السلة'),
+                              duration: const Duration(seconds: 1),
+                              backgroundColor: colorScheme.secondary,
+                            ),
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: colorScheme.primary,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.2),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Icon(
+                            Icons.add_shopping_cart,
+                            color: colorScheme.onPrimary,
+                            size: 18,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 8,
+                      right: 8,
+                      child: GestureDetector(
+                        onTap: () {
+                          if (isInComparison) {
+                            comparisonProvider.removeProduct(product.id);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('تم الحذف من المقارنة'),
+                                duration: Duration(seconds: 1),
+                              ),
+                            );
+                          } else {
+                            final added = comparisonProvider.addProduct(
+                              product,
+                            );
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  added
+                                      ? 'تمت الإضافة للمقارنة'
+                                      : 'الحد الأقصى 3 منتجات للمقارنة',
+                                ),
+                                duration: const Duration(seconds: 1),
+                              ),
+                            );
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: isInComparison
+                                ? Colors.orange
+                                : colorScheme.surface,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.2),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Icon(
+                            Icons.compare_arrows,
+                            color: isInComparison
+                                ? Colors.white
+                                : colorScheme.primary,
+                            size: 18,
+                          ),
+                        ),
+                      ),
+                    ),
+                    if (product.hasDiscount)
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            '-${product.discountPercentage!.toStringAsFixed(0)}%',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        product.name,
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        product.category,
+                        style: AppTextStyles.caption.copyWith(
+                          color: Colors.grey[600],
+                          fontSize: 11,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          Text(
+                            '${product.price.toStringAsFixed(0)} جنيه',
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: colorScheme.primary,
+                              fontSize: 14,
+                            ),
+                          ),
+                          if (product.hasDiscount) ...[
+                            const SizedBox(width: 4),
+                            Text(
+                              product.originalPrice!.toStringAsFixed(0),
+                              style: AppTextStyles.caption.copyWith(
+                                decoration: TextDecoration.lineThrough,
+                                color: Colors.grey[500],
+                                fontSize: 11,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
                     ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

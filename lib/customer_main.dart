@@ -1,6 +1,8 @@
 // lib/customer_main.dart
+import 'package:ecommerce_dashboard/config/app_flavor.dart';
 import 'package:ecommerce_dashboard/config/customer_routes.dart';
 import 'package:ecommerce_dashboard/constants/app_theme.dart';
+import 'package:ecommerce_dashboard/firebase_options.dart';
 import 'package:ecommerce_dashboard/providers/banners_provider.dart';
 import 'package:ecommerce_dashboard/providers/cart_provider.dart';
 import 'package:ecommerce_dashboard/providers/cashback_provider.dart';
@@ -16,8 +18,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 import 'package:provider/provider.dart';
-
-import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -46,6 +46,13 @@ void main() async {
   } catch (e) {
     debugPrint('❌ Locale initialization error: $e');
   }
+
+  // تهيئة Flavor
+  FlavorConfig.initialize(
+    flavor: AppFlavor.customer,
+    appName: 'مكنتي',
+    appTitle: 'مكنتي - Makanty',
+  );
 
   runApp(const CustomerApp());
 }
@@ -104,7 +111,7 @@ class CustomerApp extends StatelessWidget {
               );
             },
 
-            // ===== Navigation - استخدام Routes فقط =====
+            // ===== Navigation =====
             initialRoute: CustomerRoutes.splash,
             onGenerateRoute: CustomerRoutes.generateRoute,
           );
