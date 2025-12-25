@@ -1,0 +1,99 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if user is admin
+    function isAdmin() {
+      return exists(/databases/$(database)/documents/admin_users/$(request.auth.uid));
+    }
+    
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Users collection - بيانات العملاء
+    match /users/{userId} {
+      // أي مستخدم مسجل يمكنه قراءة بيانات المستخدمين
+      allow read: if isAuthenticated();
+      // المستخدم يمكنه فقط تعديل بياناته الخاصة
+      allow write: if isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Admin users collection - بيانات الأدمن
+    match /admin_users/{userId} {
+      // الأدمن يمكنه قراءة بياناته فقط
+      allow read: if isAuthenticated() && request.auth.uid == userId;
+      // لا يمكن الكتابة إلا من Firebase Console
+      allow write: if false;
+    }
+    
+    // Products collection - المنتجات
+    match /products/{productId} {
+      // الجميع يمكنهم قراءة المنتجات (حتى الزوار)
+      allow read: if true;
+      // فقط الأدمن يمكنهم إضافة/تعديل/حذف المنتجات
+      allow write: if isAuthenticated() && isAdmin();
+    }
+    
+    // Orders collection - الطلبات
+    match /orders/{orderId} {
+      // قراءة الطلب: العميل صاحب الطلب أو الأدمن
+      allow read: if isAuthenticated() && 
+                     (resource.data.customerId == request.auth.uid || isAdmin());
+      
+      // إنشاء طلب جديد: أي مستخدم مسجل
+      allow create: if isAuthenticated() && 
+                       request.resource.data.customerId == request.auth.uid;
+      
+      // تحديث الطلب: فقط الأدمن (لتغيير الحالة)
+      allow update: if isAuthenticated() && isAdmin();
+      
+      // حذف الطلب: فقط الأدمن
+      allow delete: if isAuthenticated() && isAdmin();
+    }
+    
+    // Banners collection - البانرات الإعلانية
+    match /banners/{bannerId} {
+      // الجميع يمكنهم قراءة البانرات
+      allow read: if true;
+      // فقط الأدمن يمكنهم إضافة/تعديل/حذف البانرات
+      allow write: if isAuthenticated() && isAdmin();
+    }
+    
+    // Cashback transactions - معاملات الكاش باك
+    match /cashback_transactions/{transactionId} {
+      // قراءة المعاملة: العميل صاحب المعاملة أو الأدمن
+      allow read: if isAuthenticated() && 
+                     (resource.data.customerId == request.auth.uid || isAdmin());
+      
+      // فقط الأدمن يمكنه إضافة/تعديل معاملات الكاش باك
+      allow write: if isAuthenticated() && isAdmin();
+    }
+    
+    // Categories collection (إذا أُضيفت لاحقاً)
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if isAuthenticated() && isAdmin();
+    }
+    
+    // Reviews collection (إذا أُضيفت لاحقاً)
+    match /reviews/{reviewId} {
+      allow read: if true;
+      // المستخدم يمكنه إضافة/تعديل مراجعته فقط
+      allow create: if isAuthenticated() && 
+                       request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAuthenticated() && 
+                               (resource.data.userId == request.auth.uid || isAdmin());
+    }
+    
+    // Notifications collection (إذا أُضيفت لاحقاً)
+    match /notifications/{notificationId} {
+      // المستخدم يقرأ إشعاراته فقط
+      allow read: if isAuthenticated() && 
+                     resource.data.userId == request.auth.uid;
+      // فقط الأدمن يرسل الإشعارات
+      allow write: if isAuthenticated() && isAdmin();
+    }
+  }
+}
