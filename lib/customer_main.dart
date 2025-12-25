@@ -1,5 +1,7 @@
 // lib/customer_main.dart
+import 'package:ecommerce_dashboard/config/customer_routes.dart';
 import 'package:ecommerce_dashboard/constants/app_theme.dart';
+import 'package:ecommerce_dashboard/customer/screens/auth/customer_splash_screen.dart';
 import 'package:ecommerce_dashboard/providers/banners_provider.dart';
 import 'package:ecommerce_dashboard/providers/cart_provider.dart';
 import 'package:ecommerce_dashboard/providers/cashback_provider.dart';
@@ -8,9 +10,6 @@ import 'package:ecommerce_dashboard/providers/customer_auth_provider.dart';
 import 'package:ecommerce_dashboard/providers/orders_provider.dart';
 import 'package:ecommerce_dashboard/providers/products_provider.dart';
 import 'package:ecommerce_dashboard/providers/theme_provider.dart';
-import 'package:ecommerce_dashboard/customer/screens/home/customer_home_screen.dart';
-import 'package:ecommerce_dashboard/customer/screens/auth/customer_splash_screen.dart';
-import 'package:ecommerce_dashboard/config/customer_routes.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -91,9 +90,9 @@ class CustomerApp extends StatelessWidget {
               return Directionality(
                 textDirection: TextDirection.rtl,
                 child: MediaQuery(
-                  data: MediaQuery.of(context).copyWith(
-                    textScaler: const TextScaler.linear(1.0),
-                  ),
+                  data: MediaQuery.of(
+                    context,
+                  ).copyWith(textScaler: const TextScaler.linear(1.0)),
                   child: child!,
                 ),
               );

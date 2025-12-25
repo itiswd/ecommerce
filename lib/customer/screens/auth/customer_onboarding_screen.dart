@@ -41,9 +41,7 @@ class _CustomerOnboardingScreenState extends State<CustomerOnboardingScreen> {
 
     // الانتقال للرئيسية
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => const CustomerHomeScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const CustomerHomeScreen()),
     );
   }
 
@@ -51,7 +49,6 @@ class _CustomerOnboardingScreenState extends State<CustomerOnboardingScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final size = MediaQuery.of(context).size;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -65,10 +62,7 @@ class _CustomerOnboardingScreenState extends State<CustomerOnboardingScreen> {
                 alignment: Alignment.centerLeft,
                 child: TextButton(
                   onPressed: _onDone,
-                  child: const Text(
-                    'تخطي',
-                    style: TextStyle(fontSize: 16),
-                  ),
+                  child: const Text('تخطي', style: TextStyle(fontSize: 16)),
                 ),
               ),
             ),
@@ -104,10 +98,8 @@ class _CustomerOnboardingScreenState extends State<CustomerOnboardingScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(
                       CustomerConstants.onboardingPages.length,
-                      (index) => _buildIndicator(
-                        index == _currentPage,
-                        colorScheme,
-                      ),
+                      (index) =>
+                          _buildIndicator(index == _currentPage, colorScheme),
                     ),
                   ),
                   const SizedBox(height: 30),
@@ -212,11 +204,7 @@ class _OnboardingPage extends StatelessWidget {
               color: colorScheme.primary.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              icon,
-              size: 100,
-              color: colorScheme.primary,
-            ),
+            child: Icon(icon, size: 100, color: colorScheme.primary),
           ),
           const SizedBox(height: 50),
 
