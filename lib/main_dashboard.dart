@@ -12,6 +12,7 @@ import 'config/app_flavor.dart';
 import 'constants/app_theme.dart';
 import 'firebase_options.dart';
 import 'providers/auth_provider.dart';
+import 'screens/auth/admin_register_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/splash_screen.dart';
@@ -52,6 +53,12 @@ class DashboardApp extends StatelessWidget {
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
+        // ✅ إضافة المسارات
+        routes: {
+          '/login': (context) => const LoginScreen(),
+          '/admin-register': (context) => const AdminRegisterScreen(),
+          '/dashboard': (context) => const DashboardScreen(),
+        },
         home: Consumer<AuthProvider>(
           builder: (context, authProvider, child) {
             // التحقق من حالة تحميل التطبيق
