@@ -124,8 +124,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                     ],
                   ),
-                  SizedBox(height: AppSpacing.lg),
-                  _buildQuickActions(theme),
                 ],
               ),
             );
@@ -839,85 +837,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
               color: AppColors.success,
               fontWeight: FontWeight.bold,
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildQuickActions(ThemeData theme) {
-    final actions = [
-      {
-        'title': 'إضافة منتج',
-        'icon': Icons.add_box,
-        'color': AppColors.primary,
-      },
-      {
-        'title': 'عرض الطلبات',
-        'icon': Icons.shopping_bag,
-        'color': AppColors.success,
-      },
-      {
-        'title': 'إدارة البانرات',
-        'icon': Icons.image,
-        'color': AppColors.warning,
-      },
-      {'title': 'التقارير', 'icon': Icons.assessment, 'color': AppColors.info},
-    ];
-
-    return Container(
-      padding: EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: AppBorderRadius.large,
-        boxShadow: [AppShadows.medium],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('إجراءات سريعة', style: AppTextStyles.h4),
-          SizedBox(height: AppSpacing.md),
-          Row(
-            children: actions
-                .map(
-                  (action) => Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: InkWell(
-                        onTap: () {},
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          decoration: BoxDecoration(
-                            color: (action['color'] as Color).withAlpha(25),
-                            borderRadius: AppBorderRadius.medium,
-                            border: Border.all(
-                              color: (action['color'] as Color).withAlpha(51),
-                            ),
-                          ),
-                          child: Column(
-                            children: [
-                              Icon(
-                                action['icon'] as IconData,
-                                color: action['color'] as Color,
-                                size: 28,
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                action['title'] as String,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: action['color'] as Color,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                )
-                .toList(),
           ),
         ],
       ),
