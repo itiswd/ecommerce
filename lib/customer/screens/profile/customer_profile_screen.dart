@@ -1,6 +1,6 @@
 // lib/customer/screens/profile/customer_profile_screen.dart
 import 'package:ecommerce_dashboard/constants/app_theme.dart';
-import 'package:ecommerce_dashboard/customer/screens/auth/customer_phone_login_screen.dart';
+import 'package:ecommerce_dashboard/customer/screens/auth/customer_login_screen.dart';
 import 'package:ecommerce_dashboard/providers/customer_auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -25,9 +25,7 @@ class CustomerProfileScreen extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('حسابي'),
-      ),
+      appBar: AppBar(title: const Text('حسابي')),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -42,9 +40,7 @@ class CustomerProfileScreen extends StatelessWidget {
               const SizedBox(height: 24),
               Text(
                 'مرحباً زائر!',
-                style: AppTextStyles.h2.copyWith(
-                  color: colorScheme.onSurface,
-                ),
+                style: AppTextStyles.h2.copyWith(color: colorScheme.onSurface),
               ),
               const SizedBox(height: 12),
               Text(
@@ -62,7 +58,7 @@ class CustomerProfileScreen extends StatelessWidget {
                   onPressed: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => const CustomerPhoneLoginScreen(),
+                        builder: (context) => const CustomerLoginScreen(),
                       ),
                     );
                   },
@@ -72,10 +68,7 @@ class CustomerProfileScreen extends StatelessWidget {
                   ),
                   child: const Text(
                     'تسجيل الدخول',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -102,9 +95,7 @@ class CustomerProfileScreen extends StatelessWidget {
     final user = authProvider.currentUser;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('حسابي'),
-      ),
+      appBar: AppBar(title: const Text('حسابي')),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -297,17 +288,12 @@ class CustomerProfileScreen extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         decoration: BoxDecoration(
           border: Border(
-            bottom: BorderSide(
-              color: colorScheme.onSurface.withOpacity(0.1),
-            ),
+            bottom: BorderSide(color: colorScheme.onSurface.withOpacity(0.1)),
           ),
         ),
         child: Row(
           children: [
-            Icon(
-              icon,
-              color: textColor ?? colorScheme.onSurface,
-            ),
+            Icon(icon, color: textColor ?? colorScheme.onSurface),
             const SizedBox(width: 16),
             Expanded(
               child: Text(

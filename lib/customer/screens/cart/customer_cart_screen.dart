@@ -1,10 +1,9 @@
-// lib/customer/screens/cart/customer_cart_screen.dart
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ecommerce_dashboard/constants/app_theme.dart';
+import 'package:ecommerce_dashboard/customer/screens/auth/customer_login_screen.dart';
 import 'package:ecommerce_dashboard/models/cart_item.dart';
 import 'package:ecommerce_dashboard/providers/cart_provider.dart';
 import 'package:ecommerce_dashboard/providers/customer_auth_provider.dart';
-import 'package:ecommerce_dashboard/customer/screens/auth/customer_phone_login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -20,7 +19,7 @@ class CustomerCartScreen extends StatelessWidget {
           Consumer<CartProvider>(
             builder: (context, cart, _) {
               if (cart.items.isEmpty) return const SizedBox.shrink();
-              
+
               return TextButton(
                 onPressed: () {
                   _showClearCartDialog(context, cart);
@@ -67,7 +66,7 @@ class CustomerCartScreen extends StatelessWidget {
 
   Widget _buildEmptyCart(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32.0),
@@ -82,9 +81,7 @@ class CustomerCartScreen extends StatelessWidget {
             const SizedBox(height: 24),
             Text(
               'السلة فارغة',
-              style: AppTextStyles.h3.copyWith(
-                color: colorScheme.onSurface,
-              ),
+              style: AppTextStyles.h3.copyWith(color: colorScheme.onSurface),
             ),
             const SizedBox(height: 12),
             Text(
@@ -143,15 +140,13 @@ class CustomerCartScreen extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: CachedNetworkImage(
-              imageUrl: item.imageUrl,
+              imageUrl: item.productImage,
               width: 80,
               height: 80,
               fit: BoxFit.cover,
               placeholder: (context, url) => Container(
                 color: Colors.grey[300],
-                child: const Center(
-                  child: CircularProgressIndicator(),
-                ),
+                child: const Center(child: CircularProgressIndicator()),
               ),
               errorWidget: (context, url, error) => Container(
                 color: Colors.grey[300],
@@ -264,7 +259,7 @@ class CustomerCartScreen extends StatelessWidget {
                       ),
                       onPressed: () {
                         cart.incrementQuantity(item.productId);
-                      ),
+                      },
                       constraints: const BoxConstraints(
                         minWidth: 36,
                         minHeight: 36,
@@ -314,10 +309,7 @@ class CustomerCartScreen extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'المجموع الفرعي',
-                  style: AppTextStyles.bodyMedium,
-                ),
+                Text('المجموع الفرعي', style: AppTextStyles.bodyMedium),
                 Text(
                   '${cart.subtotal.toStringAsFixed(2)} جنيه',
                   style: AppTextStyles.bodyMedium,
@@ -329,10 +321,7 @@ class CustomerCartScreen extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'الشحن',
-                  style: AppTextStyles.bodyMedium,
-                ),
+                Text('الشحن', style: AppTextStyles.bodyMedium),
                 Text(
                   '${cart.shippingFee.toStringAsFixed(2)} جنيه',
                   style: AppTextStyles.bodyMedium,
@@ -395,10 +384,7 @@ class CustomerCartScreen extends StatelessWidget {
                 ),
                 child: const Text(
                   'إتمام الطلب',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -418,9 +404,7 @@ class CustomerCartScreen extends StatelessWidget {
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('تسجيل الدخول مطلوب'),
-          content: const Text(
-            'يجب تسجيل الدخول لإتمام عملية الشراء',
-          ),
+          content: const Text('يجب تسجيل الدخول لإتمام عملية الشراء'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
@@ -431,7 +415,7 @@ class CustomerCartScreen extends StatelessWidget {
                 Navigator.of(context).pop();
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => const CustomerPhoneLoginScreen(),
+                    builder: (context) => const CustomerLoginScreen(),
                   ),
                 );
               },
@@ -442,9 +426,9 @@ class CustomerCartScreen extends StatelessWidget {
       );
     } else {
       // Navigate to checkout
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('صفحة الشراء - قريباً')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('صفحة الشراء - قريباً')));
     }
   }
 
@@ -463,14 +447,11 @@ class CustomerCartScreen extends StatelessWidget {
             onPressed: () {
               cart.clearCart();
               Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('تم مسح السلة')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('تم مسح السلة')));
             },
-            child: const Text(
-              'مسح',
-              style: TextStyle(color: Colors.red),
-            ),
+            child: const Text('مسح', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),

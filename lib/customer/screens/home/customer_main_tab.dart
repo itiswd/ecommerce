@@ -5,8 +5,8 @@ import 'package:ecommerce_dashboard/constants/app_theme.dart';
 import 'package:ecommerce_dashboard/models/banner.dart' as models;
 import 'package:ecommerce_dashboard/models/product.dart';
 import 'package:ecommerce_dashboard/providers/banners_provider.dart';
-import 'package:ecommerce_dashboard/providers/products_provider.dart';
 import 'package:ecommerce_dashboard/providers/cart_provider.dart';
+import 'package:ecommerce_dashboard/providers/products_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -36,10 +36,10 @@ class _CustomerMainTabState extends State<CustomerMainTab> {
   Future<void> _loadData() async {
     final bannersProvider = context.read<BannersProvider>();
     final productsProvider = context.read<ProductsProvider>();
-    
+
     await Future.wait([
-      bannersProvider.fetchBanners(),
-      productsProvider.fetchProducts(),
+      bannersProvider.loadBanners(),
+      productsProvider.loadProducts(),
     ]);
   }
 
@@ -57,9 +57,9 @@ class _CustomerMainTabState extends State<CustomerMainTab> {
             icon: const Icon(Icons.search),
             onPressed: () {
               // TODO: Navigate to search
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('البحث - قريباً')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('البحث - قريباً')));
             },
           ),
           IconButton(
@@ -167,7 +167,7 @@ class _CustomerMainTabState extends State<CustomerMainTab> {
     );
   }
 
-  Widget _buildBannerItem(models.Banner banner) {
+  Widget _buildBannerItem(models.BannerModel banner) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
@@ -206,9 +206,7 @@ class _CustomerMainTabState extends State<CustomerMainTab> {
         children: [
           Text(
             'الأقسام',
-            style: AppTextStyles.h3.copyWith(
-              color: colorScheme.onSurface,
-            ),
+            style: AppTextStyles.h3.copyWith(color: colorScheme.onSurface),
           ),
           const SizedBox(height: 16),
           GridView.builder(
@@ -223,8 +221,9 @@ class _CustomerMainTabState extends State<CustomerMainTab> {
             itemCount: CustomerConstants.productCategories.length,
             itemBuilder: (context, index) {
               final category = CustomerConstants.productCategories[index];
-              final icon = CustomerConstants.categoryIcons[category] ?? Icons.category;
-              
+              final icon =
+                  CustomerConstants.categoryIcons[category] ?? Icons.category;
+
               return InkWell(
                 onTap: () {
                   // TODO: Navigate to category products
@@ -369,7 +368,9 @@ class _CustomerMainTabState extends State<CustomerMainTab> {
                   crossAxisSpacing: 12,
                   mainAxisSpacing: 12,
                 ),
-                itemCount: provider.products.length > 10 ? 10 : provider.products.length,
+                itemCount: provider.products.length > 10
+                    ? 10
+                    : provider.products.length,
                 itemBuilder: (context, index) {
                   return _buildProductCard(provider.products[index]);
                 },
@@ -384,13 +385,13 @@ class _CustomerMainTabState extends State<CustomerMainTab> {
   Widget _buildProductCard(Product product) {
     final colorScheme = Theme.of(context).colorScheme;
     final cartProvider = context.watch<CartProvider>();
-    
+
     return InkWell(
       onTap: () {
         // TODO: Navigate to product details
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('تفاصيل: ${product.name}')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('تفاصيل: ${product.name}')));
       },
       child: Container(
         width: 180,
@@ -413,9 +414,13 @@ class _CustomerMainTabState extends State<CustomerMainTab> {
             Stack(
               children: [
                 ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(12),
+                  ),
                   child: CachedNetworkImage(
-                    imageUrl: product.images.isNotEmpty ? product.images[0] : '',
+                    imageUrl: product.images.isNotEmpty
+                        ? product.images[0]
+                        : '',
                     height: 150,
                     width: double.infinity,
                     fit: BoxFit.cover,
@@ -466,18 +471,21 @@ class _CustomerMainTabState extends State<CustomerMainTab> {
                   ),
                 ),
                 // Discount Badge
-                if (product.discount > 0)
+                if (product.commission > 0)
                   Positioned(
                     top: 8,
                     right: 8,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.red,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        '-${product.discount.toStringAsFixed(0)}%',
+                        '-${product.commission.toStringAsFixed(0)}%',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 12,
@@ -512,7 +520,7 @@ class _CustomerMainTabState extends State<CustomerMainTab> {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      if (product.discount > 0) ...[
+                      if (product.commission > 0) ...[
                         Text(
                           '${product.price.toStringAsFixed(0)} جنيه',
                           style: AppTextStyles.caption.copyWith(
@@ -523,7 +531,7 @@ class _CustomerMainTabState extends State<CustomerMainTab> {
                         const SizedBox(width: 4),
                       ],
                       Text(
-                        '${product.finalPrice.toStringAsFixed(0)} جنيه',
+                        '${product.price.toStringAsFixed(0)} جنيه',
                         style: AppTextStyles.bodyMedium.copyWith(
                           fontWeight: FontWeight.bold,
                           color: colorScheme.primary,

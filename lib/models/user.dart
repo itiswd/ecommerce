@@ -1,4 +1,11 @@
 // lib/models/user.dart
+
+/// أنواع المستخدمين في النظام
+enum UserRole {
+  admin, // أدمن (لوحة التحكم)
+  customer, // عميل عادي (تطبيق المستخدم)
+}
+
 class User {
   final String id;
   final String name;
@@ -10,6 +17,7 @@ class User {
   final DateTime? lastLoginAt;
   final bool isGuest;
   final List<String> savedAddressIds;
+  final UserRole role; // نوع المستخدم
 
   User({
     required this.id,
@@ -22,7 +30,14 @@ class User {
     this.lastLoginAt,
     this.isGuest = false,
     this.savedAddressIds = const [],
+    this.role = UserRole.customer, // افتراضياً عميل
   });
+
+  /// هل المستخدم أدمن؟
+  bool get isAdmin => role == UserRole.admin;
+
+  /// هل المستخدم عميل عادي؟
+  bool get isCustomer => role == UserRole.customer;
 
   // تحويل من Firestore
   factory User.fromMap(Map<String, dynamic> map, String id) {
@@ -37,7 +52,14 @@ class User {
       lastLoginAt: map['lastLoginAt']?.toDate(),
       isGuest: map['isGuest'] ?? false,
       savedAddressIds: List<String>.from(map['savedAddressIds'] ?? []),
+      role: _parseRole(map['role']),
     );
+  }
+
+  /// تحويل نص الـ role إلى enum
+  static UserRole _parseRole(String? roleStr) {
+    if (roleStr == 'admin') return UserRole.admin;
+    return UserRole.customer;
   }
 
   // تحويل إلى Firestore
@@ -52,6 +74,7 @@ class User {
       'lastLoginAt': lastLoginAt,
       'isGuest': isGuest,
       'savedAddressIds': savedAddressIds,
+      'role': role.name, // admin أو customer
     };
   }
 
@@ -65,6 +88,7 @@ class User {
     DateTime? lastLoginAt,
     bool? isGuest,
     List<String>? savedAddressIds,
+    UserRole? role,
   }) {
     return User(
       id: id,
@@ -77,6 +101,7 @@ class User {
       lastLoginAt: lastLoginAt ?? this.lastLoginAt,
       isGuest: isGuest ?? this.isGuest,
       savedAddressIds: savedAddressIds ?? this.savedAddressIds,
+      role: role ?? this.role,
     );
   }
 }

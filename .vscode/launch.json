@@ -1,0 +1,52 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "🛒 Customer App",
+            "type": "dart",
+            "request": "launch",
+            "program": "lib/main_customer.dart",
+            "args": []
+        },
+        {
+            "name": "📊 Dashboard (Admin)",
+            "type": "dart",
+            "request": "launch",
+            "program": "lib/main_dashboard.dart",
+            "args": []
+        },
+        {
+            "name": "🛒 Customer App (Chrome)",
+            "type": "dart",
+            "request": "launch",
+            "program": "lib/main_customer.dart",
+            "deviceId": "chrome",
+            "args": []
+        },
+        {
+            "name": "📊 Dashboard (Chrome)",
+            "type": "dart",
+            "request": "launch",
+            "program": "lib/main_dashboard.dart",
+            "deviceId": "chrome",
+            "args": []
+        },
+        {
+            "name": "🛒 Customer App (Windows)",
+            "type": "dart",
+            "request": "launch",
+            "program": "lib/main_customer.dart",
+            "deviceId": "windows",
+            "args": []
+        },
+        {
+            "name": "📊 Dashboard (Windows)",
+            "type": "dart",
+            "request": "launch",
+            "program": "lib/main_dashboard.dart",
+            "deviceId": "windows",
+            "args": []
+        }
+    ],
+    "compounds": []
+}

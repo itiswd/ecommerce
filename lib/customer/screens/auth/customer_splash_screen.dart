@@ -1,4 +1,5 @@
 // lib/customer/screens/auth/customer_splash_screen.dart
+import 'package:ecommerce_dashboard/customer/screens/auth/customer_login_screen.dart';
 import 'package:ecommerce_dashboard/customer/screens/auth/customer_onboarding_screen.dart';
 import 'package:ecommerce_dashboard/customer/screens/home/customer_home_screen.dart';
 import 'package:ecommerce_dashboard/providers/customer_auth_provider.dart';
@@ -28,13 +29,15 @@ class _CustomerSplashScreenState extends State<CustomerSplashScreen>
       vsync: this,
     );
 
-    _scaleAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 0.5,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
 
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
-    );
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
 
     _controller.forward();
 
@@ -65,20 +68,13 @@ class _CustomerSplashScreenState extends State<CustomerSplashScreen>
     } else if (authProvider.isAuthenticated) {
       // المستخدم مسجل دخول - الذهاب للرئيسية
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => const CustomerHomeScreen(),
-        ),
+        MaterialPageRoute(builder: (context) => const CustomerHomeScreen()),
       );
     } else {
-      // تسجيل دخول كزائر والذهاب للرئيسية
-      await authProvider.signInAsGuest();
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => const CustomerHomeScreen(),
-          ),
-        );
-      }
+      // المستخدم مش مسجل دخول - عرض شاشة تسجيل الدخول
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const CustomerLoginScreen()),
+      );
     }
   }
 

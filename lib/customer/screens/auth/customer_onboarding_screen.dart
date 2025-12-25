@@ -1,9 +1,7 @@
 // lib/customer/screens/auth/customer_onboarding_screen.dart
 import 'package:ecommerce_dashboard/config/customer_constants.dart';
-import 'package:ecommerce_dashboard/customer/screens/home/customer_home_screen.dart';
-import 'package:ecommerce_dashboard/providers/customer_auth_provider.dart';
+import 'package:ecommerce_dashboard/customer/screens/auth/customer_login_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CustomerOnboardingScreen extends StatefulWidget {
@@ -31,17 +29,9 @@ class _CustomerOnboardingScreenState extends State<CustomerOnboardingScreen> {
 
     if (!mounted) return;
 
-    // تسجيل دخول كزائر
-    final authProvider = context.read<CustomerAuthProvider>();
-    if (!authProvider.isAuthenticated) {
-      await authProvider.signInAsGuest();
-    }
-
-    if (!mounted) return;
-
-    // الانتقال للرئيسية
+    // الانتقال لشاشة تسجيل الدخول
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (context) => const CustomerHomeScreen()),
+      MaterialPageRoute(builder: (context) => const CustomerLoginScreen()),
     );
   }
 
