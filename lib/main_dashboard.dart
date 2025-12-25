@@ -12,9 +12,15 @@ import 'config/app_flavor.dart';
 import 'constants/app_theme.dart';
 import 'firebase_options.dart';
 import 'providers/auth_provider.dart';
+import 'providers/banners_provider.dart';
+import 'providers/cashback_provider.dart';
+import 'providers/dashboard_provider.dart';
+import 'providers/orders_provider.dart';
+import 'providers/products_provider.dart';
+import 'providers/theme_provider.dart';
 import 'screens/auth/admin_register_screen.dart';
 import 'screens/auth/login_screen.dart';
-import 'screens/dashboard_screen.dart';
+import 'screens/main_layout.dart';
 import 'screens/splash_screen.dart';
 
 void main() async {
@@ -41,39 +47,77 @@ class DashboardApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => AuthProvider())],
-      child: MaterialApp(
-        title: FlavorConfig.instance.appTitle,
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
-        locale: const Locale('ar', 'EG'),
-        supportedLocales: const [Locale('ar', 'EG'), Locale('en', 'US')],
-        localizationsDelegates: const [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        // ✅ إضافة المسارات
-        routes: {
-          '/login': (context) => const LoginScreen(),
-          '/admin-register': (context) => const AdminRegisterScreen(),
-          '/dashboard': (context) => const DashboardScreen(),
+      providers: [
+        // ✅ جميع الـ Providers المطلوبة
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => DashboardProvider()),
+        ChangeNotifierProvider(create: (_) => ProductsProvider()),
+        ChangeNotifierProvider(create: (_) => OrdersProvider()),
+        ChangeNotifierProvider(create: (_) => BannersProvider()),
+        ChangeNotifierProvider(create: (_) => CashbackProvider()),
+      ],
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) {
+          return MaterialApp(
+            title: FlavorConfig.instance.appTitle,
+            debugShowCheckedModeBanner: false,
+
+            // ✅ Theme Configuration
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: themeProvider.themeMode,
+
+            locale: const Locale('ar', 'EG'),
+            supportedLocales: const [
+              Locale('ar', 'EG'),
+              Locale('ar', 'SA'),
+              Locale('ar'),
+              Locale('en', 'US'),
+            ],
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+
+            // ✅ RTL Direction
+            builder: (context, child) {
+              return Directionality(
+                textDirection: TextDirection.rtl,
+                child: MediaQuery(
+                  data: MediaQuery.of(
+                    context,
+                  ).copyWith(textScaler: const TextScaler.linear(1.0)),
+                  child: child!,
+                ),
+              );
+            },
+
+            // ✅ المسارات
+            routes: {
+              '/login': (context) => const LoginScreen(),
+              '/admin-register': (context) => const AdminRegisterScreen(),
+              '/dashboard': (context) => const MainLayout(),
+            },
+
+            home: Consumer<AuthProvider>(
+              builder: (context, authProvider, child) {
+                // التحقق من حالة تحميل التطبيق
+                if (authProvider.isLoading) {
+                  return const SplashScreen();
+                }
+
+                // التحقق من تسجيل الدخول
+                if (authProvider.isAuthenticated) {
+                  return const MainLayout();
+                }
+
+                return const LoginScreen();
+              },
+            ),
+          );
         },
-        home: Consumer<AuthProvider>(
-          builder: (context, authProvider, child) {
-            // التحقق من حالة تحميل التطبيق
-            if (authProvider.isLoading) {
-              return const SplashScreen();
-            }
-
-            // التحقق من تسجيل الدخول
-            if (authProvider.isAuthenticated) {
-              return const DashboardScreen();
-            }
-
-            return const LoginScreen();
-          },
-        ),
       ),
     );
   }
