@@ -2,7 +2,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ecommerce_dashboard/models/user.dart' as models;
 import 'package:firebase_auth/firebase_auth.dart' as auth;
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 /// خدمة المصادقة للتعامل مع Firebase Auth و Firestore
 class AuthService {

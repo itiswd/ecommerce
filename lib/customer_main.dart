@@ -1,7 +1,6 @@
 // lib/customer_main.dart
 import 'package:ecommerce_dashboard/config/customer_routes.dart';
 import 'package:ecommerce_dashboard/constants/app_theme.dart';
-import 'package:ecommerce_dashboard/customer/screens/auth/customer_splash_screen.dart';
 import 'package:ecommerce_dashboard/providers/banners_provider.dart';
 import 'package:ecommerce_dashboard/providers/cart_provider.dart';
 import 'package:ecommerce_dashboard/providers/cashback_provider.dart';
@@ -12,6 +11,7 @@ import 'package:ecommerce_dashboard/providers/products_provider.dart';
 import 'package:ecommerce_dashboard/providers/theme_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart' hide TextDirection;
@@ -21,6 +21,12 @@ import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // تهيئة اتجاه الشاشة
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
 
   // تهيئة Firebase
   try {
@@ -98,8 +104,8 @@ class CustomerApp extends StatelessWidget {
               );
             },
 
-            // ===== Navigation =====
-            home: const CustomerSplashScreen(),
+            // ===== Navigation - استخدام Routes فقط =====
+            initialRoute: CustomerRoutes.splash,
             onGenerateRoute: CustomerRoutes.generateRoute,
           );
         },

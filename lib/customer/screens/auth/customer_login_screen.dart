@@ -1,4 +1,5 @@
 // lib/customer/screens/auth/customer_login_screen.dart
+import 'package:ecommerce_dashboard/config/customer_routes.dart';
 import 'package:ecommerce_dashboard/constants/app_theme.dart';
 import 'package:ecommerce_dashboard/providers/customer_auth_provider.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +33,17 @@ class _CustomerLoginScreenState extends State<CustomerLoginScreen> {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('تسجيل الدخول'), centerTitle: true),
+      appBar: AppBar(
+        title: const Text('تسجيل الدخول'),
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            // العودة للصفحة الرئيسية
+            Navigator.of(context).pushReplacementNamed(CustomerRoutes.home);
+          },
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -147,11 +158,28 @@ class _CustomerLoginScreenState extends State<CustomerLoginScreen> {
                     const Text('ليس لديك حساب؟'),
                     TextButton(
                       onPressed: () {
-                        Navigator.of(context).pushReplacementNamed('/register');
+                        Navigator.of(
+                          context,
+                        ).pushReplacementNamed(CustomerRoutes.register);
                       },
                       child: const Text('إنشاء حساب'),
                     ),
                   ],
+                ),
+
+                const SizedBox(height: 16),
+
+                // زر التصفح كزائر
+                OutlinedButton(
+                  onPressed: () {
+                    Navigator.of(
+                      context,
+                    ).pushReplacementNamed(CustomerRoutes.home);
+                  },
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                  child: const Text('تصفح كزائر'),
                 ),
               ],
             ),
@@ -178,7 +206,7 @@ class _CustomerLoginScreenState extends State<CustomerLoginScreen> {
       setState(() => _isLoading = false);
 
       if (success) {
-        Navigator.of(context).pushReplacementNamed('/home');
+        Navigator.of(context).pushReplacementNamed(CustomerRoutes.home);
       } else {
         _showError(authProvider.errorMessage ?? 'فشل تسجيل الدخول');
       }

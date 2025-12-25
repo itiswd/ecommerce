@@ -1,10 +1,6 @@
 // lib/customer/screens/auth/customer_splash_screen.dart
-import 'package:ecommerce_dashboard/customer/screens/auth/customer_login_screen.dart';
-import 'package:ecommerce_dashboard/customer/screens/auth/customer_onboarding_screen.dart';
-import 'package:ecommerce_dashboard/customer/screens/home/customer_home_screen.dart';
-import 'package:ecommerce_dashboard/providers/customer_auth_provider.dart';
+import 'package:ecommerce_dashboard/config/customer_routes.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CustomerSplashScreen extends StatefulWidget {
@@ -55,26 +51,13 @@ class _CustomerSplashScreenState extends State<CustomerSplashScreen>
 
     if (!mounted) return;
 
-    // التحقق من تسجيل الدخول
-    final authProvider = context.read<CustomerAuthProvider>();
-
     if (!hasSeenOnboarding) {
-      // عرض الـ Onboarding
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => const CustomerOnboardingScreen(),
-        ),
-      );
-    } else if (authProvider.isAuthenticated) {
-      // المستخدم مسجل دخول - الذهاب للرئيسية
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const CustomerHomeScreen()),
-      );
+      // عرض الـ Onboarding لأول مرة
+      Navigator.of(context).pushReplacementNamed(CustomerRoutes.onboarding);
     } else {
-      // المستخدم مش مسجل دخول - عرض شاشة تسجيل الدخول
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const CustomerLoginScreen()),
-      );
+      // السماح بالتصفح كزائر - الذهاب مباشرة للرئيسية
+      // المستخدم يمكنه التسجيل لاحقاً عند إتمام الشراء
+      Navigator.of(context).pushReplacementNamed(CustomerRoutes.home);
     }
   }
 

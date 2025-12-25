@@ -1,6 +1,6 @@
 // lib/services/firestore_service.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 class FirestoreService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -252,10 +252,7 @@ class FirestoreService {
   }
 
   // تحديث رصيد الكاش باك
-  Future<bool> updateCashbackBalance(
-    String userId,
-    double newBalance,
-  ) async {
+  Future<bool> updateCashbackBalance(String userId, double newBalance) async {
     try {
       await _firestore.collection('users').doc(userId).update({
         'cashbackBalance': newBalance,

@@ -4,17 +4,18 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
 
 void main() async {
-  print('🌱 بدء إضافة البيانات التجريبية...\n');
-  
+  debugPrint('🌱 بدء إضافة البيانات التجريبية...\n');
+
   // تهيئة Firebase
   // ملاحظة: تأكد من إعداد Firebase قبل تشغيل هذا السكريبت
   try {
     await Firebase.initializeApp();
-    print('✅ تم تهيئة Firebase بنجاح\n');
+    debugPrint('✅ تم تهيئة Firebase بنجاح\n');
   } catch (e) {
-    print('❌ خطأ في تهيئة Firebase: $e');
+    debugPrint('❌ خطأ في تهيئة Firebase: $e');
     return;
   }
 
@@ -26,13 +27,15 @@ void main() async {
   // 2. إضافة بانرات
   await _seedBanners(firestore);
 
-  print('\n✅ تم إضافة جميع البيانات التجريبية بنجاح!');
-  print('📝 ملاحظة: لا تنسى إضافة مستخدم Admin يدوياً من Firebase Console');
+  debugPrint('\n✅ تم إضافة جميع البيانات التجريبية بنجاح!');
+  debugPrint(
+    '📝 ملاحظة: لا تنسى إضافة مستخدم Admin يدوياً من Firebase Console',
+  );
 }
 
 Future<void> _seedProducts(FirebaseFirestore firestore) async {
-  print('📦 إضافة المنتجات...');
-  
+  debugPrint('📦 إضافة المنتجات...');
+
   final products = [
     // ماكينات صناعي
     {
@@ -91,7 +94,7 @@ Future<void> _seedProducts(FirebaseFirestore firestore) async {
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     },
-    
+
     // ماكينات منزلي
     {
       'id': 'prod_003',
@@ -149,7 +152,7 @@ Future<void> _seedProducts(FirebaseFirestore firestore) async {
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     },
-    
+
     // قطع غيار
     {
       'id': 'prod_005',
@@ -165,10 +168,7 @@ Future<void> _seedProducts(FirebaseFirestore firestore) async {
       'images': [
         'https://res.cloudinary.com/demo/image/upload/v1234/sample5.jpg',
       ],
-      'specifications': {
-        'المقاس': '14',
-        'الكمية': '100 حبة',
-      },
+      'specifications': {'المقاس': '14', 'الكمية': '100 حبة'},
       'isActive': true,
       'stock': 50,
       'sold': 80,
@@ -191,10 +191,7 @@ Future<void> _seedProducts(FirebaseFirestore firestore) async {
       'images': [
         'https://res.cloudinary.com/demo/image/upload/v1234/sample6.jpg',
       ],
-      'specifications': {
-        'عدد الألوان': '50 لون',
-        'الطول': '1000 متر لكل بكرة',
-      },
+      'specifications': {'عدد الألوان': '50 لون', 'الطول': '1000 متر لكل بكرة'},
       'isActive': true,
       'stock': 30,
       'sold': 45,
@@ -203,7 +200,7 @@ Future<void> _seedProducts(FirebaseFirestore firestore) async {
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     },
-    
+
     // ماكينات تطريز
     {
       'id': 'prod_007',
@@ -269,31 +266,34 @@ Future<void> _seedProducts(FirebaseFirestore firestore) async {
           .collection('products')
           .doc(product['id'] as String)
           .set(product);
-      print('  ✓ تمت إضافة: ${product['name']}');
+      debugPrint('  ✓ تمت إضافة: ${product['name']}');
     }
-    print('✅ تمت إضافة ${products.length} منتج\n');
+    debugPrint('✅ تمت إضافة ${products.length} منتج\n');
   } catch (e) {
-    print('❌ خطأ في إضافة المنتجات: $e\n');
+    debugPrint('❌ خطأ في إضافة المنتجات: $e\n');
   }
 }
 
 Future<void> _seedBanners(FirebaseFirestore firestore) async {
-  print('🎨 إضافة البانرات...');
-  
+  debugPrint('🎨 إضافة البانرات...');
+
   final banners = [
     {
       'id': 'banner_001',
       'title': 'عرض خاص - خصم 20%',
       'titleEn': 'Special Offer - 20% OFF',
       'description': 'خصم 20% على جميع ماكينات الخياطة المنزلية',
-      'imageUrl': 'https://res.cloudinary.com/demo/image/upload/v1234/banner1.jpg',
+      'imageUrl':
+          'https://res.cloudinary.com/demo/image/upload/v1234/banner1.jpg',
       'type': 'offer',
       'targetType': 'category',
       'targetId': 'ماكينات منزلي',
       'isActive': true,
       'order': 1,
       'startDate': Timestamp.now(),
-      'endDate': Timestamp.fromDate(DateTime.now().add(const Duration(days: 30))),
+      'endDate': Timestamp.fromDate(
+        DateTime.now().add(const Duration(days: 30)),
+      ),
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     },
@@ -302,14 +302,17 @@ Future<void> _seedBanners(FirebaseFirestore firestore) async {
       'title': 'وصل حديثاً',
       'titleEn': 'New Arrival',
       'description': 'ماكينات تطريز حديثة من برذر',
-      'imageUrl': 'https://res.cloudinary.com/demo/image/upload/v1234/banner2.jpg',
+      'imageUrl':
+          'https://res.cloudinary.com/demo/image/upload/v1234/banner2.jpg',
       'type': 'new_arrival',
       'targetType': 'category',
       'targetId': 'ماكينات تطريز',
       'isActive': true,
       'order': 2,
       'startDate': Timestamp.now(),
-      'endDate': Timestamp.fromDate(DateTime.now().add(const Duration(days: 60))),
+      'endDate': Timestamp.fromDate(
+        DateTime.now().add(const Duration(days: 60)),
+      ),
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     },
@@ -318,14 +321,17 @@ Future<void> _seedBanners(FirebaseFirestore firestore) async {
       'title': 'احصل على 5% كاش باك',
       'titleEn': 'Get 5% Cashback',
       'description': 'من كل عملية شراء',
-      'imageUrl': 'https://res.cloudinary.com/demo/image/upload/v1234/banner3.jpg',
+      'imageUrl':
+          'https://res.cloudinary.com/demo/image/upload/v1234/banner3.jpg',
       'type': 'info',
       'targetType': 'none',
       'targetId': '',
       'isActive': true,
       'order': 3,
       'startDate': Timestamp.now(),
-      'endDate': Timestamp.fromDate(DateTime.now().add(const Duration(days: 365))),
+      'endDate': Timestamp.fromDate(
+        DateTime.now().add(const Duration(days: 365)),
+      ),
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     },
@@ -337,10 +343,10 @@ Future<void> _seedBanners(FirebaseFirestore firestore) async {
           .collection('banners')
           .doc(banner['id'] as String)
           .set(banner);
-      print('  ✓ تمت إضافة: ${banner['title']}');
+      debugPrint('  ✓ تمت إضافة: ${banner['title']}');
     }
-    print('✅ تمت إضافة ${banners.length} بانر\n');
+    debugPrint('✅ تمت إضافة ${banners.length} بانر\n');
   } catch (e) {
-    print('❌ خطأ في إضافة البانرات: $e\n');
+    debugPrint('❌ خطأ في إضافة البانرات: $e\n');
   }
 }

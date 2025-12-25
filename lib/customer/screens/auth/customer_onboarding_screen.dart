@@ -1,6 +1,6 @@
 // lib/customer/screens/auth/customer_onboarding_screen.dart
 import 'package:ecommerce_dashboard/config/customer_constants.dart';
-import 'package:ecommerce_dashboard/customer/screens/auth/customer_login_screen.dart';
+import 'package:ecommerce_dashboard/config/customer_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -29,10 +29,8 @@ class _CustomerOnboardingScreenState extends State<CustomerOnboardingScreen> {
 
     if (!mounted) return;
 
-    // الانتقال لشاشة تسجيل الدخول
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (context) => const CustomerLoginScreen()),
-    );
+    // الانتقال للصفحة الرئيسية مباشرة (وضع الزائر)
+    Navigator.of(context).pushReplacementNamed(CustomerRoutes.home);
   }
 
   @override

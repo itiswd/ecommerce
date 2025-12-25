@@ -6,6 +6,7 @@ import 'package:ecommerce_dashboard/models/banner.dart' as models;
 import 'package:ecommerce_dashboard/models/product.dart';
 import 'package:ecommerce_dashboard/providers/banners_provider.dart';
 import 'package:ecommerce_dashboard/providers/cart_provider.dart';
+import 'package:ecommerce_dashboard/providers/comparison_provider.dart';
 import 'package:ecommerce_dashboard/providers/products_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -24,7 +25,10 @@ class _CustomerMainTabState extends State<CustomerMainTab> {
   @override
   void initState() {
     super.initState();
-    _loadData();
+    // تحميل البيانات بعد بناء الـ widget
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadData();
+    });
   }
 
   @override
@@ -34,6 +38,8 @@ class _CustomerMainTabState extends State<CustomerMainTab> {
   }
 
   Future<void> _loadData() async {
+    if (!mounted) return;
+
     final bannersProvider = context.read<BannersProvider>();
     final productsProvider = context.read<ProductsProvider>();
 
@@ -385,13 +391,12 @@ class _CustomerMainTabState extends State<CustomerMainTab> {
   Widget _buildProductCard(Product product) {
     final colorScheme = Theme.of(context).colorScheme;
     final cartProvider = context.watch<CartProvider>();
+    final comparisonProvider = context.watch<ComparisonProvider>();
+    final isInComparison = comparisonProvider.contains(product.id);
 
     return InkWell(
       onTap: () {
-        // TODO: Navigate to product details
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('تفاصيل: ${product.name}')));
+        Navigator.of(context).pushNamed('/product-details', arguments: product);
       },
       child: Container(
         width: 180,
@@ -410,7 +415,7 @@ class _CustomerMainTabState extends State<CustomerMainTab> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Product Image with Add to Cart Button
+            // Product Image with Action Buttons
             Stack(
               children: [
                 ClipRRect(
@@ -421,7 +426,7 @@ class _CustomerMainTabState extends State<CustomerMainTab> {
                     imageUrl: product.images.isNotEmpty
                         ? product.images[0]
                         : '',
-                    height: 150,
+                    height: 130,
                     width: double.infinity,
                     fit: BoxFit.cover,
                     placeholder: (context, url) => Container(
@@ -465,13 +470,66 @@ class _CustomerMainTabState extends State<CustomerMainTab> {
                       child: Icon(
                         Icons.add_shopping_cart,
                         color: colorScheme.onPrimary,
-                        size: 20,
+                        size: 18,
+                      ),
+                    ),
+                  ),
+                ),
+                // Add to Comparison Button
+                Positioned(
+                  bottom: 8,
+                  right: 8,
+                  child: GestureDetector(
+                    onTap: () {
+                      if (isInComparison) {
+                        comparisonProvider.removeProduct(product.id);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('تم الحذف من المقارنة'),
+                            duration: Duration(seconds: 1),
+                          ),
+                        );
+                      } else {
+                        final added = comparisonProvider.addProduct(product);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              added
+                                  ? 'تمت الإضافة للمقارنة'
+                                  : 'الحد الأقصى 3 منتجات للمقارنة',
+                            ),
+                            duration: const Duration(seconds: 1),
+                          ),
+                        );
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: isInComparison
+                            ? Colors.orange
+                            : colorScheme.surface,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Icon(
+                        Icons.compare_arrows,
+                        color: isInComparison
+                            ? Colors.white
+                            : colorScheme.primary,
+                        size: 18,
                       ),
                     ),
                   ),
                 ),
                 // Discount Badge
-                if (product.commission > 0)
+                if (product.hasDiscount)
                   Positioned(
                     top: 8,
                     right: 8,
@@ -485,7 +543,7 @@ class _CustomerMainTabState extends State<CustomerMainTab> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        '-${product.commission.toStringAsFixed(0)}%',
+                        '-${product.discountPercentage!.toStringAsFixed(0)}%',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 12,
@@ -498,7 +556,7 @@ class _CustomerMainTabState extends State<CustomerMainTab> {
             ),
             // Product Info
             Padding(
-              padding: const EdgeInsets.all(12.0),
+              padding: const EdgeInsets.all(10.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -506,6 +564,7 @@ class _CustomerMainTabState extends State<CustomerMainTab> {
                     product.name,
                     style: AppTextStyles.bodyMedium.copyWith(
                       fontWeight: FontWeight.bold,
+                      fontSize: 13,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -515,28 +574,31 @@ class _CustomerMainTabState extends State<CustomerMainTab> {
                     product.category,
                     style: AppTextStyles.caption.copyWith(
                       color: Colors.grey[600],
+                      fontSize: 11,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
                   Row(
                     children: [
-                      if (product.commission > 0) ...[
-                        Text(
-                          '${product.price.toStringAsFixed(0)} جنيه',
-                          style: AppTextStyles.caption.copyWith(
-                            decoration: TextDecoration.lineThrough,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                      ],
                       Text(
                         '${product.price.toStringAsFixed(0)} جنيه',
                         style: AppTextStyles.bodyMedium.copyWith(
                           fontWeight: FontWeight.bold,
                           color: colorScheme.primary,
+                          fontSize: 14,
                         ),
                       ),
+                      if (product.hasDiscount) ...[
+                        const SizedBox(width: 4),
+                        Text(
+                          product.originalPrice!.toStringAsFixed(0),
+                          style: AppTextStyles.caption.copyWith(
+                            decoration: TextDecoration.lineThrough,
+                            color: Colors.grey[500],
+                            fontSize: 11,
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ],

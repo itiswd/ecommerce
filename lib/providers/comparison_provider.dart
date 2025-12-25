@@ -1,13 +1,14 @@
 // lib/providers/comparison_provider.dart
-import 'package:flutter/material.dart';
-import 'package:ecommerce_dashboard/models/product.dart';
-import 'package:ecommerce_dashboard/models/comparison.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+
+import 'package:ecommerce_dashboard/models/comparison.dart';
+import 'package:ecommerce_dashboard/models/product.dart';
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ComparisonProvider extends ChangeNotifier {
   List<String> _productIds = [];
-  Map<String, Product> _products = {};
+  final Map<String, Product> _products = {};
   bool _isLoading = false;
   static const int maxProducts = 3; // الحد الأقصى للمنتجات في المقارنة
 
@@ -21,10 +22,7 @@ class ComparisonProvider extends ChangeNotifier {
 
   // الحصول على المنتجات كقائمة
   List<Product> get productsList {
-    return _productIds
-        .map((id) => _products[id])
-        .whereType<Product>()
-        .toList();
+    return _productIds.map((id) => _products[id]).whereType<Product>().toList();
   }
 
   ComparisonProvider() {

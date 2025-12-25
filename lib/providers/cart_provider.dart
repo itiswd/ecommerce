@@ -1,9 +1,10 @@
 // lib/providers/cart_provider.dart
-import 'package:flutter/material.dart';
+import 'dart:convert';
+
 import 'package:ecommerce_dashboard/models/cart_item.dart';
 import 'package:ecommerce_dashboard/models/product.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
 
 class CartProvider extends ChangeNotifier {
   List<CartItem> _items = [];
@@ -14,8 +15,7 @@ class CartProvider extends ChangeNotifier {
   List<CartItem> get items => _items;
   bool get isLoading => _isLoading;
   int get itemCount => _items.length;
-  int get totalQuantity =>
-      _items.fold(0, (sum, item) => sum + item.quantity);
+  int get totalQuantity => _items.fold(0, (sum, item) => sum + item.quantity);
   double get shippingFee => _shippingFee;
 
   // حساب الإجمالي قبل الشحن
@@ -80,8 +80,9 @@ class CartProvider extends ChangeNotifier {
 
   // إضافة منتج إلى السلة
   void addToCart(Product product, {int quantity = 1}) {
-    final existingIndex =
-        _items.indexWhere((item) => item.productId == product.id);
+    final existingIndex = _items.indexWhere(
+      (item) => item.productId == product.id,
+    );
 
     if (existingIndex >= 0) {
       // المنتج موجود - زيادة الكمية

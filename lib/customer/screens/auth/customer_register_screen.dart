@@ -1,4 +1,5 @@
 // lib/customer/screens/auth/customer_register_screen.dart
+import 'package:ecommerce_dashboard/config/customer_routes.dart';
 import 'package:ecommerce_dashboard/constants/app_theme.dart';
 import 'package:ecommerce_dashboard/providers/customer_auth_provider.dart';
 import 'package:flutter/material.dart';
@@ -203,7 +204,9 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
                     const Text('لديك حساب بالفعل؟'),
                     TextButton(
                       onPressed: () {
-                        Navigator.of(context).pushReplacementNamed('/login');
+                        Navigator.of(
+                          context,
+                        ).pushReplacementNamed(CustomerRoutes.login);
                       },
                       child: const Text('تسجيل الدخول'),
                     ),
@@ -274,7 +277,9 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
               ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context);
-                  Navigator.of(context).pushReplacementNamed('/home');
+                  Navigator.of(
+                    context,
+                  ).pushReplacementNamed(CustomerRoutes.home);
                 },
                 child: const Text('متابعة'),
               ),
