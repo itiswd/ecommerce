@@ -6,6 +6,7 @@ import 'package:ecommerce_dashboard/models/banner.dart' as models;
 import 'package:ecommerce_dashboard/models/product.dart';
 import 'package:ecommerce_dashboard/providers/banners_provider.dart';
 import 'package:ecommerce_dashboard/providers/products_provider.dart';
+import 'package:ecommerce_dashboard/providers/cart_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -382,6 +383,7 @@ class _CustomerMainTabState extends State<CustomerMainTab> {
 
   Widget _buildProductCard(Product product) {
     final colorScheme = Theme.of(context).colorScheme;
+    final cartProvider = context.watch<CartProvider>();
     
     return InkWell(
       onTap: () {
@@ -407,23 +409,84 @@ class _CustomerMainTabState extends State<CustomerMainTab> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Product Image
-            ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-              child: CachedNetworkImage(
-                imageUrl: product.images.isNotEmpty ? product.images[0] : '',
-                height: 150,
-                width: double.infinity,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => Container(
-                  color: Colors.grey[300],
-                  child: const Center(child: CircularProgressIndicator()),
+            // Product Image with Add to Cart Button
+            Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                  child: CachedNetworkImage(
+                    imageUrl: product.images.isNotEmpty ? product.images[0] : '',
+                    height: 150,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Container(
+                      color: Colors.grey[300],
+                      child: const Center(child: CircularProgressIndicator()),
+                    ),
+                    errorWidget: (context, url, error) => Container(
+                      color: Colors.grey[300],
+                      child: const Icon(Icons.image_not_supported),
+                    ),
+                  ),
                 ),
-                errorWidget: (context, url, error) => Container(
-                  color: Colors.grey[300],
-                  child: const Icon(Icons.image_not_supported),
+                // Add to Cart Button
+                Positioned(
+                  bottom: 8,
+                  left: 8,
+                  child: GestureDetector(
+                    onTap: () {
+                      cartProvider.addToCart(product);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text('تمت الإضافة إلى السلة'),
+                          duration: const Duration(seconds: 1),
+                          backgroundColor: colorScheme.secondary,
+                        ),
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: colorScheme.primary,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Icon(
+                        Icons.add_shopping_cart,
+                        color: colorScheme.onPrimary,
+                        size: 20,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+                // Discount Badge
+                if (product.discount > 0)
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        '-${product.discount.toStringAsFixed(0)}%',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
             // Product Info
             Padding(
