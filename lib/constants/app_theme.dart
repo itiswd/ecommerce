@@ -1,14 +1,37 @@
 import 'package:flutter/material.dart';
 
+import '../models/order.dart';
+
 class AppColors {
-  // الألوان الأساسية - Modern & Professional
-  static const Color primary = Color(0xFF2563EB);
-  static const Color secondary = Color(0xFF10B981);
-  static const Color accent = Color(0xFFF59E0B);
-  static const Color error = Color(0xFFEF4444);
-  static const Color success = Color(0xFF10B981);
-  static const Color warning = Color(0xFFF59E0B);
-  static const Color info = Color(0xFF3B82F6);
+  // ألوان مكنتي - Makanty Colors (مستوحاة من ماكينات الخياطة)
+  // Primary: أزرق صناعي داكن (مثل ماكينات JUKI)
+  static const Color primary = Color(0xFF1A365D); // أزرق صناعي داكن
+  static const Color primaryLight = Color(0xFF2B4C7E); // أزرق فاتح
+  static const Color primaryDark = Color(0xFF0D1B2A); // أزرق غامق جدًا
+
+  // Secondary: ذهبي/برونزي (مثل إبر الماكينات والتطريز)
+  static const Color secondary = Color(0xFFB8860B); // ذهبي داكن (DarkGoldenrod)
+  static const Color secondaryLight = Color(0xFFDAA520); // ذهبي (Goldenrod)
+  static const Color accent = Color(0xFFC9A227); // ذهبي لامع
+
+  // ألوان إضافية صناعية
+  static const Color industrial = Color(
+    0xFF2F4F4F,
+  ); // رمادي صناعي (DarkSlateGray)
+  static const Color steel = Color(0xFF708090); // رمادي فولاذي (SlateGray)
+  static const Color copper = Color(0xFFB87333); // نحاسي
+
+  // ألوان الحالات
+  static const Color error = Color(0xFFB91C1C);
+  static const Color success = Color(0xFF047857);
+  static const Color warning = Color(0xFFD97706);
+  static const Color info = Color(0xFF0369A1);
+
+  // Premium Gradient Colors
+  static const Color gradientStart = Color(0xFF1A365D);
+  static const Color gradientEnd = Color(0xFF2B4C7E);
+  static const Color goldGradientStart = Color(0xFFB8860B);
+  static const Color goldGradientEnd = Color(0xFFDAA520);
 
   // الألوان الرمادية
   static const Color grey50 = Color(0xFFF9FAFB);
@@ -473,6 +496,247 @@ class AppShadows {
     spreadRadius: 3,
     blurRadius: 12,
     offset: Offset(0, 4),
+  );
+
+  // Premium shadows with gold tint
+  static BoxShadow premium = BoxShadow(
+    color: AppColors.secondary.withAlpha(30),
+    spreadRadius: 2,
+    blurRadius: 16,
+    offset: Offset(0, 4),
+  );
+}
+
+// ============================================
+// 🔥 Unified Order Status Helper - استخدمه في كل مكان
+// ============================================
+class OrderStatusHelper {
+  // ألوان حالات الطلبات الموحدة
+  static const Map<OrderStatus, Color> statusColors = {
+    OrderStatus.pending: Color(0xFFF59E0B), // برتقالي/ذهبي
+    OrderStatus.confirmed: Color(0xFF3B82F6), // أزرق
+    OrderStatus.processing: Color(0xFF8B5CF6), // بنفسجي
+    OrderStatus.shipped: Color(0xFF0EA5E9), // سماوي
+    OrderStatus.delivered: Color(0xFF059669), // أخضر
+    OrderStatus.cancelled: Color(0xFFDC2626), // أحمر
+    OrderStatus.returned: Color(0xFF6B7280), // رمادي
+  };
+
+  // الأسماء العربية لحالات الطلبات
+  static const Map<OrderStatus, String> statusArabicNames = {
+    OrderStatus.pending: 'قيد الانتظار',
+    OrderStatus.confirmed: 'مؤكد',
+    OrderStatus.processing: 'قيد التجهيز',
+    OrderStatus.shipped: 'قيد الشحن',
+    OrderStatus.delivered: 'تم التوصيل',
+    OrderStatus.cancelled: 'ملغي',
+    OrderStatus.returned: 'مرتجع',
+  };
+
+  // أيقونات حالات الطلبات
+  static const Map<OrderStatus, IconData> statusIcons = {
+    OrderStatus.pending: Icons.hourglass_empty_rounded,
+    OrderStatus.confirmed: Icons.check_circle_outline_rounded,
+    OrderStatus.processing: Icons.inventory_2_outlined,
+    OrderStatus.shipped: Icons.local_shipping_outlined,
+    OrderStatus.delivered: Icons.task_alt_rounded,
+    OrderStatus.cancelled: Icons.cancel_outlined,
+    OrderStatus.returned: Icons.assignment_return_outlined,
+  };
+
+  // الحصول على لون الحالة
+  static Color getStatusColor(OrderStatus status) {
+    return statusColors[status] ?? AppColors.grey500;
+  }
+
+  // الحصول على الاسم العربي
+  static String getStatusArabicName(OrderStatus status) {
+    return statusArabicNames[status] ?? 'غير معروف';
+  }
+
+  // الحصول على الأيقونة
+  static IconData getStatusIcon(OrderStatus status) {
+    return statusIcons[status] ?? Icons.help_outline;
+  }
+
+  // الحصول على لون الخلفية الفاتح للحالة
+  static Color getStatusBackgroundColor(OrderStatus status) {
+    return getStatusColor(status).withAlpha(25);
+  }
+
+  // إنشاء Container للحالة (Badge)
+  static Widget buildStatusBadge(
+    OrderStatus status, {
+    double fontSize = 12,
+    EdgeInsets padding = const EdgeInsets.symmetric(
+      horizontal: 12,
+      vertical: 6,
+    ),
+  }) {
+    final color = getStatusColor(status);
+    final name = getStatusArabicName(status);
+    final icon = getStatusIcon(status);
+
+    return Container(
+      padding: padding,
+      decoration: BoxDecoration(
+        color: color.withAlpha(25),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withAlpha(50), width: 1),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: fontSize + 2, color: color),
+          SizedBox(width: 4),
+          Text(
+            name,
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.w600,
+              fontSize: fontSize,
+              fontFamily: 'Cairo',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // إنشاء Chip للحالة
+  static Widget buildStatusChip(OrderStatus status) {
+    final color = getStatusColor(status);
+    final name = getStatusArabicName(status);
+    final icon = getStatusIcon(status);
+
+    return Chip(
+      avatar: Icon(icon, size: 16, color: color),
+      label: Text(name),
+      labelStyle: TextStyle(
+        color: color,
+        fontWeight: FontWeight.w600,
+        fontSize: 12,
+      ),
+      backgroundColor: color.withAlpha(25),
+      side: BorderSide(color: color.withAlpha(50)),
+      padding: EdgeInsets.symmetric(horizontal: 8),
+    );
+  }
+}
+
+// ============================================
+// 🔥 App Logo Widget - موحد في كل مكان
+// ============================================
+class AppLogo extends StatelessWidget {
+  final double size;
+  final bool showText;
+  final bool isDark;
+
+  const AppLogo({
+    super.key,
+    this.size = 120,
+    this.showText = true,
+    this.isDark = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(size * 0.2),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.secondary.withAlpha(40),
+                blurRadius: 20,
+                spreadRadius: 2,
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(size * 0.2),
+            child: Image.asset(
+              'assets/icons/logo.png',
+              width: size,
+              height: size,
+              fit: BoxFit.contain,
+              errorBuilder: (_, __, ___) => Container(
+                width: size,
+                height: size,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [AppColors.primary, AppColors.primaryLight],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(size * 0.2),
+                ),
+                child: Icon(
+                  Icons.store,
+                  size: size * 0.5,
+                  color: AppColors.secondary,
+                ),
+              ),
+            ),
+          ),
+        ),
+        if (showText) ...[
+          SizedBox(height: size * 0.15),
+          Text(
+            'مكنتي',
+            style: TextStyle(
+              fontSize: size * 0.25,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Cairo',
+              color: isDark ? AppColors.darkTextPrimary : AppColors.primary,
+            ),
+          ),
+          Text(
+            'Makanty',
+            style: TextStyle(
+              fontSize: size * 0.12,
+              fontWeight: FontWeight.w500,
+              fontFamily: 'Cairo',
+              color: AppColors.secondary,
+              letterSpacing: 2,
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+// ============================================
+// 🔥 App Gradient - للاستخدام في كل مكان
+// ============================================
+class AppGradients {
+  static const LinearGradient primary = LinearGradient(
+    colors: [AppColors.primary, AppColors.primaryLight],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient gold = LinearGradient(
+    colors: [AppColors.goldGradientStart, AppColors.goldGradientEnd],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient premium = LinearGradient(
+    colors: [Color(0xFF1E3A5F), Color(0xFF2D5A8A), Color(0xFF1E3A5F)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static LinearGradient dark = LinearGradient(
+    colors: [AppColors.darkBackground, AppColors.darkCard],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
   );
 }
 

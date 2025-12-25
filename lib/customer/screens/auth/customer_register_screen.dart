@@ -36,9 +36,6 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
     return Scaffold(
       appBar: AppBar(title: const Text('إنشاء حساب'), centerTitle: true),
       body: SafeArea(
@@ -51,18 +48,53 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
               children: [
                 const SizedBox(height: 16),
 
-                // أيقونة
-                Icon(
-                  Icons.person_add_rounded,
-                  size: 60,
-                  color: colorScheme.primary,
+                // أيقونة - استخدام اللوجو الموحد
+                Center(
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [AppColors.primary, AppColors.primaryLight],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primary.withAlpha(50),
+                          blurRadius: 15,
+                          spreadRadius: 2,
+                        ),
+                      ],
+                    ),
+                    child: Image.asset(
+                      'assets/icons/logo.png',
+                      width: 50,
+                      height: 50,
+                      fit: BoxFit.contain,
+                      errorBuilder: (_, __, ___) => Icon(
+                        Icons.person_add_rounded,
+                        size: 40,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 16),
 
                 // العنوان
                 Text(
                   'إنشاء حساب جديد',
-                  style: AppTextStyles.h3.copyWith(color: colorScheme.primary),
+                  style: AppTextStyles.h3.copyWith(color: AppColors.primary),
+                  textAlign: TextAlign.center,
+                ),
+                Text(
+                  'سجل الآن للاستمتاع بالعروض الحصرية',
+                  style: TextStyle(
+                    color: AppColors.secondary,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 24),

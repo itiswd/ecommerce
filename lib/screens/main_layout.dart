@@ -61,11 +61,43 @@ class _MainLayoutState extends State<MainLayout> {
         iconTheme: IconThemeData(color: primaryTextColor),
         title: Row(
           children: [
-            Text(
-              'متجري الإلكتروني',
-              style: theme.appBarTheme.titleTextStyle?.copyWith(
-                color: primaryTextColor,
+            // Logo in AppBar
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: isDark ? AppColors.darkSurface : AppColors.grey100,
+                borderRadius: BorderRadius.circular(10),
               ),
+              child: Image.asset(
+                'assets/icons/logo.png',
+                width: 32,
+                height: 32,
+                fit: BoxFit.contain,
+                errorBuilder: (_, __, ___) =>
+                    Icon(Icons.store, color: AppColors.primary, size: 24),
+              ),
+            ),
+            SizedBox(width: AppSpacing.md),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'مكنتي',
+                  style: theme.appBarTheme.titleTextStyle?.copyWith(
+                    color: primaryTextColor,
+                    fontSize: 18,
+                  ),
+                ),
+                Text(
+                  'لوحة تحكم المتجر',
+                  style: TextStyle(
+                    color: AppColors.secondary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -293,25 +325,58 @@ class _MainLayoutState extends State<MainLayout> {
           });
         },
         header: Container(
-          height: 100,
+          height: 120,
           width: double.infinity,
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [primaryColor, primaryColor.withAlpha(0xCC)],
+              colors: [AppColors.primary, AppColors.primaryLight],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
           ),
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.store, color: Colors.white, size: 40),
+                // استخدام اللوجو الموحد
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withAlpha(40),
+                        blurRadius: 10,
+                        spreadRadius: 1,
+                      ),
+                    ],
+                  ),
+                  child: Image.asset(
+                    'assets/icons/logo.png',
+                    width: 45,
+                    height: 45,
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) =>
+                        Icon(Icons.store, color: AppColors.primary, size: 35),
+                  ),
+                ),
                 SizedBox(height: AppSpacing.sm),
+                Text(
+                  'مكنتي',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Cairo',
+                  ),
+                ),
                 Text(
                   'لوحة التحكم',
                   style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                    color: AppColors.secondary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],

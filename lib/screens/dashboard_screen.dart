@@ -29,43 +29,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   // ============================================
   // الدوال المساعدة الجديدة (الألوان والأسماء)
+  // استخدام OrderStatusHelper الموحد
   // ============================================
 
   Color _getStatusColor(OrderStatus status) {
-    switch (status) {
-      case OrderStatus.delivered:
-        return AppColors.success;
-      case OrderStatus.pending:
-        return AppColors.warning;
-      case OrderStatus.shipped:
-      case OrderStatus.processing:
-        return AppColors.info;
-      case OrderStatus.confirmed:
-        return Colors.blue;
-      case OrderStatus.cancelled:
-        return AppColors.error;
-      case OrderStatus.returned:
-        return Colors.brown;
-    }
+    return OrderStatusHelper.getStatusColor(status);
   }
 
   String _getStatusArabicName(OrderStatus status) {
-    switch (status) {
-      case OrderStatus.pending:
-        return 'قيد الانتظار';
-      case OrderStatus.confirmed:
-        return 'مؤكد';
-      case OrderStatus.processing:
-        return 'قيد التجهيز';
-      case OrderStatus.shipped:
-        return 'قيد الشحن';
-      case OrderStatus.delivered:
-        return 'تم التوصيل';
-      case OrderStatus.cancelled:
-        return 'ملغي';
-      case OrderStatus.returned:
-        return 'مرتجع';
-    }
+    return OrderStatusHelper.getStatusArabicName(status);
   }
 
   @override

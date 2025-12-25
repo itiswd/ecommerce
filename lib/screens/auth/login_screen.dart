@@ -1,10 +1,8 @@
-// lib/screens/auth/login_screen.dart
 import 'package:ecommerce_dashboard/constants/app_theme.dart';
 import 'package:ecommerce_dashboard/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-/// شاشة تسجيل الدخول للأدمن
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -50,23 +48,22 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Form(
               key: _formKey,
               child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // أيقونة التطبيق
                   _buildAppIcon(colorScheme),
-                  SizedBox(height: AppSpacing.lg),
+                  SizedBox(height: AppSpacing.md),
 
                   // العنوان
                   _buildHeader(colorScheme, textTheme),
-                  SizedBox(height: AppSpacing.xl),
+                  SizedBox(height: AppSpacing.md),
 
                   // حقل الإيميل
                   _buildEmailField(),
-                  SizedBox(height: AppSpacing.md),
+                  SizedBox(height: AppSpacing.sm),
 
                   // حقل كلمة المرور
                   _buildPasswordField(),
+                  SizedBox(height: AppSpacing.sm),
 
                   // نسيت كلمة المرور
                   _buildForgotPassword(),
@@ -74,7 +71,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   // زر تسجيل الدخول
                   _buildLoginButton(colorScheme),
-                  SizedBox(height: AppSpacing.lg),
+                  SizedBox(height: AppSpacing.md),
 
                   // معلومات إضافية
                   _buildInfoBox(),
@@ -88,37 +85,28 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildAppIcon(ColorScheme colorScheme) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: colorScheme.primary.withAlpha(0x19),
-        shape: BoxShape.circle,
-      ),
-      child: Icon(
-        Icons.admin_panel_settings_rounded,
-        size: 60,
-        color: colorScheme.primary,
+    return Center(
+      child: Image.asset(
+        'assets/icons/logo.png',
+        width: 200,
+        height: 200,
+        fit: BoxFit.fill,
+        errorBuilder: (_, _, _) => Icon(
+          Icons.admin_panel_settings_rounded,
+          size: 60,
+          color: Colors.white,
+        ),
       ),
     );
   }
 
   Widget _buildHeader(ColorScheme colorScheme, TextTheme textTheme) {
-    return Column(
-      children: [
-        Text(
-          'لوحة تحكم الأدمن',
-          style: AppTextStyles.h2.copyWith(color: colorScheme.primary),
-          textAlign: TextAlign.center,
-        ),
-        SizedBox(height: AppSpacing.xs),
-        Text(
-          'سجل الدخول للمتابعة',
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: textTheme.bodyMedium?.color,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ],
+    return Text(
+      'سجل الدخول للمتابعة',
+      style: AppTextStyles.bodyMedium.copyWith(
+        color: textTheme.bodyMedium?.color,
+      ),
+      textAlign: TextAlign.center,
     );
   }
 
@@ -176,16 +164,22 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildForgotPassword() {
     return Align(
       alignment: Alignment.centerLeft,
-      child: TextButton(
-        onPressed: _handleForgotPassword,
-        child: const Text('نسيت كلمة المرور؟'),
+      child: InkWell(
+        onTap: _handleForgotPassword,
+        child: const Text(
+          'نسيت كلمة المرور؟',
+          style: TextStyle(
+            color: AppColors.primary,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
     );
   }
 
   Widget _buildLoginButton(ColorScheme colorScheme) {
     return SizedBox(
-      height: 54,
+      height: 48,
       child: ElevatedButton(
         onPressed: _isLoading ? null : _handleLogin,
         style: ElevatedButton.styleFrom(
@@ -203,12 +197,15 @@ class _LoginScreenState extends State<LoginScreen> {
               )
             : const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Icon(Icons.login, size: 20),
-                  SizedBox(width: 8),
                   Text(
                     'تسجيل الدخول',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 16,
+                      height: 1,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),
@@ -222,22 +219,30 @@ class _LoginScreenState extends State<LoginScreen> {
         // رابط إنشاء حساب جديد
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const Text(
               'ليس لديك حساب؟',
               style: TextStyle(color: AppColors.textSecondary),
             ),
-            TextButton(
-              onPressed: () {
+            SizedBox(width: AppSpacing.sm),
+            InkWell(
+              onTap: () {
                 Navigator.of(context).pushNamed('/admin-register');
               },
-              child: const Text('إنشاء حساب جديد'),
+              child: const Text(
+                'إنشاء حساب جديد',
+                style: TextStyle(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpacing.md),
         Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: AppColors.info.withAlpha(0x19),
             borderRadius: AppBorderRadius.medium,

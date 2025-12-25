@@ -1,6 +1,9 @@
 // lib/customer/screens/auth/customer_splash_screen.dart
 import 'package:ecommerce_dashboard/config/customer_routes.dart';
+import 'package:ecommerce_dashboard/constants/app_theme.dart';
+import 'package:ecommerce_dashboard/providers/customer_auth_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CustomerSplashScreen extends StatefulWidget {
@@ -51,13 +54,21 @@ class _CustomerSplashScreenState extends State<CustomerSplashScreen>
 
     if (!mounted) return;
 
+    // التحقق من حالة تسجيل الدخول
+    final authProvider = Provider.of<CustomerAuthProvider>(
+      context,
+      listen: false,
+    );
+
     if (!hasSeenOnboarding) {
       // عرض الـ Onboarding لأول مرة
       Navigator.of(context).pushReplacementNamed(CustomerRoutes.onboarding);
-    } else {
-      // السماح بالتصفح كزائر - الذهاب مباشرة للرئيسية
-      // المستخدم يمكنه التسجيل لاحقاً عند إتمام الشراء
+    } else if (authProvider.isAuthenticated) {
+      // المستخدم مسجل دخول - الذهاب للرئيسية
       Navigator.of(context).pushReplacementNamed(CustomerRoutes.home);
+    } else {
+      // المستخدم غير مسجل - الذهاب لتسجيل الدخول
+      Navigator.of(context).pushReplacementNamed(CustomerRoutes.login);
     }
   }
 
@@ -69,79 +80,140 @@ class _CustomerSplashScreenState extends State<CustomerSplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: colorScheme.primary,
-      body: Center(
-        child: AnimatedBuilder(
-          animation: _controller,
-          builder: (context, child) {
-            return FadeTransition(
-              opacity: _fadeAnimation,
-              child: ScaleTransition(
-                scale: _scaleAnimation,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Logo
-                    Container(
-                      padding: const EdgeInsets.all(30),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            blurRadius: 20,
-                            spreadRadius: 5,
-                          ),
-                        ],
-                      ),
-                      child: Icon(
-                        Icons.precision_manufacturing,
-                        size: 80,
-                        color: colorScheme.primary,
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-                    // App Name
-                    Text(
-                      'مكنتي',
-                      style: TextStyle(
-                        fontSize: 48,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        letterSpacing: 2,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      'Makanty',
-                      style: TextStyle(
-                        fontSize: 24,
-                        color: Colors.white.withOpacity(0.9),
-                        letterSpacing: 1,
-                      ),
-                    ),
-                    const SizedBox(height: 50),
-                    // Loading Indicator
-                    SizedBox(
-                      width: 40,
-                      height: 40,
-                      child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          Colors.white.withOpacity(0.8),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: isDark
+                ? [AppColors.darkBackground, AppColors.darkCard]
+                : [AppColors.primary, AppColors.primaryLight],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Center(
+          child: AnimatedBuilder(
+            animation: _controller,
+            builder: (context, child) {
+              return FadeTransition(
+                opacity: _fadeAnimation,
+                child: ScaleTransition(
+                  scale: _scaleAnimation,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // اللوجو
+                      Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(32),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withAlpha(40),
+                              blurRadius: 30,
+                              spreadRadius: 5,
+                            ),
+                          ],
                         ),
-                        strokeWidth: 3,
+                        child: Image.asset(
+                          'assets/icons/logo.png',
+                          width: 120,
+                          height: 120,
+                          fit: BoxFit.contain,
+                          errorBuilder: (_, __, ___) => Icon(
+                            Icons.precision_manufacturing,
+                            size: 80,
+                            color: AppColors.primary,
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 32),
+
+                      // اسم التطبيق
+                      Text(
+                        'مكنتي',
+                        style: TextStyle(
+                          fontSize: 52,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          letterSpacing: 3,
+                          fontFamily: 'Cairo',
+                          shadows: [
+                            Shadow(
+                              color: Colors.black.withAlpha(50),
+                              blurRadius: 10,
+                              offset: const Offset(2, 2),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+
+                      // الاسم الإنجليزي
+                      Text(
+                        'MAKANTY',
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: AppColors.secondaryLight,
+                          letterSpacing: 8,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+
+                      // الشعار
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withAlpha(20),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          'ماكينات خياطة بجودة عالمية',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.white.withAlpha(220),
+                            fontFamily: 'Cairo',
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 60),
+
+                      // مؤشر التحميل
+                      SizedBox(
+                        width: 45,
+                        height: 45,
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            AppColors.secondaryLight,
+                          ),
+                          strokeWidth: 3,
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      Text(
+                        'جاري التحميل...',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.white.withAlpha(180),
+                          fontFamily: 'Cairo',
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );

@@ -29,9 +29,6 @@ class _CustomerLoginScreenState extends State<CustomerLoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('تسجيل الدخول'),
@@ -54,18 +51,57 @@ class _CustomerLoginScreenState extends State<CustomerLoginScreen> {
               children: [
                 const SizedBox(height: 32),
 
-                // أيقونة التطبيق
-                Icon(
-                  Icons.shopping_bag_rounded,
-                  size: 80,
-                  color: colorScheme.primary,
+                // أيقونة التطبيق - استخدام اللوجو الموحد
+                Center(
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [AppColors.primary, AppColors.primaryLight],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primary.withAlpha(60),
+                          blurRadius: 20,
+                          spreadRadius: 2,
+                        ),
+                      ],
+                    ),
+                    child: Image.asset(
+                      'assets/icons/logo.png',
+                      width: 70,
+                      height: 70,
+                      fit: BoxFit.contain,
+                      errorBuilder: (_, __, ___) => Icon(
+                        Icons.shopping_bag_rounded,
+                        size: 60,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 24),
 
                 // العنوان
                 Text(
-                  'مرحباً بك',
-                  style: AppTextStyles.h2.copyWith(color: colorScheme.primary),
+                  'مكنتي',
+                  style: AppTextStyles.h1.copyWith(
+                    color: AppColors.primary,
+                    fontSize: 28,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                Text(
+                  'Makanty',
+                  style: TextStyle(
+                    color: AppColors.secondary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 2,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),

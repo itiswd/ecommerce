@@ -9,12 +9,15 @@ class CustomerConstants {
 
   // Cashback Settings
   static const double cashbackPercentage = 0.05; // 5% من قيمة الطلب
-  static const double minimumOrderForCashback = 500.0; // الحد الأدنى للطلب لكسب كاش باك
-  static const double minimumCashbackToUse = 10.0; // الحد الأدنى للكاش باك لاستخدامه
+  static const double minimumOrderForCashback =
+      500.0; // الحد الأدنى للطلب لكسب كاش باك
+  static const double minimumCashbackToUse =
+      10.0; // الحد الأدنى للكاش باك لاستخدامه
 
   // Shipping Settings
   static const double defaultShippingFee = 50.0;
-  static const double freeShippingThreshold = 1000.0; // شحن مجاني فوق هذا المبلغ
+  static const double freeShippingThreshold =
+      1000.0; // شحن مجاني فوق هذا المبلغ
 
   // Product Settings
   static const int productsPerPage = 20;
@@ -36,15 +39,17 @@ class CustomerConstants {
     'ماكينات تطريز': Icons.design_services,
   };
 
-  // Order Status Colors
+  // Order Status Colors - تم نقلها إلى OrderStatusHelper في app_theme.dart
+  // استخدم OrderStatusHelper.getStatusColor(status) بدلاً من هذا
+  @Deprecated('Use OrderStatusHelper.getStatusColor() instead')
   static const Map<String, Color> orderStatusColors = {
-    'pending': Color(0xFFFFA726), // برتقالي
-    'confirmed': Color(0xFF42A5F5), // أزرق
-    'processing': Color(0xFF66BB6A), // أخضر فاتح
-    'shipped': Color(0xFF26C6DA), // سماوي
-    'delivered': Color(0xFF4CAF50), // أخضر
-    'cancelled': Color(0xFFEF5350), // أحمر
-    'returned': Color(0xFF9E9E9E), // رمادي
+    'pending': Color(0xFFF59E0B), // برتقالي/ذهبي
+    'confirmed': Color(0xFF3B82F6), // أزرق
+    'processing': Color(0xFF8B5CF6), // بنفسجي
+    'shipped': Color(0xFF0EA5E9), // سماوي
+    'delivered': Color(0xFF059669), // أخضر
+    'cancelled': Color(0xFFDC2626), // أحمر
+    'returned': Color(0xFF6B7280), // رمادي
   };
 
   // Filter Options
@@ -75,11 +80,7 @@ class CustomerConstants {
     'Pegasus',
   ];
 
-  static const List<String> conditions = [
-    'جديد',
-    'كسر زيرو',
-    'مستعمل',
-  ];
+  static const List<String> conditions = ['جديد', 'كسر زيرو', 'مستعمل'];
 
   // Phone Validation
   static const String phoneRegex = r'^01[0-2,5]{1}[0-9]{8}$';

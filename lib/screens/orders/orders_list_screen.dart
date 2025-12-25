@@ -105,25 +105,25 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
         'title': 'إجمالي الطلبات',
         'value': '${provider.totalOrders}',
         'icon': Icons.shopping_cart,
-        'color': Colors.blue,
+        'color': AppColors.info,
       },
       {
         'title': 'قيد الانتظار',
         'value': '${provider.pendingOrders}',
         'icon': Icons.pending,
-        'color': Colors.orange,
+        'color': OrderStatusHelper.getStatusColor(OrderStatus.pending),
       },
       {
         'title': 'تم التوصيل',
         'value': '${provider.deliveredOrders}',
         'icon': Icons.check_circle,
-        'color': Colors.green,
+        'color': OrderStatusHelper.getStatusColor(OrderStatus.delivered),
       },
       {
         'title': 'إجمالي الإيرادات',
         'value': '${NumberFormat('#,##0').format(provider.totalRevenue)} ج',
         'icon': Icons.monetization_on,
-        'color': Colors.purple,
+        'color': AppColors.secondary,
       },
     ];
 
@@ -609,22 +609,7 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
   }
 
   Color _getStatusColor(OrderStatus status) {
-    switch (status) {
-      case OrderStatus.pending:
-        return Colors.orange;
-      case OrderStatus.confirmed:
-        return Colors.blue;
-      case OrderStatus.processing:
-        return Colors.indigo;
-      case OrderStatus.shipped:
-        return Colors.purple;
-      case OrderStatus.delivered:
-        return Colors.green;
-      case OrderStatus.cancelled:
-        return Colors.red;
-      case OrderStatus.returned:
-        return Colors.brown;
-    }
+    return OrderStatusHelper.getStatusColor(status);
   }
 
   void _showOrderDetails(BuildContext context, Order order, bool isDark) {

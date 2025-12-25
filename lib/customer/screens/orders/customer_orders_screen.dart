@@ -1,5 +1,5 @@
 // lib/customer/screens/orders/customer_orders_screen.dart
-import 'package:ecommerce_dashboard/config/customer_constants.dart';
+import 'package:ecommerce_dashboard/constants/app_theme.dart';
 import 'package:ecommerce_dashboard/models/order.dart';
 import 'package:ecommerce_dashboard/providers/customer_auth_provider.dart';
 import 'package:ecommerce_dashboard/providers/orders_provider.dart';
@@ -92,9 +92,10 @@ class _CustomerOrdersScreenState extends State<CustomerOrdersScreen> {
   }
 
   Widget _buildOrderCard(Order order, ColorScheme colorScheme) {
-    final statusColor =
-        CustomerConstants.orderStatusColors[order.status.name] ?? Colors.grey;
-    final statusText = _getStatusText(order.status);
+    // استخدام OrderStatusHelper الموحد
+    final statusColor = OrderStatusHelper.getStatusColor(order.status);
+    final statusText = OrderStatusHelper.getStatusArabicName(order.status);
+    final statusIcon = OrderStatusHelper.getStatusIcon(order.status);
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
@@ -136,16 +137,24 @@ class _CustomerOrdersScreenState extends State<CustomerOrdersScreen> {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: statusColor.withOpacity(0.1),
+                      color: statusColor.withAlpha(25),
                       borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: statusColor.withAlpha(50)),
                     ),
-                    child: Text(
-                      statusText,
-                      style: TextStyle(
-                        color: statusColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                      ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(statusIcon, size: 14, color: statusColor),
+                        const SizedBox(width: 4),
+                        Text(
+                          statusText,
+                          style: TextStyle(
+                            color: statusColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -245,25 +254,6 @@ class _CustomerOrdersScreenState extends State<CustomerOrdersScreen> {
     );
   }
 
-  String _getStatusText(OrderStatus status) {
-    switch (status) {
-      case OrderStatus.pending:
-        return 'قيد الانتظار';
-      case OrderStatus.confirmed:
-        return 'تم التأكيد';
-      case OrderStatus.processing:
-        return 'جاري التجهيز';
-      case OrderStatus.shipped:
-        return 'تم الشحن';
-      case OrderStatus.delivered:
-        return 'تم التسليم';
-      case OrderStatus.cancelled:
-        return 'ملغي';
-      case OrderStatus.returned:
-        return 'مرتجع';
-    }
-  }
-
   void _showOrderDetails(Order order) {
     showModalBottomSheet(
       context: context,
@@ -300,8 +290,10 @@ class _OrderDetailsSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final statusColor =
-        CustomerConstants.orderStatusColors[order.status.name] ?? Colors.grey;
+    // استخدام OrderStatusHelper الموحد
+    final statusColor = OrderStatusHelper.getStatusColor(order.status);
+    final statusText = OrderStatusHelper.getStatusArabicName(order.status);
+    final statusIcon = OrderStatusHelper.getStatusIcon(order.status);
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -338,15 +330,23 @@ class _OrderDetailsSheet extends StatelessWidget {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.1),
+                  color: statusColor.withAlpha(25),
                   borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: statusColor.withAlpha(50)),
                 ),
-                child: Text(
-                  _getStatusText(order.status),
-                  style: TextStyle(
-                    color: statusColor,
-                    fontWeight: FontWeight.bold,
-                  ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(statusIcon, size: 16, color: statusColor),
+                    const SizedBox(width: 4),
+                    Text(
+                      statusText,
+                      style: TextStyle(
+                        color: statusColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -615,24 +615,5 @@ class _OrderDetailsSheet extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  String _getStatusText(OrderStatus status) {
-    switch (status) {
-      case OrderStatus.pending:
-        return 'قيد الانتظار';
-      case OrderStatus.confirmed:
-        return 'تم التأكيد';
-      case OrderStatus.processing:
-        return 'جاري التجهيز';
-      case OrderStatus.shipped:
-        return 'تم الشحن';
-      case OrderStatus.delivered:
-        return 'تم التسليم';
-      case OrderStatus.cancelled:
-        return 'ملغي';
-      case OrderStatus.returned:
-        return 'مرتجع';
-    }
   }
 }

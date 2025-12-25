@@ -29,8 +29,8 @@ class _CustomerOnboardingScreenState extends State<CustomerOnboardingScreen> {
 
     if (!mounted) return;
 
-    // الانتقال للصفحة الرئيسية مباشرة (وضع الزائر)
-    Navigator.of(context).pushReplacementNamed(CustomerRoutes.home);
+    // الانتقال لصفحة تسجيل الدخول (يجب التسجيل أولاً)
+    Navigator.of(context).pushReplacementNamed(CustomerRoutes.login);
   }
 
   @override

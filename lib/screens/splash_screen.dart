@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:ecommerce_dashboard/constants/app_theme.dart';
 import 'package:ecommerce_dashboard/services/admin_setup_service.dart';
 import 'package:flutter/material.dart';
 
@@ -43,8 +44,8 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _checkSetupAndNavigate() async {
-    // انتظار 2 ثانية لعرض الـ splash
-    await Future.delayed(const Duration(seconds: 2));
+    // انتظار 3 ثانية لعرض الـ splash
+    await Future.delayed(const Duration(seconds: 3));
 
     if (!mounted) return;
 
@@ -78,49 +79,133 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0F172A) : Colors.white,
-      body: Center(
-        child: FadeTransition(
-          opacity: _fadeAnimation,
-          child: ScaleTransition(
-            scale: _scaleAnimation,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // اللوجو مع تأثير Shadow
-                Image.asset('assets/icons/logo.png', width: 360, height: 360),
-
-                // Loading Indicator
-                SizedBox(
-                  width: 40,
-                  height: 40,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 3,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      isDark
-                          ? const Color(0xFF3B82F6)
-                          : const Color(0xFF2563EB),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: isDark
+                ? [AppColors.darkBackground, AppColors.darkCard]
+                : [AppColors.primary, AppColors.primaryLight],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Center(
+          child: FadeTransition(
+            opacity: _fadeAnimation,
+            child: ScaleTransition(
+              scale: _scaleAnimation,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // اللوجو
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(32),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withAlpha(40),
+                          blurRadius: 30,
+                          spreadRadius: 5,
+                        ),
+                      ],
+                    ),
+                    child: Image.asset(
+                      'assets/icons/logo.png',
+                      width: 120,
+                      height: 120,
+                      fit: BoxFit.contain,
+                      errorBuilder: (_, __, ___) => Icon(
+                        Icons.precision_manufacturing,
+                        size: 80,
+                        color: AppColors.primary,
+                      ),
                     ),
                   ),
-                ),
+                  const SizedBox(height: 32),
 
-                const SizedBox(height: 16),
-
-                Text(
-                  'جاري التحميل...',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: isDark
-                        ? const Color(0xFF64748B)
-                        : const Color(0xFF9CA3AF),
-                    fontFamily: 'Cairo',
+                  // اسم التطبيق
+                  Text(
+                    'مكنتي',
+                    style: TextStyle(
+                      fontSize: 52,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 3,
+                      fontFamily: 'Cairo',
+                      shadows: [
+                        Shadow(
+                          color: Colors.black.withAlpha(50),
+                          blurRadius: 10,
+                          offset: const Offset(2, 2),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 8),
+
+                  // الاسم الإنجليزي
+                  Text(
+                    'MAKANTY',
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: AppColors.secondaryLight,
+                      letterSpacing: 8,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+
+                  // لوحة التحكم
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withAlpha(20),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      'لوحة التحكم - Admin Panel',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.white.withAlpha(220),
+                        fontFamily: 'Cairo',
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 60),
+
+                  // مؤشر التحميل
+                  SizedBox(
+                    width: 45,
+                    height: 45,
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        AppColors.secondaryLight,
+                      ),
+                      strokeWidth: 3,
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  Text(
+                    'جاري التحميل...',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.white.withAlpha(180),
+                      fontFamily: 'Cairo',
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
