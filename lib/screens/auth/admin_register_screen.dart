@@ -43,12 +43,6 @@ class _AdminRegisterScreenState extends State<AdminRegisterScreen> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: AppBar(
-        title: const Text('إنشاء حساب أدمن'),
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
       body: Center(
         child: SingleChildScrollView(
           padding: EdgeInsets.all(isMobile ? 16 : 32),
@@ -61,7 +55,7 @@ class _AdminRegisterScreenState extends State<AdminRegisterScreen> {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withAlpha(25),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -70,12 +64,14 @@ class _AdminRegisterScreenState extends State<AdminRegisterScreen> {
             child: Form(
               key: _formKey,
               child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // أيقونة
-                  _buildHeader(colorScheme),
-                  const SizedBox(height: 32),
+                  _buildAppIcon(colorScheme),
+                  SizedBox(height: AppSpacing.md),
+
+                  // العنوان
+                  buildheader(colorScheme, theme.textTheme),
+                  const SizedBox(height: AppSpacing.md),
 
                   // رسالة الخطأ
                   if (_errorMessage != null)
@@ -83,9 +79,9 @@ class _AdminRegisterScreenState extends State<AdminRegisterScreen> {
                       padding: const EdgeInsets.all(12),
                       margin: const EdgeInsets.only(bottom: 16),
                       decoration: BoxDecoration(
-                        color: Colors.red.withOpacity(0.1),
+                        color: Colors.red.withAlpha(25),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.red.withOpacity(0.3)),
+                        border: Border.all(color: Colors.red.withAlpha(77)),
                       ),
                       child: Row(
                         children: [
@@ -103,20 +99,19 @@ class _AdminRegisterScreenState extends State<AdminRegisterScreen> {
 
                   // الحقول
                   _buildNameField(),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacing.sm),
                   _buildEmailField(),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacing.sm),
                   _buildPhoneField(),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacing.sm),
                   _buildPasswordField(),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacing.sm),
                   _buildConfirmPasswordField(),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: AppSpacing.md),
 
                   // زر الإنشاء
                   _buildRegisterButton(colorScheme),
-                  const SizedBox(height: 16),
-
+                  const SizedBox(height: AppSpacing.md),
                   // رابط تسجيل الدخول
                   _buildLoginLink(),
                 ],
@@ -128,34 +123,28 @@ class _AdminRegisterScreenState extends State<AdminRegisterScreen> {
     );
   }
 
-  Widget _buildHeader(ColorScheme colorScheme) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: colorScheme.primary.withOpacity(0.1),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            Icons.person_add_rounded,
-            size: 60,
-            color: colorScheme.primary,
-          ),
+  Widget _buildAppIcon(ColorScheme colorScheme) {
+    return Center(
+      child: Image.asset(
+        'assets/icons/logo.png',
+        width: 200,
+        height: 200,
+        fit: BoxFit.fill,
+        errorBuilder: (_, _, _) => Icon(
+          Icons.admin_panel_settings_rounded,
+          size: 60,
+          color: Colors.white,
         ),
-        const SizedBox(height: 24),
-        Text(
-          'إنشاء حساب أدمن جديد',
-          style: AppTextStyles.h2.copyWith(color: colorScheme.primary),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'أدخل بياناتك لإنشاء حساب مدير جديد',
-          style: AppTextStyles.bodyMedium.copyWith(color: Colors.grey),
-          textAlign: TextAlign.center,
-        ),
-      ],
+      ),
+    );
+  }
+
+  Widget buildheader(ColorScheme colorScheme, TextTheme textTheme) {
+    return Text(
+      'إنشاء حساب أدمن جديد',
+      style: AppTextStyles.bodyMedium.copyWith(
+        color: textTheme.bodyMedium?.color,
+      ),
     );
   }
 
@@ -280,7 +269,7 @@ class _AdminRegisterScreenState extends State<AdminRegisterScreen> {
 
   Widget _buildRegisterButton(ColorScheme colorScheme) {
     return SizedBox(
-      height: 54,
+      height: 48,
       child: ElevatedButton(
         onPressed: _isLoading ? null : _handleRegister,
         style: ElevatedButton.styleFrom(
@@ -302,11 +291,13 @@ class _AdminRegisterScreenState extends State<AdminRegisterScreen> {
             : const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.person_add, size: 20),
-                  SizedBox(width: 8),
                   Text(
                     'إنشاء الحساب',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 16,
+                      height: 1,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),
@@ -317,14 +308,24 @@ class _AdminRegisterScreenState extends State<AdminRegisterScreen> {
   Widget _buildLoginLink() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         const Text(
           'لديك حساب بالفعل؟',
           style: TextStyle(color: AppColors.textSecondary),
         ),
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('تسجيل الدخول'),
+        SizedBox(width: AppSpacing.sm),
+        InkWell(
+          onTap: () {
+            Navigator.of(context).pushReplacementNamed('/login');
+          },
+          child: const Text(
+            'تسجيل الدخول',
+            style: TextStyle(
+              color: AppColors.primary,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
       ],
     );

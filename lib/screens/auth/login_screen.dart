@@ -228,7 +228,7 @@ class _LoginScreenState extends State<LoginScreen> {
             SizedBox(width: AppSpacing.sm),
             InkWell(
               onTap: () {
-                Navigator.of(context).pushNamed('/admin-register');
+                Navigator.of(context).pushReplacementNamed('/admin-register');
               },
               child: const Text(
                 'إنشاء حساب جديد',
