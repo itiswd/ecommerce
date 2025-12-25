@@ -2,6 +2,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ecommerce_dashboard/config/customer_constants.dart';
 import 'package:ecommerce_dashboard/constants/app_theme.dart';
+import 'package:ecommerce_dashboard/customer/screens/products/customer_product_listing_screen.dart';
+import 'package:ecommerce_dashboard/customer/screens/search/customer_search_screen.dart';
 import 'package:ecommerce_dashboard/models/banner.dart' as models;
 import 'package:ecommerce_dashboard/models/product.dart';
 import 'package:ecommerce_dashboard/providers/banners_provider.dart';
@@ -80,9 +82,11 @@ class _CustomerMainTabState extends State<CustomerMainTab> {
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text('البحث - قريباً')));
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const CustomerSearchScreen(),
+                ),
+              );
             },
           ),
           IconButton(
@@ -249,8 +253,11 @@ class _CustomerMainTabState extends State<CustomerMainTab> {
 
               return InkWell(
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('عرض منتجات: $category')),
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          CustomerProductListingScreen(category: category),
+                    ),
                   );
                 },
                 child: Container(

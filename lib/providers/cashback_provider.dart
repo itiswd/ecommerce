@@ -212,4 +212,74 @@ class CashbackProvider extends ChangeNotifier {
   Future<void> refresh() async {
     await loadTransactions();
   }
+
+  // === للعملاء ===
+  List<Map<String, dynamic>> _userTransactions = [];
+  List<Map<String, dynamic>> get userTransactions => _userTransactions;
+
+  // تحميل سجل الكاش باك للعميل
+  Future<void> loadUserCashbackHistory(String userId) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final snapshot = await _firestore
+          .collection(_collection)
+          .where('customerId', isEqualTo: userId)
+          .orderBy('createdAt', descending: true)
+          .get();
+
+      _userTransactions = snapshot.docs.map((doc) {
+        final data = doc.data();
+        return {
+          'id': doc.id,
+          'type': data['type'] == 'earned' ? 'credit' : 'debit',
+          'amount': (data['amount'] ?? 0).toDouble(),
+          'date': (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+          'description': data['description'] ?? '',
+        };
+      }).toList();
+    } catch (e) {
+      debugPrint('Error loading user cashback history: $e');
+      _userTransactions = [];
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // إضافة كاش باك للعميل (من لوحة الأدمن)
+  Future<bool> addCashbackToUser({
+    required String userId,
+    required String userName,
+    required double amount,
+    required String description,
+  }) async {
+    try {
+      // إضافة سجل المعاملة
+      final transaction = CashbackTransaction(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        customerId: userId,
+        customerName: userName,
+        amount: amount,
+        type: CashbackType.adjusted,
+        createdAt: DateTime.now(),
+        description: description,
+      );
+
+      await _firestore.collection(_collection).add(transaction.toMap());
+
+      // تحديث رصيد العميل
+      await _firestore.collection('users').doc(userId).update({
+        'cashbackBalance': FieldValue.increment(amount),
+      });
+
+      _transactions.insert(0, transaction);
+      notifyListeners();
+      return true;
+    } catch (e) {
+      debugPrint('Error adding cashback to user: $e');
+      return false;
+    }
+  }
 }

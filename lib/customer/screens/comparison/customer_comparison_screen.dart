@@ -285,6 +285,27 @@ class CustomerComparisonScreen extends StatelessWidget {
 
     if (allSpecs.isEmpty) return const SizedBox.shrink();
 
+    // المواصفات التي كلما زادت كانت أفضل
+    final higherIsBetterSpecs = [
+      'الضمان',
+      'ضمان',
+      'عدد الغرز',
+      'السرعة',
+      'سرعة',
+      'القوة',
+      'قوة',
+      'الطاقة',
+      'عدد الإبر',
+    ];
+
+    // المواصفات التي كلما قلت كانت أفضل
+    final lowerIsBetterSpecs = [
+      'الوزن',
+      'وزن',
+      'استهلاك الكهرباء',
+      'مستوى الضوضاء',
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -296,13 +317,64 @@ class CustomerComparisonScreen extends StatelessWidget {
           ),
         ),
         ...allSpecs.map((spec) {
+          final values = products
+              .map((p) => p.specifications[spec] ?? '-')
+              .toList();
+
+          // تحديد إذا كانت المواصفات قابلة للمقارنة رقمياً
+          bool isHigherBetter = higherIsBetterSpecs.any(
+            (s) => spec.contains(s),
+          );
+          bool isLowerBetter = lowerIsBetterSpecs.any((s) => spec.contains(s));
+
+          int Function(List<String>)? getBestIndex;
+
+          if (isHigherBetter || isLowerBetter) {
+            getBestIndex = (List<String> vals) {
+              double? bestValue;
+              int bestIndex = -1;
+
+              for (int i = 0; i < vals.length; i++) {
+                final numericValue = _extractNumber(vals[i]);
+                if (numericValue != null) {
+                  if (bestValue == null) {
+                    bestValue = numericValue;
+                    bestIndex = i;
+                  } else {
+                    if (isHigherBetter && numericValue > bestValue) {
+                      bestValue = numericValue;
+                      bestIndex = i;
+                    } else if (isLowerBetter && numericValue < bestValue) {
+                      bestValue = numericValue;
+                      bestIndex = i;
+                    }
+                  }
+                }
+              }
+              return bestIndex;
+            };
+          }
+
           return _buildComparisonRow(
             spec,
-            products.map((p) => p.specifications[spec] ?? '-').toList(),
+            values,
+            highlightBest: getBestIndex != null,
+            getBestIndex: getBestIndex,
           );
         }),
       ],
     );
+  }
+
+  double? _extractNumber(String value) {
+    if (value == '-') return null;
+    // استخراج الرقم من النص
+    final regex = RegExp(r'[\d.]+');
+    final match = regex.firstMatch(value);
+    if (match != null) {
+      return double.tryParse(match.group(0)!);
+    }
+    return null;
   }
 
   Widget _buildAddToCartButtons(BuildContext context, List<Product> products) {

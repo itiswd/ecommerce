@@ -7,6 +7,7 @@ import 'package:ecommerce_dashboard/providers/dashboard_provider.dart';
 import 'package:ecommerce_dashboard/providers/orders_provider.dart';
 import 'package:ecommerce_dashboard/providers/products_provider.dart';
 import 'package:ecommerce_dashboard/providers/theme_provider.dart';
+import 'package:ecommerce_dashboard/screens/auth/admin_setup_screen.dart';
 import 'package:ecommerce_dashboard/screens/auth/login_screen.dart';
 import 'package:ecommerce_dashboard/screens/main_layout.dart';
 import 'package:ecommerce_dashboard/screens/splash_screen.dart';
@@ -103,6 +104,7 @@ class MyApp extends StatelessWidget {
               '/login': (context) => const LoginScreen(),
               '/dashboard': (context) => const MainLayout(),
               '/wrapper': (context) => const AuthWrapper(),
+              '/admin-setup': (context) => const AdminSetupScreen(),
             },
           );
         },

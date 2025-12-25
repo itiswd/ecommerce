@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:ecommerce_dashboard/services/admin_setup_service.dart';
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -14,6 +15,7 @@ class _SplashScreenState extends State<SplashScreen>
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
+  final AdminSetupService _adminSetupService = AdminSetupService();
 
   @override
   void initState() {
@@ -36,12 +38,36 @@ class _SplashScreenState extends State<SplashScreen>
     // بدء الـ Animation
     _animationController.forward();
 
-    // مؤقت لمدة 3 ثوانٍ كما هو مطلوب في الوصف
-    Timer(const Duration(seconds: 3), () {
+    // التحقق من الإعداد والتوجيه
+    _checkSetupAndNavigate();
+  }
+
+  Future<void> _checkSetupAndNavigate() async {
+    // انتظار 2 ثانية لعرض الـ splash
+    await Future.delayed(const Duration(seconds: 2));
+
+    if (!mounted) return;
+
+    try {
+      // التحقق من وجود حساب أدمن
+      final hasAdmin = await _adminSetupService.hasAdminAccount();
+
+      if (!mounted) return;
+
+      if (!hasAdmin) {
+        // لا يوجد أدمن - توجيه لصفحة الإعداد
+        Navigator.pushReplacementNamed(context, '/admin-setup');
+      } else {
+        // يوجد أدمن - توجيه لصفحة تسجيل الدخول
+        Navigator.pushReplacementNamed(context, '/wrapper');
+      }
+    } catch (e) {
+      // في حالة الخطأ، توجيه للإعداد
+      debugPrint('❌ خطأ في التحقق من الإعداد: $e');
       if (mounted) {
         Navigator.pushReplacementNamed(context, '/wrapper');
       }
-    });
+    }
   }
 
   @override

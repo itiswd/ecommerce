@@ -1,6 +1,8 @@
 // lib/customer/screens/profile/customer_profile_screen.dart
 import 'package:ecommerce_dashboard/constants/app_theme.dart';
 import 'package:ecommerce_dashboard/customer/screens/auth/customer_login_screen.dart';
+import 'package:ecommerce_dashboard/customer/screens/orders/customer_orders_screen.dart';
+import 'package:ecommerce_dashboard/customer/screens/profile/customer_cashback_screen.dart';
 import 'package:ecommerce_dashboard/providers/customer_auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -201,8 +203,22 @@ class CustomerProfileScreen extends StatelessWidget {
               icon: Icons.shopping_bag_outlined,
               title: 'طلباتي',
               onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('صفحة الطلبات - قريباً')),
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const CustomerOrdersScreen(),
+                  ),
+                );
+              },
+            ),
+            _buildMenuItem(
+              context,
+              icon: Icons.account_balance_wallet_outlined,
+              title: 'محفظة الكاش باك',
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const CustomerCashbackScreen(),
+                  ),
                 );
               },
             ),
@@ -211,9 +227,7 @@ class CustomerProfileScreen extends StatelessWidget {
               icon: Icons.location_on_outlined,
               title: 'عناويني',
               onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('صفحة العناوين - قريباً')),
-                );
+                _showAddressesBottomSheet(context, authProvider);
               },
             ),
             _buildMenuItem(
@@ -221,9 +235,7 @@ class CustomerProfileScreen extends StatelessWidget {
               icon: Icons.person_outline,
               title: 'تعديل الملف الشخصي',
               onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('تعديل الملف الشخصي - قريباً')),
-                );
+                _showEditProfileBottomSheet(context, authProvider);
               },
             ),
             _buildMenuItem(
@@ -231,9 +243,7 @@ class CustomerProfileScreen extends StatelessWidget {
               icon: Icons.settings_outlined,
               title: 'الإعدادات',
               onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('الإعدادات - قريباً')),
-                );
+                _showSettingsBottomSheet(context);
               },
             ),
             _buildMenuItem(
@@ -241,9 +251,7 @@ class CustomerProfileScreen extends StatelessWidget {
               icon: Icons.help_outline,
               title: 'المساعدة والدعم',
               onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('المساعدة - قريباً')),
-                );
+                _showHelpBottomSheet(context);
               },
             ),
             _buildMenuItem(
@@ -251,9 +259,7 @@ class CustomerProfileScreen extends StatelessWidget {
               icon: Icons.info_outline,
               title: 'عن التطبيق',
               onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('عن التطبيق - قريباً')),
-                );
+                _showAboutDialog(context);
               },
             ),
             const SizedBox(height: 8),
@@ -342,6 +348,374 @@ class CustomerProfileScreen extends StatelessWidget {
               'تسجيل الخروج',
               style: TextStyle(color: Colors.red),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAddressesBottomSheet(
+    BuildContext context,
+    CustomerAuthProvider authProvider,
+  ) {
+    final user = authProvider.currentUser;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.6,
+        minChildSize: 0.3,
+        maxChildSize: 0.9,
+        expand: false,
+        builder: (context, scrollController) => Column(
+          children: [
+            Container(
+              margin: const EdgeInsets.only(top: 12),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: colorScheme.onSurface.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'عناويني',
+                    style: AppTextStyles.h3.copyWith(
+                      color: colorScheme.onSurface,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.add),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('إضافة عنوان جديد - قريباً'),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: user?.savedAddressIds.isEmpty ?? true
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.location_off_outlined,
+                            size: 64,
+                            color: colorScheme.onSurface.withOpacity(0.3),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'لا توجد عناوين محفوظة',
+                            style: AppTextStyles.bodyLarge.copyWith(
+                              color: colorScheme.onSurface.withOpacity(0.5),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'سيتم حفظ عناوينك عند إتمام عملية الشراء',
+                            style: AppTextStyles.caption.copyWith(
+                              color: colorScheme.onSurface.withOpacity(0.4),
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    )
+                  : ListView.builder(
+                      controller: scrollController,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: user!.savedAddressIds.length,
+                      itemBuilder: (context, index) {
+                        return Card(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          child: ListTile(
+                            leading: const Icon(Icons.location_on),
+                            title: Text('عنوان ${index + 1}'),
+                            subtitle: Text(user.savedAddressIds[index]),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.delete_outline),
+                              onPressed: () {
+                                // TODO: Implement delete address
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showEditProfileBottomSheet(
+    BuildContext context,
+    CustomerAuthProvider authProvider,
+  ) {
+    final user = authProvider.currentUser;
+    final colorScheme = Theme.of(context).colorScheme;
+    final nameController = TextEditingController(text: user?.name ?? '');
+    final phoneController = TextEditingController(text: user?.phone ?? '');
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: colorScheme.onSurface.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                Text(
+                  'تعديل الملف الشخصي',
+                  style: AppTextStyles.h3.copyWith(
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                    labelText: 'الاسم',
+                    prefixIcon: Icon(Icons.person_outline),
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: phoneController,
+                  keyboardType: TextInputType.phone,
+                  decoration: const InputDecoration(
+                    labelText: 'رقم الهاتف',
+                    prefixIcon: Icon(Icons.phone_outlined),
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  height: 54,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      // TODO: Implement update profile
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('تم تحديث الملف الشخصي')),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: colorScheme.primary,
+                      foregroundColor: colorScheme.onPrimary,
+                    ),
+                    child: const Text('حفظ التغييرات'),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showSettingsBottomSheet(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: colorScheme.onSurface.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            Text(
+              'الإعدادات',
+              style: AppTextStyles.h3.copyWith(color: colorScheme.onSurface),
+            ),
+            const SizedBox(height: 24),
+            SwitchListTile(
+              title: const Text('الإشعارات'),
+              subtitle: const Text('استلام إشعارات الطلبات والعروض'),
+              value: true,
+              onChanged: (value) {
+                // TODO: Implement notifications toggle
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.language),
+              title: const Text('اللغة'),
+              subtitle: const Text('العربية'),
+              trailing: const Icon(Icons.arrow_back_ios, size: 16),
+              onTap: () {
+                // TODO: Implement language selection
+              },
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showHelpBottomSheet(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: colorScheme.onSurface.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            Text(
+              'المساعدة والدعم',
+              style: AppTextStyles.h3.copyWith(color: colorScheme.onSurface),
+            ),
+            const SizedBox(height: 24),
+            ListTile(
+              leading: const Icon(Icons.phone_outlined),
+              title: const Text('اتصل بنا'),
+              subtitle: const Text('01000000000'),
+              onTap: () {
+                // TODO: Launch phone dialer
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.chat_bubble_outline),
+              title: const Text('واتساب'),
+              subtitle: const Text('تواصل معنا عبر واتساب'),
+              onTap: () {
+                // TODO: Launch WhatsApp
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.email_outlined),
+              title: const Text('البريد الإلكتروني'),
+              subtitle: const Text('support@makanty.com'),
+              onTap: () {
+                // TODO: Launch email
+              },
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showAboutDialog(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: colorScheme.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(Icons.store, color: colorScheme.primary),
+            ),
+            const SizedBox(width: 12),
+            const Text('مكنتي'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('الإصدار: 1.0.0'),
+            const SizedBox(height: 8),
+            Text(
+              'متجر متخصص في بيع ماكينات الخياطة وقطع الغيار',
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: colorScheme.onSurface.withOpacity(0.7),
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text('© 2024 مكنتي. جميع الحقوق محفوظة.'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('إغلاق'),
           ),
         ],
       ),

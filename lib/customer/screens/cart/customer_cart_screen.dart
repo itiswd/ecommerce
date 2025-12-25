@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ecommerce_dashboard/constants/app_theme.dart';
 import 'package:ecommerce_dashboard/customer/screens/auth/customer_login_screen.dart';
+import 'package:ecommerce_dashboard/customer/screens/checkout/customer_checkout_screen.dart';
 import 'package:ecommerce_dashboard/models/cart_item.dart';
 import 'package:ecommerce_dashboard/providers/cart_provider.dart';
 import 'package:ecommerce_dashboard/providers/customer_auth_provider.dart';
@@ -426,9 +427,9 @@ class CustomerCartScreen extends StatelessWidget {
       );
     } else {
       // Navigate to checkout
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('صفحة الشراء - قريباً')));
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (context) => const CustomerCheckoutScreen()),
+      );
     }
   }
 

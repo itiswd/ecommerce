@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 
 class OrdersProvider extends ChangeNotifier {
   List<Order> _orders = [];
+  List<Order> _userOrders = [];
   bool _isLoading = false;
   String? _error;
 
   List<Order> get orders => _orders;
+  List<Order> get userOrders => _userOrders;
   bool get isLoading => _isLoading;
   String? get error => _error;
 
@@ -394,5 +396,91 @@ class OrdersProvider extends ChangeNotifier {
   // Refresh data
   Future<void> refresh() async {
     await loadOrders();
+  }
+
+  // Load user orders (للعملاء)
+  Future<void> loadUserOrders(String userId) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final snapshot = await _firestore
+          .collection(_collection)
+          .where('customerId', isEqualTo: userId)
+          .orderBy('createdAt', descending: true)
+          .get();
+
+      _userOrders = snapshot.docs
+          .map((doc) => Order.fromMap(doc.data(), doc.id))
+          .toList();
+    } catch (e) {
+      debugPrint('Error loading user orders: $e');
+      _userOrders = [];
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Create new order (من صفحة Checkout)
+  Future<Order?> createOrder(Order order) async {
+    try {
+      final docRef = await _firestore
+          .collection(_collection)
+          .add(order.toMap());
+
+      final newOrder = Order(
+        id: docRef.id,
+        customerId: order.customerId,
+        customerName: order.customerName,
+        customerPhone: order.customerPhone,
+        customerAddress: order.customerAddress,
+        city: order.city,
+        items: order.items,
+        subtotal: order.subtotal,
+        shippingFee: order.shippingFee,
+        totalAmount: order.totalAmount,
+        cashbackEarned: order.cashbackEarned,
+        cashbackUsed: order.cashbackUsed,
+        status: order.status,
+        paymentMethod: order.paymentMethod,
+        isPaid: order.isPaid,
+        createdAt: order.createdAt,
+        notes: order.notes,
+      );
+
+      _userOrders.insert(0, newOrder);
+      _orders.insert(0, newOrder);
+      notifyListeners();
+
+      // تحديث كاش باك العميل إذا كان هناك كاش باك مستخدم أو مكتسب
+      if (order.cashbackUsed > 0 || order.cashbackEarned > 0) {
+        await _updateUserCashback(
+          order.customerId,
+          -order.cashbackUsed,
+          order.cashbackEarned,
+        );
+      }
+
+      return newOrder;
+    } catch (e) {
+      debugPrint('Error creating order: $e');
+      return null;
+    }
+  }
+
+  // تحديث كاش باك العميل
+  Future<void> _updateUserCashback(
+    String userId,
+    double used,
+    double earned,
+  ) async {
+    try {
+      await _firestore.collection('users').doc(userId).update({
+        'cashbackBalance': FieldValue.increment(used + earned),
+      });
+    } catch (e) {
+      debugPrint('Error updating user cashback: $e');
+    }
   }
 }
