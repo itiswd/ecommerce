@@ -230,7 +230,7 @@ class _CustomerProductDetailsScreenState
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: Colors.red.withOpacity(0.1),
+              color: Colors.red.withAlpha(26),
               borderRadius: BorderRadius.circular(4),
             ),
             child: Text(
@@ -259,7 +259,7 @@ class _CustomerProductDetailsScreenState
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: colorScheme.primary.withOpacity(0.1),
+              color: colorScheme.primary.withAlpha(26),
               shape: BoxShape.circle,
             ),
             child: Icon(Icons.store, color: colorScheme.primary),
@@ -397,7 +397,7 @@ class _CustomerProductDetailsScreenState
           color: colorScheme.surface,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withAlpha(26),
               blurRadius: 10,
               offset: const Offset(0, -2),
             ),

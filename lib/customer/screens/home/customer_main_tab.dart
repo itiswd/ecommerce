@@ -99,7 +99,7 @@ class _CustomerMainTabState extends State<CustomerMainTab> {
                 width: 28,
                 height: 28,
                 fit: BoxFit.contain,
-                errorBuilder: (_, __, ___) =>
+                errorBuilder: (_, _, _) =>
                     Icon(Icons.store, color: AppColors.primary, size: 22),
               ),
             ),
@@ -231,7 +231,7 @@ class _CustomerMainTabState extends State<CustomerMainTab> {
                       decoration: BoxDecoration(
                         color: _currentBannerIndex == index
                             ? Colors.white
-                            : Colors.white.withOpacity(0.5),
+                            : Colors.white.withAlpha(128),
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
@@ -252,7 +252,7 @@ class _CustomerMainTabState extends State<CustomerMainTab> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withAlpha(26),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -317,7 +317,7 @@ class _CustomerMainTabState extends State<CustomerMainTab> {
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withAlpha(13),
                         blurRadius: 5,
                         offset: const Offset(0, 2),
                       ),
@@ -482,7 +482,7 @@ class _CustomerMainTabState extends State<CustomerMainTab> {
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withAlpha(13),
                   blurRadius: 5,
                   offset: const Offset(0, 2),
                 ),
@@ -537,7 +537,7 @@ class _CustomerMainTabState extends State<CustomerMainTab> {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.2),
+                                color: Colors.black.withAlpha(51),
                                 blurRadius: 4,
                                 offset: const Offset(0, 2),
                               ),
@@ -589,7 +589,7 @@ class _CustomerMainTabState extends State<CustomerMainTab> {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.2),
+                                color: Colors.black.withAlpha(51),
                                 blurRadius: 4,
                                 offset: const Offset(0, 2),
                               ),

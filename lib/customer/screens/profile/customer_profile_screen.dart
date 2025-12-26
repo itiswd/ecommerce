@@ -37,7 +37,7 @@ class CustomerProfileScreen extends StatelessWidget {
               Icon(
                 Icons.person_outline,
                 size: 100,
-                color: colorScheme.primary.withOpacity(0.5),
+                color: colorScheme.primary.withAlpha(128),
               ),
               const SizedBox(height: 24),
               Text(
@@ -48,7 +48,7 @@ class CustomerProfileScreen extends StatelessWidget {
               Text(
                 'سجل الدخول للاستفادة من جميع المميزات',
                 style: AppTextStyles.bodyMedium.copyWith(
-                  color: colorScheme.onSurface.withOpacity(0.7),
+                  color: colorScheme.onSurface.withAlpha(179),
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -106,7 +106,7 @@ class CustomerProfileScreen extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(24.0),
               decoration: BoxDecoration(
-                color: colorScheme.primary.withOpacity(0.1),
+                color: colorScheme.primary.withAlpha(26),
               ),
               child: Column(
                 children: [
@@ -136,7 +136,7 @@ class CustomerProfileScreen extends StatelessWidget {
                     Text(
                       '+20${user.phone}',
                       style: AppTextStyles.bodyMedium.copyWith(
-                        color: colorScheme.onSurface.withOpacity(0.7),
+                        color: colorScheme.onSurface.withAlpha(179),
                       ),
                     ),
                 ],
@@ -153,13 +153,13 @@ class CustomerProfileScreen extends StatelessWidget {
                   gradient: LinearGradient(
                     colors: [
                       colorScheme.secondary,
-                      colorScheme.secondary.withOpacity(0.8),
+                      colorScheme.secondary.withAlpha(204),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: colorScheme.secondary.withOpacity(0.3),
+                      color: colorScheme.secondary.withAlpha(77),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -294,7 +294,7 @@ class CustomerProfileScreen extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         decoration: BoxDecoration(
           border: Border(
-            bottom: BorderSide(color: colorScheme.onSurface.withOpacity(0.1)),
+            bottom: BorderSide(color: colorScheme.onSurface.withAlpha(26)),
           ),
         ),
         child: Row(
@@ -312,7 +312,7 @@ class CustomerProfileScreen extends StatelessWidget {
             Icon(
               Icons.arrow_back_ios,
               size: 16,
-              color: colorScheme.onSurface.withOpacity(0.5),
+              color: colorScheme.onSurface.withAlpha(128),
             ),
           ],
         ),
@@ -380,7 +380,7 @@ class CustomerProfileScreen extends StatelessWidget {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: colorScheme.onSurface.withOpacity(0.3),
+                color: colorScheme.onSurface.withAlpha(77),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -418,20 +418,20 @@ class CustomerProfileScreen extends StatelessWidget {
                           Icon(
                             Icons.location_off_outlined,
                             size: 64,
-                            color: colorScheme.onSurface.withOpacity(0.3),
+                            color: colorScheme.onSurface.withAlpha(77),
                           ),
                           const SizedBox(height: 16),
                           Text(
                             'لا توجد عناوين محفوظة',
                             style: AppTextStyles.bodyLarge.copyWith(
-                              color: colorScheme.onSurface.withOpacity(0.5),
+                              color: colorScheme.onSurface.withAlpha(128),
                             ),
                           ),
                           const SizedBox(height: 8),
                           Text(
                             'سيتم حفظ عناوينك عند إتمام عملية الشراء',
                             style: AppTextStyles.caption.copyWith(
-                              color: colorScheme.onSurface.withOpacity(0.4),
+                              color: colorScheme.onSurface.withAlpha(102),
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -499,7 +499,7 @@ class CustomerProfileScreen extends StatelessWidget {
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: colorScheme.onSurface.withOpacity(0.3),
+                      color: colorScheme.onSurface.withAlpha(77),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -578,7 +578,7 @@ class CustomerProfileScreen extends StatelessWidget {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: colorScheme.onSurface.withOpacity(0.3),
+                  color: colorScheme.onSurface.withAlpha(77),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -634,7 +634,7 @@ class CustomerProfileScreen extends StatelessWidget {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: colorScheme.onSurface.withOpacity(0.3),
+                  color: colorScheme.onSurface.withAlpha(77),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -687,7 +687,7 @@ class CustomerProfileScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: colorScheme.primary.withOpacity(0.1),
+                color: colorScheme.primary.withAlpha(26),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(Icons.store, color: colorScheme.primary),
@@ -705,7 +705,7 @@ class CustomerProfileScreen extends StatelessWidget {
             Text(
               'متجر متخصص في بيع ماكينات الخياطة وقطع الغيار',
               style: AppTextStyles.bodyMedium.copyWith(
-                color: colorScheme.onSurface.withOpacity(0.7),
+                color: colorScheme.onSurface.withAlpha(179),
               ),
             ),
             const SizedBox(height: 16),

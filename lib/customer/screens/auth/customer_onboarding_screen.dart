@@ -189,7 +189,7 @@ class _OnboardingPage extends StatelessWidget {
             width: 180,
             height: 180,
             decoration: BoxDecoration(
-              color: colorScheme.primary.withOpacity(0.1),
+              color: colorScheme.primary.withAlpha(25),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, size: 100, color: colorScheme.primary),
@@ -213,7 +213,7 @@ class _OnboardingPage extends StatelessWidget {
             description,
             style: TextStyle(
               fontSize: 16,
-              color: colorScheme.onSurface.withOpacity(0.7),
+              color: colorScheme.onSurface.withAlpha(180),
               height: 1.5,
             ),
             textAlign: TextAlign.center,

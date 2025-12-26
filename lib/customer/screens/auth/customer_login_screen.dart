@@ -75,7 +75,7 @@ class _CustomerLoginScreenState extends State<CustomerLoginScreen> {
                       width: 70,
                       height: 70,
                       fit: BoxFit.contain,
-                      errorBuilder: (_, __, ___) => Icon(
+                      errorBuilder: (_, _, _) => Icon(
                         Icons.shopping_bag_rounded,
                         size: 60,
                         color: Colors.white,

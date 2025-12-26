@@ -72,7 +72,7 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
                       width: 50,
                       height: 50,
                       fit: BoxFit.contain,
-                      errorBuilder: (_, __, ___) => Icon(
+                      errorBuilder: (_, _, _) => Icon(
                         Icons.person_add_rounded,
                         size: 40,
                         color: Colors.white,

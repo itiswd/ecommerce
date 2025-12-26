@@ -118,7 +118,7 @@ class CustomerComparisonScreen extends StatelessWidget {
             Icon(
               Icons.compare_arrows,
               size: 100,
-              color: colorScheme.onSurface.withOpacity(0.3),
+              color: colorScheme.onSurface.withAlpha(77),
             ),
             const SizedBox(height: 24),
             Text(
@@ -129,7 +129,7 @@ class CustomerComparisonScreen extends StatelessWidget {
             Text(
               'أضف منتجات من الصفحة الرئيسية\nللمقارنة بينها',
               style: AppTextStyles.bodyMedium.copyWith(
-                color: colorScheme.onSurface.withOpacity(0.6),
+                color: colorScheme.onSurface.withAlpha(153),
               ),
               textAlign: TextAlign.center,
             ),
@@ -253,7 +253,7 @@ class CustomerComparisonScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
                 margin: const EdgeInsets.symmetric(horizontal: 2),
                 decoration: BoxDecoration(
-                  color: isBest ? Colors.green.withOpacity(0.1) : null,
+                  color: isBest ? Colors.green.withAlpha(26) : null,
                   borderRadius: BorderRadius.circular(4),
                   border: isBest
                       ? Border.all(color: Colors.green, width: 1)

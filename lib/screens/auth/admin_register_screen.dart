@@ -45,7 +45,7 @@ class _AdminRegisterScreenState extends State<AdminRegisterScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: Center(
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(isMobile ? 16 : 32),
+          padding: EdgeInsets.all(isMobile ? 16 : 24),
           child: Container(
             width: isMobile ? double.infinity : 500,
             constraints: const BoxConstraints(maxWidth: 550),
@@ -127,8 +127,8 @@ class _AdminRegisterScreenState extends State<AdminRegisterScreen> {
     return Center(
       child: Image.asset(
         'assets/icons/logo.png',
-        width: 200,
-        height: 200,
+        width: 140,
+        height: 140,
         fit: BoxFit.fill,
         errorBuilder: (_, _, _) => Icon(
           Icons.admin_panel_settings_rounded,

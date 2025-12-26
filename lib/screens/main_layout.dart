@@ -73,7 +73,7 @@ class _MainLayoutState extends State<MainLayout> {
                 width: 32,
                 height: 32,
                 fit: BoxFit.contain,
-                errorBuilder: (_, __, ___) =>
+                errorBuilder: (_, _, _) =>
                     Icon(Icons.store, color: AppColors.primary, size: 24),
               ),
             ),
@@ -357,7 +357,7 @@ class _MainLayoutState extends State<MainLayout> {
                     width: 45,
                     height: 45,
                     fit: BoxFit.contain,
-                    errorBuilder: (_, __, ___) =>
+                    errorBuilder: (_, _, _) =>
                         Icon(Icons.store, color: AppColors.primary, size: 35),
                   ),
                 ),

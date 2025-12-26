@@ -57,7 +57,7 @@ class _AdminSetupScreenState extends State<AdminSetupScreen> {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withAlpha(26),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -79,9 +79,9 @@ class _AdminSetupScreenState extends State<AdminSetupScreen> {
                       padding: const EdgeInsets.all(12),
                       margin: const EdgeInsets.only(bottom: 16),
                       decoration: BoxDecoration(
-                        color: Colors.red.withOpacity(0.1),
+                        color: Colors.red.withAlpha(26),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.red.withOpacity(0.3)),
+                        border: Border.all(color: Colors.red.withAlpha(77)),
                       ),
                       child: Row(
                         children: [
@@ -130,7 +130,7 @@ class _AdminSetupScreenState extends State<AdminSetupScreen> {
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: colorScheme.primary.withOpacity(0.1),
+            color: colorScheme.primary.withAlpha(26),
             shape: BoxShape.circle,
           ),
           child: Icon(
@@ -302,9 +302,9 @@ class _AdminSetupScreenState extends State<AdminSetupScreen> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.amber.withOpacity(0.1),
+        color: Colors.amber.withAlpha(26),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.amber.withOpacity(0.3)),
+        border: Border.all(color: Colors.amber.withAlpha(77)),
       ),
       child: const Row(
         children: [

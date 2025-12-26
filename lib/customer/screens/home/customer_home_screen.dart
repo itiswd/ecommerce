@@ -31,15 +31,12 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _screens,
-      ),
+      body: IndexedStack(index: _currentIndex, children: _screens),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withAlpha(26),
               blurRadius: 10,
               offset: const Offset(0, -2),
             ),
@@ -54,7 +51,7 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
           },
           type: BottomNavigationBarType.fixed,
           selectedItemColor: colorScheme.primary,
-          unselectedItemColor: colorScheme.onSurface.withOpacity(0.5),
+          unselectedItemColor: colorScheme.onSurface.withAlpha(128),
           selectedFontSize: 12,
           unselectedFontSize: 12,
           items: [
@@ -117,10 +114,7 @@ class _BadgedIcon extends StatelessWidget {
   final IconData icon;
   final int count;
 
-  const _BadgedIcon({
-    required this.icon,
-    required this.count,
-  });
+  const _BadgedIcon({required this.icon, required this.count});
 
   @override
   Widget build(BuildContext context) {
@@ -140,10 +134,7 @@ class _BadgedIcon extends StatelessWidget {
                 color: colorScheme.error,
                 shape: BoxShape.circle,
               ),
-              constraints: const BoxConstraints(
-                minWidth: 18,
-                minHeight: 18,
-              ),
+              constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
               child: Text(
                 count > 9 ? '9+' : count.toString(),
                 style: TextStyle(

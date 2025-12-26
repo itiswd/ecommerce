@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Makanty | System Overview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-page: #f9fafb;
+            --text-primary: #111827;
+            --text-secondary: #4b5563;
+            --primary: #4338ca;
+            --primary-light: #e0e7ff;
+            --card-bg: #ffffff;
+            --border-color: #e5e7eb;
+            --accent: #0284c7;
+        }
+
+        * {
+            box-sizing: border-box;
+            transition: all 0.2s ease-in-out;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 0;
+            line-height: 1.7;
+        }
+
+        /* Header */
+        header {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 50px 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            margin: 0;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        header p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-top: 8px;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        /* Sections */
+        section {
+            margin-bottom: 50px;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 25px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        h2::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-color);
+        }
+
+        /* Tech Badges */
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .tag {
+            background: var(--primary-light);
+            color: var(--primary);
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* Feature Cards */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+        }
+
+        .info-card {
+            background: var(--card-bg);
+            padding: 22px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .info-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+        }
+
+        .info-card h3 {
+            font-size: 1rem;
+            margin: 0 0 10px 0;
+            color: var(--primary);
+        }
+
+        .info-card p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        /* App Workflow List */
+        .flow-step {
+            display: flex;
+            background: var(--card-bg);
+            margin-bottom: 15px;
+            padding: 18px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .step-icon {
+            background: var(--primary);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+
+        .step-text h4 {
+            margin: 0 0 4px 0;
+            font-size: 1rem;
+        }
+
+        .step-text p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #9ca3af;
+            font-size: 0.8rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 40px;
+        }
+
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 1.6rem;
+            }
+
+            .flow-step {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>مكنتي | Makanty</h1>
+        <p>النظام الذكي المتكامل لتجارة ماكينات الخياطة وقطع الغيار</p>
+    </header>
+
+    <div class="container">
+
+        <section>
+            <h2>الأساس التقني للمشروع</h2>
+            <div class="tags">
+                <span class="tag">Flutter Cross-Platform</span>
+                <span class="tag">Firebase Infrastructure</span>
+                <span class="tag">Cloudinary Media</span>
+                <span class="tag">Clean Architecture</span>
+            </div>
+            <div class="card-grid">
+                <div class="info-card">
+                    <h3>بنية تحتية سحابية</h3>
+                    <p>استخدام <strong>Firestore</strong> لقواعد البيانات اللحظية لضمان مزامنة الطلبات والأسعار فورياً.
+                    </p>
+                </div>
+                <div class="info-card">
+                    <h3>أداء ومعالجة ذكية</h3>
+                    <p>نظام <strong>Pagination</strong> لسرعة التصفح، وتحسين الصور برمجياً لتوفير باقة الإنترنت
+                        للمستخدم.</p>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>مسار تجربة المستخدم (Workflow)</h2>
+            <div class="flow-container">
+                <div class="flow-step">
+                    <div class="step-icon">1</div>
+                    <div class="step-text">
+                        <h4>الاستكشاف (Browsing)</h4>
+                        <p>إمكانية تصفح كافة المنتجات والأقسام عبر "وضع الزائر" قبل اتخاذ قرار التسجيل.</p>
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <div class="step-icon">2</div>
+                    <div class="step-text">
+                        <h4>نظام الهوية (Professional Auth)</h4>
+                        <p>تسجيل دخول آمن ومعتمد كلياً عبر <strong>البريد الإلكتروني وكلمة المرور</strong> لضمان استقرار
+                            حسابات العملاء.</p>
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <div class="step-icon">3</div>
+                    <div class="step-text">
+                        <h4>المقارنة الذكية (Logic)</h4>
+                        <p>محرك برمجي يحلل المواصفات الفنية للماكينات ويبرز الخيار "الأفضل" آلياً لدعم قرار الشراء.</p>
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <div class="step-icon">4</div>
+                    <div class="step-text">
+                        <h4>اللوجستيات (Checkout)</h4>
+                        <p>نظام شحن يغطي 27 محافظة مصرية مع حساب تلقائي للرسوم وتطبيق نظام الكاش باك.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>المميزات الاستراتيجية</h2>
+            <div class="card-grid">
+                <div class="info-card">
+                    <h3>محفظة الكاش باك</h3>
+                    <p>نظام ولاء متطور يعيد نسبة من المشتريات لمحفظة العميل لزيادة القوة الشرائية المتكررة.</p>
+                </div>
+                <div class="info-card">
+                    <h3>إدارة العناوين</h3>
+                    <p>دعم كامل لكافة محافظات مصر بمدنها الرئيسية مع إمكانية حفظ عناوين شحن متعددة لكل عميل.</p>
+                </div>
+                <div class="info-card">
+                    <h3>قابلية التوسع</h3>
+                    <p>تم بناء النظام (Clean Architecture) ليكون جاهزاً لإضافة أي ميزات مستقبلية دون إعادة الهيكلة.</p>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <footer>
+        تم الإعداد لغرض العرض التقني - مشروع تطبيق مكنتي &copy; 2025
+    </footer>
+
+</body>
+
+</html>

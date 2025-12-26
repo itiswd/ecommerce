@@ -61,14 +61,14 @@ class _CustomerCashbackScreenState extends State<CustomerCashbackScreen> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [colorScheme.primary, colorScheme.primary.withOpacity(0.8)],
+          colors: [colorScheme.primary, colorScheme.primary.withAlpha(204)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: colorScheme.primary.withOpacity(0.3),
+            color: colorScheme.primary.withAlpha(77),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -89,7 +89,7 @@ class _CustomerCashbackScreenState extends State<CustomerCashbackScreen> {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withAlpha(51),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: const Row(
@@ -131,7 +131,7 @@ class _CustomerCashbackScreenState extends State<CustomerCashbackScreen> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
+              color: Colors.white.withAlpha(26),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
@@ -159,9 +159,9 @@ class _CustomerCashbackScreenState extends State<CustomerCashbackScreen> {
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.green.withOpacity(0.1),
+        color: Colors.green.withAlpha(26),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.green.withOpacity(0.3)),
+        border: Border.all(color: Colors.green.withAlpha(77)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -298,7 +298,7 @@ class _CustomerCashbackScreenState extends State<CustomerCashbackScreen> {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withAlpha(26),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, color: color),

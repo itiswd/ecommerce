@@ -41,11 +41,7 @@ class _CustomerSearchScreenState extends State<CustomerSearchScreen> {
 
   void _loadRecentSearches() {
     // TODO: تحميل من SharedPreferences
-    _recentSearches = [
-      'ماكينة صناعي',
-      'Jack',
-      'قطع غيار',
-    ];
+    _recentSearches = ['ماكينة صناعي', 'Jack', 'قطع غيار'];
   }
 
   void _saveRecentSearch(String query) {
@@ -72,7 +68,10 @@ class _CustomerSearchScreenState extends State<CustomerSearchScreen> {
       _isSearching = true;
     });
 
-    final products = Provider.of<ProductsProvider>(context, listen: false).products;
+    final products = Provider.of<ProductsProvider>(
+      context,
+      listen: false,
+    ).products;
     final results = products.where((product) {
       final searchLower = query.toLowerCase();
       return product.name.toLowerCase().contains(searchLower) ||
@@ -233,23 +232,24 @@ class _CustomerSearchScreenState extends State<CustomerSearchScreen> {
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: [
-              'ماكينات صناعي',
-              'ماكينات منزلي',
-              'قطع غيار',
-              'Jack',
-              'Juki',
-              'Brother',
-            ].map((suggestion) {
-              return ActionChip(
-                label: Text(suggestion),
-                onPressed: () {
-                  _searchController.text = suggestion;
-                  _performSearch(suggestion);
-                },
-                backgroundColor: colorScheme.primaryContainer,
-              );
-            }).toList(),
+            children:
+                [
+                  'ماكينات صناعي',
+                  'ماكينات منزلي',
+                  'قطع غيار',
+                  'Jack',
+                  'Juki',
+                  'Brother',
+                ].map((suggestion) {
+                  return ActionChip(
+                    label: Text(suggestion),
+                    onPressed: () {
+                      _searchController.text = suggestion;
+                      _performSearch(suggestion);
+                    },
+                    backgroundColor: colorScheme.primaryContainer,
+                  );
+                }).toList(),
           ),
         ],
       ),
@@ -293,11 +293,11 @@ class _CustomerSearchScreenState extends State<CustomerSearchScreen> {
                   width: 80,
                   height: 80,
                   fit: BoxFit.cover,
-                  placeholder: (_, __) => Container(
+                  placeholder: (_, _) => Container(
                     color: Colors.grey[300],
                     child: const Center(child: CircularProgressIndicator()),
                   ),
-                  errorWidget: (_, __, ___) => Container(
+                  errorWidget: (_, _, _) => Container(
                     color: Colors.grey[300],
                     child: const Icon(Icons.image_not_supported),
                   ),
@@ -318,10 +318,7 @@ class _CustomerSearchScreenState extends State<CustomerSearchScreen> {
                     const SizedBox(height: 4),
                     Text(
                       product.category,
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 13,
-                      ),
+                      style: TextStyle(color: Colors.grey[600], fontSize: 13),
                     ),
                     const SizedBox(height: 8),
                     Row(

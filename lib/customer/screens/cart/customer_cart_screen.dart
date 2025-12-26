@@ -77,7 +77,7 @@ class CustomerCartScreen extends StatelessWidget {
             Icon(
               Icons.shopping_cart_outlined,
               size: 100,
-              color: colorScheme.onSurface.withOpacity(0.3),
+              color: colorScheme.onSurface.withAlpha(75),
             ),
             const SizedBox(height: 24),
             Text(
@@ -88,7 +88,7 @@ class CustomerCartScreen extends StatelessWidget {
             Text(
               'أضف منتجات لتبدأ التسوق',
               style: AppTextStyles.bodyMedium.copyWith(
-                color: colorScheme.onSurface.withOpacity(0.6),
+                color: colorScheme.onSurface.withAlpha(150),
               ),
             ),
             const SizedBox(height: 32),
@@ -128,7 +128,7 @@ class CustomerCartScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withAlpha(13),
             blurRadius: 5,
             offset: const Offset(0, 2),
           ),
@@ -241,7 +241,7 @@ class CustomerCartScreen extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         border: Border.all(
-                          color: colorScheme.onSurface.withOpacity(0.2),
+                          color: colorScheme.onSurface.withAlpha(50),
                         ),
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -296,7 +296,7 @@ class CustomerCartScreen extends StatelessWidget {
         color: colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withAlpha(25),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),

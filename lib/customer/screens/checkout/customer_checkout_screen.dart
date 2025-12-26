@@ -242,7 +242,7 @@ class _CustomerCheckoutScreenState extends State<CustomerCheckoutScreen> {
                         width: 50,
                         height: 50,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
+                        errorBuilder: (_, _, _) => Container(
                           width: 50,
                           height: 50,
                           color: Colors.grey[300],
@@ -424,7 +424,7 @@ class _CustomerCheckoutScreenState extends State<CustomerCheckoutScreen> {
               padding: const EdgeInsets.all(12),
               margin: const EdgeInsets.only(top: 8),
               decoration: BoxDecoration(
-                color: Colors.blue.withOpacity(0.1),
+                color: Colors.blue.withAlpha(25),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
@@ -479,7 +479,7 @@ class _CustomerCheckoutScreenState extends State<CustomerCheckoutScreen> {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.1),
+                    color: Colors.green.withAlpha(25),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -565,7 +565,7 @@ class _CustomerCheckoutScreenState extends State<CustomerCheckoutScreen> {
                 margin: const EdgeInsets.only(top: 12),
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.1),
+                  color: Colors.green.withAlpha(26),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(

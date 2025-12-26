@@ -764,7 +764,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
       decoration: BoxDecoration(
         color: color.withAlpha(alpha10),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withAlpha(77)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

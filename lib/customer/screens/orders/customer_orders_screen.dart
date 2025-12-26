@@ -176,7 +176,7 @@ class _CustomerOrdersScreenState extends State<CustomerOrdersScreen> {
                               width: 50,
                               height: 50,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => Container(
+                              errorBuilder: (_, _, _) => Container(
                                 width: 50,
                                 height: 50,
                                 color: Colors.grey[300],
@@ -228,7 +228,7 @@ class _CustomerOrdersScreenState extends State<CustomerOrdersScreen> {
                   margin: const EdgeInsets.only(top: 12),
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.1),
+                    color: Colors.green.withAlpha(26),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
@@ -434,7 +434,7 @@ class _OrderDetailsSheet extends StatelessWidget {
                         width: 60,
                         height: 60,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
+                        errorBuilder: (_, _, _) => Container(
                           width: 60,
                           height: 60,
                           color: Colors.grey[300],
@@ -504,7 +504,7 @@ class _OrderDetailsSheet extends StatelessWidget {
               margin: const EdgeInsets.only(top: 16),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.green.withOpacity(0.1),
+                color: Colors.green.withAlpha(26),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(

@@ -123,7 +123,7 @@ class _CustomerSplashScreenState extends State<CustomerSplashScreen>
                           width: 120,
                           height: 120,
                           fit: BoxFit.contain,
-                          errorBuilder: (_, __, ___) => Icon(
+                          errorBuilder: (_, _, _) => Icon(
                             Icons.precision_manufacturing,
                             size: 80,
                             color: AppColors.primary,
